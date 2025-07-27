@@ -1,0 +1,120 @@
+groups:
+  - name: isp_framework_error_alerts
+    rules:
+      - alert: CriticalErrorRate
+        expr: rate(isp_errors_total{severity="critical"}[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+          service: isp-framework
+          impact: customer_facing
+        annotations:
+          summary: "High rate of critical errors detected"
+          description: "Critical error rate is {{ $value }} errors/sec, which exceeds the threshold of 0.1 errors/sec"
+          runbook_url: "https://docs.ispframework.com/runbooks/critical-errors"
+
+      - alert: NetworkDeviceFailures
+        expr: rate(isp_network_device_errors_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: high
+          service: isp-framework
+          category: network
+        annotations:
+          summary: "Network device failures detected"
+          description: "Network device error rate is {{ $value }} errors/sec for device {{ $labels.device_type }}"
+          runbook_url: "https://docs.ispframework.com/runbooks/network-devices"
+
+      - alert: BillingSystemErrors
+        expr: rate(isp_billing_errors_total[5m]) > 0.02
+        for: 5m
+        labels:
+          severity: high
+          service: isp-framework
+          category: billing
+        annotations:
+          summary: "Billing system errors detected"
+          description: "Billing error rate is {{ $value }} errors/sec for error type {{ $labels.error_type }}"
+          runbook_url: "https://docs.ispframework.com/runbooks/billing-errors"
+
+      - alert: ServiceProvisioningFailures
+        expr: rate(isp_service_provisioning_errors_total[5m]) > 0.03
+        for: 3m
+        labels:
+          severity: high
+          service: isp-framework
+          category: service_provisioning
+        annotations:
+          summary: "Service provisioning failures detected"
+          description: "Service provisioning error rate is {{ $value }} errors/sec for service {{ $labels.service_type }}"
+          runbook_url: "https://docs.ispframework.com/runbooks/service-provisioning"
+
+      - alert: CustomerImpactErrors
+        expr: increase(isp_customer_impact_errors_total[10m]) > 5
+        for: 2m
+        labels:
+          severity: high
+          service: isp-framework
+          impact: customer_facing
+        annotations:
+          summary: "Multiple customer impact errors detected"
+          description: "{{ $value }} customer impact errors in the last 10 minutes for category {{ $labels.category }}"
+          runbook_url: "https://docs.ispframework.com/runbooks/customer-impact"
+
+      - alert: ErrorResolutionTimeHigh
+        expr: histogram_quantile(0.95, rate(isp_error_resolution_duration_seconds_bucket[10m])) > 300
+        for: 5m
+        labels:
+          severity: medium
+          service: isp-framework
+        annotations:
+          summary: "Error resolution time is high"
+          description: "95th percentile error resolution time is {{ $value }}s, exceeding 5 minutes"
+          runbook_url: "https://docs.ispframework.com/runbooks/error-resolution"
+
+      - alert: ActiveAlertsHigh
+        expr: isp_active_alerts_total{severity="critical"} > 5
+        for: 1m
+        labels:
+          severity: critical
+          service: isp-framework
+        annotations:
+          summary: "Too many active critical alerts"
+          description: "{{ $value }} critical alerts are currently active"
+          runbook_url: "https://docs.ispframework.com/runbooks/alert-storm"
+
+      - alert: AuthenticationErrors
+        expr: rate(isp_errors_total{category="authentication"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: medium
+          service: isp-framework
+          category: authentication
+        annotations:
+          summary: "High authentication error rate"
+          description: "Authentication error rate is {{ $value }} errors/sec"
+          runbook_url: "https://docs.ispframework.com/runbooks/authentication"
+
+      - alert: DatabaseErrors
+        expr: rate(isp_errors_total{category="database"}[5m]) > 0.05
+        for: 1m
+        labels:
+          severity: high
+          service: isp-framework
+          category: database
+        annotations:
+          summary: "Database errors detected"
+          description: "Database error rate is {{ $value }} errors/sec"
+          runbook_url: "https://docs.ispframework.com/runbooks/database"
+
+      - alert: IntegrationErrors
+        expr: rate(isp_errors_total{category="integration"}[5m]) > 0.02
+        for: 3m
+        labels:
+          severity: medium
+          service: isp-framework
+          category: integration
+        annotations:
+          summary: "Integration errors detected"
+          description: "Integration error rate is {{ $value }} errors/sec"
+          runbook_url: "https://docs.ispframework.com/runbooks/integrations"

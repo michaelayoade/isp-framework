@@ -1,0 +1,117 @@
+# FreeRADIUS Default Site Configuration for ISP Framework Integration
+# This site handles authentication and accounting for ISP customers
+
+server default {
+    listen {
+        type = auth
+        ipaddr = *
+        port = 1812
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    listen {
+        type = acct
+        ipaddr = *
+        port = 1813
+        limit {
+            max_connections = 16
+            lifetime = 0
+            idle_timeout = 30
+        }
+    }
+
+    authorize {
+        # Filter username for portal ID format (e.g., 10003456)
+        filter_username
+
+        # Preprocess the request
+        preprocess
+
+        # Check for valid portal ID format
+        if (&User-Name =~ /^[0-9]{8}$/) {
+            # Valid portal ID format, proceed with SQL lookup
+            sql
+        }
+        else {
+            # Invalid format, reject
+            reject
+        }
+
+        # Set reply attributes based on customer service plan
+        if (ok) {
+            # Default attributes for successful authentication
+            update reply {
+                &Framed-Protocol = PPP
+                &Service-Type = Framed-User
+            }
+        }
+
+        # Policy for expired accounts
+        expiration
+
+        # Policy for login time restrictions
+        logintime
+
+        pap
+    }
+
+    authenticate {
+        Auth-Type PAP {
+            pap
+        }
+    }
+
+    preacct {
+        preprocess
+        acct_unique
+        suffix
+        files
+    }
+
+    accounting {
+        # Log accounting to SQL database
+        sql
+
+        # Custom accounting to ISP Framework API
+        exec
+
+        # Log to detail file
+        detail
+
+        # Update radutmp for online users
+        unix
+
+        # For Simultaneous-Use checks
+        radutmp
+
+        attr_filter.accounting_response
+    }
+
+    session {
+        sql
+    }
+
+    post-auth {
+        # Log successful authentications
+        sql
+
+        # Remove reply message if the response contains an EAP-Message
+        remove_reply_message_if_eap
+
+        Post-Auth-Type REJECT {
+            # Log failed authentications
+            sql
+            attr_filter.access_reject
+        }
+    }
+
+    pre-proxy {
+    }
+
+    post-proxy {
+    }
+}

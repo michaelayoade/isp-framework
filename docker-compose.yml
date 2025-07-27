@@ -1,0 +1,230 @@
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: isp-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - isp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and background jobs
+  redis:
+    image: redis:7-alpine
+    container_name: isp-redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - isp-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    container_name: isp-minio
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BROWSER: "on"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - isp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # MinIO client for bucket setup
+  minio-setup:
+    image: minio/mc:latest
+    container_name: isp-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    entrypoint: >
+      /bin/sh -c '
+      sleep 10 &&
+      mc alias set isp-minio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+      mc mb --ignore-existing isp-minio/${MINIO_BUCKET_CUSTOMER_UPLOADS} &&
+      mc mb --ignore-existing isp-minio/${MINIO_BUCKET_TICKET_MEDIA} &&
+      mc mb --ignore-existing isp-minio/${MINIO_BUCKET_CSV_IMPORTS} &&
+      mc mb --ignore-existing isp-minio/${MINIO_BUCKET_BACKUPS} &&
+      mc mb --ignore-existing isp-minio/${MINIO_BUCKET_TEMP} &&
+      mc policy set download isp-minio/${MINIO_BUCKET_CUSTOMER_UPLOADS} &&
+      mc policy set download isp-minio/${MINIO_BUCKET_TICKET_MEDIA} &&
+      mc policy set download isp-minio/${MINIO_BUCKET_CSV_IMPORTS} &&
+      echo "MinIO buckets created successfully"
+      '
+    networks:
+      - isp-network
+    restart: "no"
+
+  # ISP Framework Backend
+  backend:
+    build: ./backend
+    container_name: isp-backend
+    ports:
+      - "${BACKEND_PORT}:8000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET_CUSTOMER_UPLOADS: ${MINIO_BUCKET_CUSTOMER_UPLOADS}
+      MINIO_BUCKET_TICKET_MEDIA: ${MINIO_BUCKET_TICKET_MEDIA}
+      MINIO_BUCKET_CSV_IMPORTS: ${MINIO_BUCKET_CSV_IMPORTS}
+      MINIO_BUCKET_BACKUPS: ${MINIO_BUCKET_BACKUPS}
+      MINIO_BUCKET_TEMP: ${MINIO_BUCKET_TEMP}
+      MINIO_USE_SSL: ${MINIO_USE_SSL}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+      SECRETS_BACKEND: ${SECRETS_BACKEND}
+      LOG_LEVEL: ${LOG_LEVEL}
+      ALLOWED_HOSTS: '["*"]'
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - isp-network
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Background worker for file processing
+  worker:
+    build: ./backend
+    container_name: isp-worker
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET_CUSTOMER_UPLOADS: ${MINIO_BUCKET_CUSTOMER_UPLOADS}
+      MINIO_BUCKET_TICKET_MEDIA: ${MINIO_BUCKET_TICKET_MEDIA}
+      MINIO_BUCKET_CSV_IMPORTS: ${MINIO_BUCKET_CSV_IMPORTS}
+      MINIO_BUCKET_BACKUPS: ${MINIO_BUCKET_BACKUPS}
+      MINIO_BUCKET_TEMP: ${MINIO_BUCKET_TEMP}
+      MINIO_USE_SSL: ${MINIO_USE_SSL}
+      LOG_LEVEL: ${LOG_LEVEL}
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    networks:
+      - isp-network
+    restart: unless-stopped
+    command: celery -A app.core.celery worker --loglevel=info
+
+  # Celery beat scheduler
+  scheduler:
+    build: ./backend
+    container_name: isp-scheduler
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET_CUSTOMER_UPLOADS: ${MINIO_BUCKET_CUSTOMER_UPLOADS}
+      MINIO_BUCKET_TICKET_MEDIA: ${MINIO_BUCKET_TICKET_MEDIA}
+      MINIO_BUCKET_CSV_IMPORTS: ${MINIO_BUCKET_CSV_IMPORTS}
+      MINIO_BUCKET_BACKUPS: ${MINIO_BUCKET_BACKUPS}
+      MINIO_BUCKET_TEMP: ${MINIO_BUCKET_TEMP}
+      MINIO_USE_SSL: ${MINIO_USE_SSL}
+      LOG_LEVEL: ${LOG_LEVEL}
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    networks:
+      - isp-network
+    restart: unless-stopped
+    command: celery -A app.core.celery beat --loglevel=info
+
+  # FreeRADIUS Server
+  freeradius:
+    image: freeradius/freeradius-server:latest
+    container_name: isp-freeradius
+    restart: unless-stopped
+    ports:
+      - "${RADIUS_AUTH_PORT}:1812/udp"  # RADIUS Authentication
+      - "${RADIUS_ACCT_PORT}:1813/udp"  # RADIUS Accounting
+    volumes:
+      - ./radius-config:/etc/freeradius/3.0
+      - ./radius-logs:/var/log/freeradius
+    environment:
+      - RADIUS_SECRET=${RADIUS_SECRET}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - isp-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  isp-network:
+    driver: bridge

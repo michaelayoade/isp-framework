@@ -1,0 +1,68 @@
+groups:
+  - name: isp-framework-alerts
+    rules:
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: isp-framework
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second for the last 5 minutes"
+
+      # High response time alert
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: isp-framework
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s"
+
+      # Database connection issues
+      - alert: DatabaseConnectionHigh
+        expr: database_connections_active > 80
+        for: 2m
+        labels:
+          severity: warning
+          service: isp-framework
+        annotations:
+          summary: "High database connection usage"
+          description: "Database connections are at {{ $value }}, approaching pool limit"
+
+      # Service down alert
+      - alert: ServiceDown
+        expr: up{job="isp-framework"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: isp-framework
+        annotations:
+          summary: "ISP Framework service is down"
+          description: "The ISP Framework API service has been down for more than 1 minute"
+
+      # High request rate (potential DDoS)
+      - alert: HighRequestRate
+        expr: rate(http_requests_total[1m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+          service: isp-framework
+        annotations:
+          summary: "Unusually high request rate"
+          description: "Request rate is {{ $value }} requests per second, potential DDoS attack"
+
+      # Memory usage alert (if available)
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / 1024 / 1024 > 512
+        for: 5m
+        labels:
+          severity: warning
+          service: isp-framework
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}MB"

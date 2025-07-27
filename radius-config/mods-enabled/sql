@@ -1,0 +1,144 @@
+# FreeRADIUS SQL Module Configuration for ISP Framework Integration
+# This module connects FreeRADIUS to the PostgreSQL database used by ISP Framework
+
+sql {
+    driver = "rlm_sql_postgresql"
+    
+    # Database connection details
+    server = "postgres"
+    port = 5432
+    login = "isp_user"
+    password = "Dotmac246"
+    radius_db = "isp_framework"
+
+    # Connection pool settings
+    pool {
+        start = 5
+        min = 4
+        max = 32
+        spare = 3
+        uses = 0
+        retry_delay = 30
+        lifetime = 0
+        idle_timeout = 60
+    }
+
+    # Query configuration for ISP Framework database schema
+    
+    # Authentication query - check portal ID and password
+    authorize_check_query = "\
+        SELECT \
+            ce.login AS UserName, \
+            'Cleartext-Password' AS Attribute, \
+            ce.password_hash AS Value, \
+            ':=' AS op \
+        FROM customers_extended ce \
+        JOIN customers c ON ce.customer_id = c.id \
+        WHERE ce.login = '%{SQL-User-Name}' \
+        AND c.status = 'active' \
+        AND ce.status = 'active'"
+
+    # Reply attributes query - get service plan details
+    authorize_reply_query = "\
+        SELECT \
+            'Framed-IP-Pool' AS Attribute, \
+            COALESCE(sp.name, 'default') AS Value, \
+            '=' AS op \
+        FROM customers_extended ce \
+        JOIN customers c ON ce.customer_id = c.id \
+        LEFT JOIN customer_services cs ON c.id = cs.customer_id AND cs.status = 'active' \
+        LEFT JOIN service_plans sp ON cs.service_plan_id = sp.id \
+        WHERE ce.login = '%{SQL-User-Name}' \
+        UNION \
+        SELECT \
+            'Session-Timeout' AS Attribute, \
+            CAST(COALESCE(sp.session_timeout, 86400) AS TEXT) AS Value, \
+            '=' AS op \
+        FROM customers_extended ce \
+        JOIN customers c ON ce.customer_id = c.id \
+        LEFT JOIN customer_services cs ON c.id = cs.customer_id AND cs.status = 'active' \
+        LEFT JOIN service_plans sp ON cs.service_plan_id = sp.id \
+        WHERE ce.login = '%{SQL-User-Name}'"
+
+    # Accounting start query - log session start
+    accounting_start_query = "\
+        INSERT INTO radius_sessions ( \
+            customer_id, login, session_id, start_session, \
+            ipv4, nas_id, port, type, session_status, \
+            created_at \
+        ) \
+        SELECT \
+            c.id, \
+            '%{SQL-User-Name}', \
+            '%{Acct-Session-Id}', \
+            NOW(), \
+            NULLIF('%{Framed-IP-Address}', '')::inet, \
+            '%{NAS-Identifier}', \
+            '%{NAS-Port}', \
+            'radius', \
+            'active', \
+            NOW() \
+        FROM customers_extended ce \
+        JOIN customers c ON ce.customer_id = c.id \
+        WHERE ce.login = '%{SQL-User-Name}'"
+
+    # Accounting update query - update session statistics
+    accounting_update_query = "\
+        UPDATE radius_sessions SET \
+            in_bytes = COALESCE('%{Acct-Input-Octets}', '0')::bigint, \
+            out_bytes = COALESCE('%{Acct-Output-Octets}', '0')::bigint, \
+            time_on = COALESCE('%{Acct-Session-Time}', '0')::integer, \
+            last_change = NOW() \
+        WHERE session_id = '%{Acct-Session-Id}' \
+        AND login = '%{SQL-User-Name}'"
+
+    # Accounting stop query - close session
+    accounting_stop_query = "\
+        UPDATE radius_sessions SET \
+            end_session = NOW(), \
+            session_status = 'stopped', \
+            in_bytes = COALESCE('%{Acct-Input-Octets}', '0')::bigint, \
+            out_bytes = COALESCE('%{Acct-Output-Octets}', '0')::bigint, \
+            time_on = COALESCE('%{Acct-Session-Time}', '0')::integer, \
+            last_change = NOW() \
+        WHERE session_id = '%{Acct-Session-Id}' \
+        AND login = '%{SQL-User-Name}'"
+
+    # Online users query - for simultaneous use checking
+    simul_count_query = "\
+        SELECT COUNT(*) \
+        FROM radius_sessions rs \
+        JOIN customers_extended ce ON rs.login = ce.login \
+        WHERE ce.login = '%{SQL-User-Name}' \
+        AND rs.session_status = 'active'"
+
+    # Post-auth query - log authentication attempts
+    post_auth_query = "\
+        INSERT INTO radius_sessions ( \
+            customer_id, login, session_id, start_session, \
+            ipv4, nas_id, port, type, session_status, \
+            created_at \
+        ) \
+        SELECT \
+            c.id, \
+            '%{SQL-User-Name}', \
+            '%{reply:Acct-Session-Id}', \
+            NOW(), \
+            NULLIF('%{reply:Framed-IP-Address}', '')::inet, \
+            '%{NAS-Identifier}', \
+            '%{NAS-Port}', \
+            'radius', \
+            'active', \
+            NOW() \
+        FROM customers_extended ce \
+        JOIN customers c ON ce.customer_id = c.id \
+        WHERE ce.login = '%{SQL-User-Name}' \
+        ON CONFLICT (session_id) DO NOTHING"
+
+    # Safe characters for SQL queries
+    safe_characters = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_: /"
+
+    # Read database clients
+    read_clients = yes
+    client_table = "radius_clients"
+}

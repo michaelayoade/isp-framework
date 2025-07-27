@@ -1,0 +1,100 @@
+notifiers:
+  - name: isp-framework-email
+    type: webhook
+    uid: isp-email-alerts
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    frequency: "10s"
+    settings:
+      url: "http://backend:8000/api/v1/communications/webhook/grafana-alerts"
+      httpMethod: "POST"
+      username: ""
+      password: ""
+      title: "ISP Framework Alert - {{ .GroupLabels.alertname }}"
+      text: |
+        **Alert:** {{ .GroupLabels.alertname }}
+        **Severity:** {{ .GroupLabels.severity }}
+        **Service:** {{ .GroupLabels.service }}
+        **Category:** {{ .GroupLabels.category }}
+        
+        **Summary:** {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+        
+        **Description:** {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+        
+        **Runbook:** {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+        
+        **Status:** {{ .Status }}
+        **Alerts Firing:** {{ .Alerts.Firing | len }}
+        **Alerts Resolved:** {{ .Alerts.Resolved | len }}
+      headers:
+        Content-Type: "application/json"
+        X-Alert-Source: "grafana"
+        X-Alert-Type: "email"
+
+  - name: isp-framework-webhook
+    type: webhook
+    uid: isp-webhook-alerts
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    frequency: "5s"
+    settings:
+      url: "http://backend:8000/api/v1/communications/webhook/grafana-alerts"
+      httpMethod: "POST"
+      username: ""
+      password: ""
+      title: "ISP Framework Alert - {{ .GroupLabels.alertname }}"
+      text: |
+        {
+          "alert_name": "{{ .GroupLabels.alertname }}",
+          "severity": "{{ .GroupLabels.severity }}",
+          "service": "{{ .GroupLabels.service }}",
+          "category": "{{ .GroupLabels.category }}",
+          "status": "{{ .Status }}",
+          "alerts_firing": {{ .Alerts.Firing | len }},
+          "alerts_resolved": {{ .Alerts.Resolved | len }},
+          "alerts": [
+            {{ range .Alerts }}
+            {
+              "summary": "{{ .Annotations.summary }}",
+              "description": "{{ .Annotations.description }}",
+              "runbook_url": "{{ .Annotations.runbook_url }}",
+              "labels": {{ .Labels | toJSON }},
+              "starts_at": "{{ .StartsAt }}",
+              "ends_at": "{{ .EndsAt }}",
+              "generator_url": "{{ .GeneratorURL }}"
+            }{{ if not (last $) }},{{ end }}
+            {{ end }}
+          ]
+        }
+      headers:
+        Content-Type: "application/json"
+        X-Alert-Source: "grafana"
+        X-Alert-Type: "webhook"
+
+  - name: isp-framework-sms
+    type: webhook
+    uid: isp-sms-alerts
+    org_id: 1
+    is_default: false
+    send_reminder: true
+    disable_resolve_message: false
+    frequency: "30s"
+    settings:
+      url: "http://backend:8000/api/v1/communications/webhook/grafana-alerts"
+      httpMethod: "POST"
+      username: ""
+      password: ""
+      title: "ISP Alert: {{ .GroupLabels.alertname }}"
+      text: |
+        ALERT: {{ .GroupLabels.alertname }}
+        Severity: {{ .GroupLabels.severity }}
+        {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+        Status: {{ .Status }}
+      headers:
+        Content-Type: "application/json"
+        X-Alert-Source: "grafana"
+        X-Alert-Type: "sms"

@@ -1,0 +1,740 @@
+{
+  "info": {
+    "name": "ISP Framework API Flows",
+    "description": "Complete flow-based examples for ISP Framework API integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{admin_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customer_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customer_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subscription_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invoice_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🚀 Customer Onboarding Flow",
+      "description": "Complete customer onboarding journey from account creation to service activation",
+      "item": [
+        {
+          "name": "1. Create Customer Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('customer_id', response.id);",
+                  "    pm.test('Customer created successfully', () => {",
+                  "        pm.expect(response.id).to.exist;",
+                  "        pm.expect(response.portal_id).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+1234567890\",\n  \"address\": \"123 Main Street\",\n  \"city\": \"Lagos\",\n  \"state\": \"Lagos\",\n  \"postal_code\": \"100001\",\n  \"country\": \"Nigeria\",\n  \"account_type\": \"residential\",\n  \"preferred_language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/",
+              "host": ["{{base_url}}"],
+              "path": ["customers", ""]
+            }
+          }
+        },
+        {
+          "name": "2. Browse Available Service Templates",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Service templates available', () => {",
+                  "        pm.expect(response.templates).to.be.an('array');",
+                  "        pm.expect(response.templates.length).to.be.greaterThan(0);",
+                  "    });",
+                  "    // Store first template ID for next request",
+                  "    if (response.templates && response.templates.length > 0) {",
+                  "        pm.collectionVariables.set('template_id', response.templates[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/services/templates/internet?location=Lagos&status=active",
+              "host": ["{{base_url}}"],
+              "path": ["services", "templates", "internet"],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "Lagos"
+                },
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Create Service Subscription",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('subscription_id', response.id);",
+                  "    pm.test('Subscription created successfully', () => {",
+                  "        pm.expect(response.id).to.exist;",
+                  "        pm.expect(response.status).to.equal('pending_provisioning');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customer_id}}\",\n  \"template_id\": \"{{template_id}}\",\n  \"installation_address\": {\n    \"address\": \"123 Main Street\",\n    \"city\": \"Lagos\",\n    \"state\": \"Lagos\",\n    \"postal_code\": \"100001\"\n  },\n  \"preferred_installation_date\": \"2025-01-30\",\n  \"notes\": \"Customer prefers morning installation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/services/subscriptions/",
+              "host": ["{{base_url}}"],
+              "path": ["services", "subscriptions", ""]
+            }
+          }
+        },
+        {
+          "name": "4. Provision Network Resources",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('provisioning_id', response.id);",
+                  "    pm.test('Provisioning started successfully', () => {",
+                  "        pm.expect(response.id).to.exist;",
+                  "        pm.expect(response.status).to.be.oneOf(['queued', 'in_progress']);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subscription_id\": \"{{subscription_id}}\",\n  \"template_id\": \"prov_tmpl_fiber\",\n  \"priority\": \"normal\",\n  \"automation_level\": \"full\",\n  \"configuration\": {\n    \"router_id\": \"router_lag_001\",\n    \"sector_id\": \"sector_lag_001_a\",\n    \"speed_profile\": \"50M_25M\",\n    \"ip_pool\": \"residential_pool_1\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/services/provisioning/",
+              "host": ["{{base_url}}"],
+              "path": ["services", "provisioning", ""]
+            }
+          }
+        },
+        {
+          "name": "5. Generate Initial Invoice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('invoice_id', response.id);",
+                  "    pm.test('Invoice created successfully', () => {",
+                  "        pm.expect(response.id).to.exist;",
+                  "        pm.expect(response.total_amount).to.be.greaterThan(0);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customer_id}}\",\n  \"subscription_id\": \"{{subscription_id}}\",\n  \"invoice_type\": \"setup\",\n  \"items\": [\n    {\n      \"description\": \"Fiber 50Mbps - Setup Fee\",\n      \"amount\": 5000,\n      \"quantity\": 1\n    },\n    {\n      \"description\": \"Fiber 50Mbps - First Month\",\n      \"amount\": 15000,\n      \"quantity\": 1\n    }\n  ],\n  \"due_date\": \"2025-02-02\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/billing/invoices/",
+              "host": ["{{base_url}}"],
+              "path": ["billing", "invoices", ""]
+            }
+          }
+        },
+        {
+          "name": "6. Process Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('payment_id', response.id);",
+                  "    pm.test('Payment processed successfully', () => {",
+                  "        pm.expect(response.id).to.exist;",
+                  "        pm.expect(response.status).to.equal('completed');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customer_id}}\",\n  \"invoice_id\": \"{{invoice_id}}\",\n  \"amount\": 20000,\n  \"payment_method\": \"bank_transfer\",\n  \"reference\": \"TXN123456789\",\n  \"notes\": \"Payment via online banking\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/billing/payments/",
+              "host": ["{{base_url}}"],
+              "path": ["billing", "payments", ""]
+            }
+          }
+        },
+        {
+          "name": "7. Check Service Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Service is active', () => {",
+                  "        pm.expect(response.status).to.be.oneOf(['active', 'pending_provisioning']);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/services/subscriptions/{{subscription_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["services", "subscriptions", "{{subscription_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Monthly Billing Flow",
+      "description": "Monthly billing cycle - invoice generation, payment processing, and verification",
+      "item": [
+        {
+          "name": "1. Get Customer Invoices",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Invoices retrieved successfully', () => {",
+                  "        pm.expect(response.invoices).to.be.an('array');",
+                  "    });",
+                  "    if (response.invoices && response.invoices.length > 0) {",
+                  "        pm.collectionVariables.set('monthly_invoice_id', response.invoices[0].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/billing/customers/{{customer_id}}/invoices?status=pending&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["billing", "customers", "{{customer_id}}", "invoices"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Process Monthly Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('monthly_payment_id', response.id);",
+                  "    pm.test('Monthly payment processed', () => {",
+                  "        pm.expect(response.status).to.equal('completed');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customer_id}}\",\n  \"invoice_id\": \"{{monthly_invoice_id}}\",\n  \"amount\": 15000,\n  \"payment_method\": \"card\",\n  \"card_details\": {\n    \"last_four\": \"1234\",\n    \"brand\": \"visa\"\n  },\n  \"reference\": \"CARD_TXN_789012\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/billing/payments/",
+              "host": ["{{base_url}}"],
+              "path": ["billing", "payments", ""]
+            }
+          }
+        },
+        {
+          "name": "3. Verify Payment Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Payment verification successful', () => {",
+                  "        pm.expect(response.status).to.equal('completed');",
+                  "        pm.expect(response.invoice.status).to.equal('paid');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/billing/payments/{{monthly_payment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["billing", "payments", "{{monthly_payment_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚨 Error Scenarios",
+      "description": "Error handling and recovery scenarios",
+      "item": [
+        {
+          "name": "Failed Payment Attempt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Payment failure handled correctly', () => {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 402, 422]);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.error).to.exist;",
+                  "    pm.expect(response.error.code).to.equal('PAYMENT_FAILED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": \"{{customer_id}}\",\n  \"invoice_id\": \"{{invoice_id}}\",\n  \"amount\": 15000,\n  \"payment_method\": \"card\",\n  \"card_token\": \"invalid_token_123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/billing/payments/",
+              "host": ["{{base_url}}"],
+              "path": ["billing", "payments", ""]
+            }
+          }
+        },
+        {
+          "name": "Validation Error Example",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Validation error handled correctly', () => {",
+                  "    pm.expect(pm.response.code).to.equal(422);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.error.code).to.equal('VALIDATION_ERROR');",
+                  "    pm.expect(response.error.details.field_errors).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"\",\n  \"email\": \"invalid-email\",\n  \"phone\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/",
+              "host": ["{{base_url}}"],
+              "path": ["customers", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Customer Portal Flow",
+      "description": "Customer self-service portal interactions",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{customer_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "1. Customer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('customer_token', response.access_token);",
+                  "    pm.test('Customer login successful', () => {",
+                  "        pm.expect(response.access_token).to.exist;",
+                  "        pm.expect(response.customer.portal_id).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"portal_id\": \"10012345\",\n  \"password\": \"customer_password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "auth", "login"]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "2. View Service Usage",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Usage data retrieved', () => {",
+                  "        pm.expect(response.usage_summary).to.exist;",
+                  "        pm.expect(response.usage_summary.services).to.be.an('array');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/customers/services/usage?period=current_month",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "services", "usage"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "current_month"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Request Service Upgrade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Upgrade request submitted', () => {",
+                  "        pm.expect(response.id).to.exist;",
+                  "        pm.expect(response.status).to.equal('pending_approval');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subscription_id\": \"{{subscription_id}}\",\n  \"request_type\": \"upgrade\",\n  \"target_template_id\": \"tmpl_fiber_100\",\n  \"effective_date\": \"2025-03-01\",\n  \"notes\": \"Need higher speed for work from home\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/customers/services/requests",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "services", "requests"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 Service Management Flow",
+      "description": "Service suspension, restoration, and monitoring",
+      "item": [
+        {
+          "name": "Check Service Status (Suspended)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Service status retrieved', () => {",
+                  "        pm.expect(response.status).to.be.oneOf(['active', 'suspended', 'active_with_warning']);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/services/subscriptions/{{subscription_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["services", "subscriptions", "{{subscription_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Restore Service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Service restored successfully', () => {",
+                  "        pm.expect(response.status).to.equal('active');",
+                  "        pm.expect(response.restoration).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_id\": \"{{payment_id}}\",\n  \"restore_immediately\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/services/subscriptions/{{subscription_id}}/restore",
+              "host": ["{{base_url}}"],
+              "path": ["services", "subscriptions", "{{subscription_id}}", "restore"]
+            }
+          }
+        },
+        {
+          "name": "Monitor Service Analytics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Analytics data retrieved', () => {",
+                  "        pm.expect(response.analytics).to.exist;",
+                  "        pm.expect(response.analytics.usage_trends).to.exist;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/monitoring/dashboard/customer-analytics?customer_id={{customer_id}}&period=last_30_days",
+              "host": ["{{base_url}}"],
+              "path": ["monitoring", "dashboard", "customer-analytics"],
+              "query": [
+                {
+                  "key": "customer_id",
+                  "value": "{{customer_id}}"
+                },
+                {
+                  "key": "period",
+                  "value": "last_30_days"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

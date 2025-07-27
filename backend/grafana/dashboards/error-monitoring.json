@@ -1,0 +1,141 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "ISP Framework - Error Monitoring & Alerting",
+    "tags": ["isp-framework", "errors", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Error Rate by Severity",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(isp_errors_total[5m])",
+            "legendFormat": "{{severity}} errors/sec"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 0.1},
+                {"color": "red", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Active Alerts by Severity",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "isp_active_alerts_total",
+            "legendFormat": "{{severity}} alerts"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "max": 10,
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 3},
+                {"color": "red", "value": 7}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Errors by Category",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (category) (isp_errors_total)",
+            "legendFormat": "{{category}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Customer Impact Errors",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (category, customer_id) (isp_customer_impact_errors_total))",
+            "format": "table"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Network Device Errors",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(isp_network_device_errors_total[5m])",
+            "legendFormat": "{{device_type}} - {{error_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Billing System Errors",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(isp_billing_errors_total[5m])",
+            "legendFormat": "{{error_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "Service Provisioning Errors",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(isp_service_provisioning_errors_total[5m])",
+            "legendFormat": "{{service_type}} - {{provisioning_step}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      },
+      {
+        "id": 8,
+        "title": "Error Resolution Time",
+        "type": "histogram",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(isp_error_resolution_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(isp_error_resolution_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 32}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}
