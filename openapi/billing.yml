@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: ISP Framework - Billing API
+  version: 1.0.0
+  description: Billing and invoice management endpoints for ISP Framework
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+
+paths:
+  /invoices:
+    get:
+      summary: List invoices
+      operationId: getInvoices
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: customer_id
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, sent, paid, overdue, cancelled]
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvoiceResponse'
+    
+    post:
+      summary: Create invoice
+      operationId: createInvoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvoiceRequest'
+      responses:
+        '201':
+          description: Invoice created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+
+  /invoices/{invoiceId}:
+    get:
+      summary: Get invoice by ID
+      operationId: getInvoice
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+    
+    put:
+      summary: Update invoice
+      operationId: updateInvoice
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInvoiceRequest'
+      responses:
+        '200':
+          description: Invoice updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+
+  /invoices/{invoiceId}/send:
+    post:
+      summary: Send invoice to customer
+      operationId: sendInvoice
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+
+  /payments:
+    get:
+      summary: List payments
+      operationId: getPayments
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: customer_id
+          in: query
+          schema:
+            type: integer
+        - name: invoice_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of payments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentResponse'
+
+    post:
+      summary: Record payment
+      operationId: createPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '201':
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+
+components:
+  schemas:
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoice_number:
+          type: string
+        customer_id:
+          type: integer
+        customer_name:
+          type: string
+        status:
+          type: string
+          enum: [draft, sent, paid, overdue, cancelled]
+        issue_date:
+          type: string
+          format: date
+        due_date:
+          type: string
+          format: date
+        subtotal:
+          type: number
+          format: float
+        tax_amount:
+          type: number
+          format: float
+        total_amount:
+          type: number
+          format: float
+        currency:
+          type: string
+          default: USD
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLineItem'
+
+    InvoiceLineItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        quantity:
+          type: number
+          format: float
+        unit_price:
+          type: number
+          format: float
+        total_price:
+          type: number
+          format: float
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoice_id:
+          type: integer
+        customer_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+          default: USD
+        payment_method:
+          type: string
+          enum: [credit_card, bank_transfer, cash, check]
+        payment_date:
+          type: string
+          format: date-time
+        reference_number:
+          type: string
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CreateInvoiceRequest:
+      type: object
+      required:
+        - customer_id
+        - due_date
+        - line_items
+      properties:
+        customer_id:
+          type: integer
+        due_date:
+          type: string
+          format: date
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateInvoiceLineItem'
+        notes:
+          type: string
+
+    CreateInvoiceLineItem:
+      type: object
+      required:
+        - description
+        - quantity
+        - unit_price
+      properties:
+        description:
+          type: string
+        quantity:
+          type: number
+          format: float
+        unit_price:
+          type: number
+          format: float
+
+    UpdateInvoiceRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [draft, sent, paid, overdue, cancelled]
+        due_date:
+          type: string
+          format: date
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateInvoiceLineItem'
+        notes:
+          type: string
+
+    CreatePaymentRequest:
+      type: object
+      required:
+        - invoice_id
+        - amount
+        - payment_method
+      properties:
+        invoice_id:
+          type: integer
+        amount:
+          type: number
+          format: float
+        payment_method:
+          type: string
+          enum: [credit_card, bank_transfer, cash, check]
+        reference_number:
+          type: string
+        notes:
+          type: string
+
+    PaginatedInvoiceResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PaginatedPaymentResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer

@@ -48,3 +48,4 @@ next-env.d.ts
 
 # generated API clients (do not commit)
 src/api/
+.env.local
