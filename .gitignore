@@ -95,3 +95,70 @@ radius-logs/
 
 # MinIO data (if running locally)
 minio-data/
+# SECURITY: Critical files that must NEVER be committed
+# This file contains patterns for sensitive data that could compromise security
+
+# Environment files with secrets
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+*.env
+*.env.*
+
+# Backup files that might contain secrets
+*.backup
+*.bak
+*_backup
+*_bak
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Key files
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+
+# Configuration files with secrets
+config/secrets.yml
+config/database.yml
+config/production.yml
+secrets.json
+credentials.json
+
+# IDE files that might contain sensitive data
+.vscode/settings.json
+.idea/workspace.xml
+
+# Logs that might contain sensitive data
+*.log
+logs/
+log/
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+/temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker secrets
+docker-compose.override.yml
+docker-compose.prod.yml
+docker-compose.secrets.yml
