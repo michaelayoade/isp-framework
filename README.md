@@ -1,14 +1,83 @@
-# ISP Framework
+# 🌐 ISP Framework
 ## Enterprise-Grade Internet Service Provider Management Platform
 
-[![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](https://github.com/ispframework/isp-framework)
-[![Milestone](https://img.shields.io/badge/Milestone-3%20Complete-blue.svg)](#milestone-progress)
+<div align="center">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](#development-status)
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js-000000.svg)](https://nextjs.org/)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL-336791.svg)](https://postgresql.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC.svg)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776ab.svg)](https://python.org/)
+
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing) • [License](#-license)
+
+</div>
 
 ## 🎯 **Project Overview**
 
 The ISP Framework is a comprehensive, enterprise-grade management platform designed specifically for Internet Service Providers. It provides a complete solution for customer management, service provisioning, billing, network infrastructure monitoring, and business operations.
+
+> **🚀 Ready for Production**: Full-stack TypeScript application with React frontend, FastAPI backend, and PostgreSQL database. Features comprehensive CRUD operations, authentication, real-time updates, and enterprise-grade security.
+
+## ⚡ **Quick Start**
+
+### Prerequisites
+- **Node.js** 18+ and npm
+- **Python** 3.11+ and pip
+- **PostgreSQL** 14+
+- **Redis** 6+ (optional, for caching)
+- **Docker** (recommended for development)
+
+### 🐳 **Docker Setup (Recommended)**
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/isp-framework.git
+cd isp-framework
+
+# Copy environment templates
+cp .env.example .env
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
+
+# Start all services
+docker-compose up -d
+
+# Run database migrations
+docker-compose exec backend alembic upgrade head
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000
+# API Docs: http://localhost:8000/docs
+```
+
+### 🔧 **Manual Setup**
+
+```bash
+# Backend setup
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your database credentials
+
+# Run migrations
+alembic upgrade head
+
+# Start backend
+uvicorn app.main:app --reload
+
+# Frontend setup (new terminal)
+cd frontend
+npm install
+npm run dev
+```
 
 ### **Key Features**
 - 🔐 **Enterprise Authentication** - OAuth 2.0 + JWT with unified token validation
