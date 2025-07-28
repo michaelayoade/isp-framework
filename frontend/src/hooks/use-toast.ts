@@ -24,8 +24,6 @@ const TOAST_ACTION_TYPES = {
   REMOVE_TOAST: "REMOVE_TOAST",
 } as const
 
-type ActionType = typeof TOAST_ACTION_TYPES[keyof typeof TOAST_ACTION_TYPES]
-
 let count = 0
 
 function genId() {

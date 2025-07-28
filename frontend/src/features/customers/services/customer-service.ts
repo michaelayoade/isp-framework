@@ -1,69 +1,83 @@
-import { apiClient } from '@/api/client';
-import type { 
-  Customer, 
-  CustomerFilters, 
-  CreateCustomerData, 
-  UpdateCustomerData,
-  PaginatedResponse 
-} from '../types';
+import { Customer, CustomerFilters, CreateCustomerData, UpdateCustomerData, CustomerListResponse, CustomerStats } from '../types';
 
-export class CustomerService {
-  private readonly basePath = '/customers';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
-  async getCustomers(filters: CustomerFilters = {}): Promise<PaginatedResponse<Customer>> {
-    const response = await apiClient.get(this.basePath, { params: filters });
-    return response.data;
+class CustomerService {
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async getCustomers(filters: CustomerFilters = {}): Promise<CustomerListResponse> {
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        params.append(key, value.toString());
+      }
+    });
+
+    const queryString = params.toString();
+    const endpoint = `/customers${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<CustomerListResponse>(endpoint);
   }
 
   async getCustomer(id: number): Promise<Customer> {
-    const response = await apiClient.get(`${this.basePath}/${id}`);
-    return response.data;
+    return this.request<Customer>(`/customers/${id}`);
   }
 
   async createCustomer(data: CreateCustomerData): Promise<Customer> {
-    const response = await apiClient.post(this.basePath, data);
-    return response.data;
+    return this.request<Customer>('/customers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async updateCustomer(id: number, data: UpdateCustomerData): Promise<Customer> {
-    const response = await apiClient.put(`${this.basePath}/${id}`, data);
-    return response.data;
+    return this.request<Customer>(`/customers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteCustomer(id: number): Promise<void> {
-    await apiClient.delete(`${this.basePath}/${id}`);
-  }
-
-  async suspendCustomer(id: number, reason?: string): Promise<Customer> {
-    const response = await apiClient.post(`${this.basePath}/${id}/suspend`, { reason });
-    return response.data;
-  }
-
-  async reactivateCustomer(id: number): Promise<Customer> {
-    const response = await apiClient.post(`${this.basePath}/${id}/reactivate`);
-    return response.data;
-  }
-
-  async getCustomerServices(id: number) {
-    const response = await apiClient.get(`${this.basePath}/${id}/services`);
-    return response.data;
-  }
-
-  async getCustomerBilling(id: number) {
-    const response = await apiClient.get(`${this.basePath}/${id}/billing`);
-    return response.data;
-  }
-
-  async exportCustomers(filters: CustomerFilters = {}, format: 'csv' | 'excel' = 'csv') {
-    const response = await apiClient.get(`${this.basePath}/export`, {
-      params: { ...filters, format },
-      responseType: 'blob',
+    await this.request<void>(`/customers/${id}`, {
+      method: 'DELETE',
     });
-    return response.data;
+  }
+
+  async getCustomerStats(): Promise<CustomerStats> {
+    return this.request<CustomerStats>('/customers/stats');
+  }
+
+  async suspendCustomer(id: number): Promise<Customer> {
+    return this.request<Customer>(`/customers/${id}/suspend`, {
+      method: 'POST',
+    });
+  }
+
+  async activateCustomer(id: number): Promise<Customer> {
+    return this.request<Customer>(`/customers/${id}/activate`, {
+      method: 'POST',
+    });
   }
 }
 
 export const customerService = new CustomerService();
-
-// Re-export types for convenience
-export type { Customer, CustomerFilters, CreateCustomerData, UpdateCustomerData, PaginatedResponse } from '../types';
