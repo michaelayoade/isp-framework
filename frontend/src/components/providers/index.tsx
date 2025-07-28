@@ -3,6 +3,7 @@
 import QueryProvider from './QueryProvider';
 import ThemeProvider from './ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { MSWProvider } from './msw-provider';
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -11,11 +12,13 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <ThemeProvider>
-      <QueryProvider>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </QueryProvider>
+      <MSWProvider>
+        <QueryProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </QueryProvider>
+      </MSWProvider>
     </ThemeProvider>
   );
 }

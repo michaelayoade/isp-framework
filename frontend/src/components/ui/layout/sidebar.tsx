@@ -95,7 +95,8 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <div
       className={cn(
-        'flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+        'fixed left-0 top-0 z-40 h-screen flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+        'hidden lg:flex', // Hide on mobile, show on large screens
         isCollapsed ? 'w-16' : 'w-64',
         className
       )}

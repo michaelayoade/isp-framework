@@ -14,6 +14,11 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
+        // Brand-specific variants
+        brand: 'bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-600',
+        success: 'bg-success-600 text-white hover:bg-success-700 focus:ring-success-600',
+        'brand-outline': 'border border-brand-600 text-brand-600 bg-transparent hover:bg-brand-50',
+        'brand-ghost': 'text-brand-600 hover:bg-brand-50 hover:text-brand-700',
       },
       size: {
         default: 'h-10 px-4 py-2',

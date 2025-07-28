@@ -15,6 +15,21 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        // Brand-specific status variants
+        success:
+          "border-transparent bg-success-600 text-white hover:bg-success-700",
+        online:
+          "border-transparent bg-brand-500 text-white hover:bg-brand-600",
+        active:
+          "border-transparent bg-brand-600 text-white hover:bg-brand-700",
+        connected:
+          "border-transparent bg-brand-400 text-brand-900 hover:bg-brand-500",
+        available:
+          "border-transparent bg-brand-100 text-brand-800 hover:bg-brand-200",
+        'success-outline':
+          "border-success-200 bg-success-50 text-success-800 hover:bg-success-100",
+        'brand-outline':
+          "border-brand-200 bg-brand-50 text-brand-800 hover:bg-brand-100",
       },
     },
     defaultVariants: {

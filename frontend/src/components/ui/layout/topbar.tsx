@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Building2,
+  Menu,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -60,13 +61,21 @@ export function Topbar({ className }: TopbarProps) {
   return (
     <header
       className={cn(
-        'flex items-center justify-between px-6 bg-white border-b border-gray-200',
+        'sticky top-0 z-50 flex items-center justify-between px-6 bg-white border-b border-gray-200',
         className
       )}
       style={{ height: layout.topbar.height }}
     >
-      {/* Left: Search */}
+      {/* Left: Mobile Menu + Search */}
       <div className="flex items-center space-x-4 flex-1 max-w-md">
+        {/* Mobile Menu Button - Only visible on small screens */}
+        <button
+          className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-5 h-5 text-gray-600" />
+        </button>
+        
         <form onSubmit={handleSearch} className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
