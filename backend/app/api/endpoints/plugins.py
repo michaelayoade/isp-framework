@@ -63,7 +63,7 @@ from app.repositories.plugin_repository import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["Plugins"])
+router = APIRouter(tags=["plugins"])
 
 
 # Plugin Management Endpoints

@@ -12,7 +12,7 @@ from app.core.permissions import require_permission
 import logging
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Automation"])
+router = APIRouter(tags=["automation"])
 
 
 # Dynamic Inventory Endpoint

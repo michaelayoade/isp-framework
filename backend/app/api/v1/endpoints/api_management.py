@@ -33,7 +33,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["API Management"])
+router = APIRouter(tags=["api-management"])
 
 
 @router.post("/keys", response_model=APIKeyResponse)

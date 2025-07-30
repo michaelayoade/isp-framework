@@ -24,7 +24,7 @@ from app.services.device_management_service import DeviceManagementFactory
 from app.services.snmp_monitoring_service import SNMPMonitoringFactory, SNMPCredentials
 from app.api.v1.dependencies import get_current_admin
 
-router = APIRouter(tags=["Device Management"])
+router = APIRouter(tags=["device-management"])
 
 
 # Device Management Endpoints

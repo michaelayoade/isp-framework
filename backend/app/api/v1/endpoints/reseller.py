@@ -20,7 +20,7 @@ from app.core.exceptions import ValidationError, NotFoundError, DuplicateError
 from app.core.security import get_current_reseller
 from app.models.foundation.base import Reseller
 
-router = APIRouter(tags=["Resellers"])
+router = APIRouter(tags=["resellers"])
 
 
 @router.post("/", response_model=ResellerResponse, status_code=201)

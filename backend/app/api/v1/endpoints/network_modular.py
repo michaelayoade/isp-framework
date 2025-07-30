@@ -45,7 +45,7 @@ from app.schemas.network_modular import (
     PaginatedResponse, FilterParams
 )
 
-router = APIRouter(tags=["Network"])
+router = APIRouter(tags=["network"])
 
 
 # Network Site Management
