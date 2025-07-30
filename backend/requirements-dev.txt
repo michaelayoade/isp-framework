@@ -1,0 +1,29 @@
+# Development and Testing Dependencies
+# Code Quality Tools
+ruff==0.1.15
+black==23.12.1
+isort==5.13.2
+mypy==1.8.0
+
+# Testing
+pytest==7.4.4
+pytest-cov==4.1.0
+pytest-asyncio==0.23.2
+pytest-mock==3.12.0
+httpx==0.26.0
+
+# Security
+bandit==1.7.5
+safety==2.3.5
+
+# Documentation
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+
+# Development utilities
+pre-commit==3.6.0
+python-dotenv==1.0.0
+
+# Type stubs
+types-requests==2.31.0.20240125
+types-python-dateutil==2.8.19.20240106
