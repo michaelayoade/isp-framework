@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 #!/usr/bin/env python3
 """
 RADIUS Integration Schemas
@@ -13,7 +13,7 @@ from pydantic import  Field, field_validator
 from decimal import Decimal
 
 
-class RadiusAuthRequest(BaseSchema):
+class RadiusAuthRequest(BaseModel):
     """Schema for RADIUS authentication requests"""
     username: str = Field(..., min_length=1, max_length=50, description="Customer username (portal ID)")
     password: str = Field(..., min_length=1, max_length=255, description="Customer password")
@@ -21,7 +21,7 @@ class RadiusAuthRequest(BaseSchema):
     nas_port: Optional[int] = Field(None, ge=0, description="NAS port number")
 
 
-class RadiusAuthResponse(BaseSchema):
+class RadiusAuthResponse(BaseModel):
     """Schema for RADIUS authentication responses"""
     authenticated: bool = Field(..., description="Authentication result")
     customer_id: int = Field(..., description="Customer ID")
@@ -31,7 +31,7 @@ class RadiusAuthResponse(BaseSchema):
     customer_info: Dict[str, Any] = Field(..., description="Customer information")
 
 
-class RadiusSessionStart(BaseSchema):
+class RadiusSessionStart(BaseModel):
     """Schema for starting RADIUS sessions"""
     username: str = Field(..., min_length=1, max_length=50, description="Customer username (portal ID)")
     password: str = Field(..., min_length=1, max_length=255, description="Customer password")
@@ -42,7 +42,7 @@ class RadiusSessionStart(BaseSchema):
     called_station_id: Optional[str] = Field(None, max_length=50, description="Called station ID")
 
 
-class RadiusSessionStop(BaseSchema):
+class RadiusSessionStop(BaseModel):
     """Schema for stopping RADIUS sessions"""
     session_id: str = Field(..., min_length=1, max_length=255, description="RADIUS session ID")
     bytes_in: Optional[int] = Field(0, ge=0, description="Bytes received")
@@ -52,7 +52,7 @@ class RadiusSessionStop(BaseSchema):
     termination_cause: Optional[str] = Field("User-Request", max_length=50, description="Session termination cause")
 
 
-class RadiusAccountingUpdate(BaseSchema):
+class RadiusAccountingUpdate(BaseModel):
     """Schema for RADIUS accounting updates"""
     session_id: str = Field(..., min_length=1, max_length=255, description="RADIUS session ID")
     bytes_in: Optional[int] = Field(0, ge=0, description="Bytes received")
@@ -61,7 +61,7 @@ class RadiusAccountingUpdate(BaseSchema):
     packets_out: Optional[int] = Field(0, ge=0, description="Packets transmitted")
 
 
-class RadiusSessionResponse(BaseSchema):
+class RadiusSessionResponse(BaseModel):
     """Schema for RADIUS session responses"""
     session_id: int = Field(..., description="Internal session ID")
     customer_id: int = Field(..., description="Customer ID")
@@ -73,7 +73,7 @@ class RadiusSessionResponse(BaseSchema):
     radius_attributes: Dict[str, Any] = Field(..., description="RADIUS attributes")
 
 
-class SessionInfo(BaseSchema):
+class SessionInfo(BaseModel):
     """Schema for session information"""
     session_id: int = Field(..., description="Internal session ID")
     portal_id: str = Field(..., description="Customer portal ID")
@@ -88,20 +88,20 @@ class SessionInfo(BaseSchema):
     termination_cause: Optional[str] = Field(None, description="Session termination cause")
 
 
-class CustomerSessionsResponse(BaseSchema):
+class CustomerSessionsResponse(BaseModel):
     """Schema for customer sessions response"""
     customer_id: int = Field(..., description="Customer ID")
     total_sessions: int = Field(..., description="Total number of sessions")
     sessions: List[SessionInfo] = Field(..., description="List of sessions")
 
 
-class ServiceEnforcementResponse(BaseSchema):
+class ServiceEnforcementResponse(BaseModel):
     """Schema for service plan enforcement response"""
     service_plan_id: int = Field(..., description="Service plan ID")
     radius_attributes: Dict[str, Any] = Field(..., description="RADIUS enforcement attributes")
 
 
-class ActiveSessionInfo(BaseSchema):
+class ActiveSessionInfo(BaseModel):
     """Schema for active session information"""
     session_id: int = Field(..., description="Internal session ID")
     customer_id: int = Field(..., description="Customer ID")
@@ -116,13 +116,13 @@ class ActiveSessionInfo(BaseSchema):
     last_update: Optional[datetime] = Field(None, description="Last accounting update")
 
 
-class ActiveSessionsResponse(BaseSchema):
+class ActiveSessionsResponse(BaseModel):
     """Schema for active sessions response"""
     total_active_sessions: int = Field(..., description="Total number of active sessions")
     sessions: List[ActiveSessionInfo] = Field(..., description="List of active sessions")
 
 
-class RadiusStatisticsResponse(BaseSchema):
+class RadiusStatisticsResponse(BaseModel):
     """Schema for RADIUS statistics response"""
     total_sessions: int = Field(..., description="Total number of sessions")
     active_sessions: int = Field(..., description="Number of active sessions")
@@ -135,13 +135,13 @@ class RadiusStatisticsResponse(BaseSchema):
 
 # Service Plan Integration Schemas
 
-class ServicePlanEnforcementRequest(BaseSchema):
+class ServicePlanEnforcementRequest(BaseModel):
     """Schema for service plan enforcement requests"""
     service_plan_id: int = Field(..., gt=0, description="Service plan ID")
     customer_id: Optional[int] = Field(None, gt=0, description="Customer ID for customer-specific attributes")
 
 
-class ServicePlanEnforcementResponse(BaseSchema):
+class ServicePlanEnforcementResponse(BaseModel):
     """Schema for service plan enforcement response"""
     service_plan_id: int = Field(..., description="Service plan ID")
     service_plan_name: str = Field(..., description="Service plan name")
@@ -154,7 +154,7 @@ class ServicePlanEnforcementResponse(BaseSchema):
 
 # IP Address Management Schemas
 
-class IPAssignmentRequest(BaseSchema):
+class IPAssignmentRequest(BaseModel):
     """Schema for IP address assignment requests"""
     customer_id: int = Field(..., gt=0, description="Customer ID")
     service_plan_id: int = Field(..., gt=0, description="Service plan ID")
@@ -162,7 +162,7 @@ class IPAssignmentRequest(BaseSchema):
     preferred_ip: Optional[str] = Field(None, description="Preferred IP address")
 
 
-class IPAssignmentResponse(BaseSchema):
+class IPAssignmentResponse(BaseModel):
     """Schema for IP address assignment response"""
     customer_id: int = Field(..., description="Customer ID")
     assigned_ip: str = Field(..., description="Assigned IP address")
@@ -172,7 +172,7 @@ class IPAssignmentResponse(BaseSchema):
     lease_duration: Optional[int] = Field(None, description="Lease duration in seconds")
 
 
-class IPReleaseRequest(BaseSchema):
+class IPReleaseRequest(BaseModel):
     """Schema for IP address release requests"""
     ip_address: str = Field(..., description="IP address to release")
     customer_id: Optional[int] = Field(None, description="Customer ID for verification")
@@ -180,7 +180,7 @@ class IPReleaseRequest(BaseSchema):
 
 # Usage Monitoring Schemas
 
-class UsageMonitoringRequest(BaseSchema):
+class UsageMonitoringRequest(BaseModel):
     """Schema for usage monitoring requests"""
     customer_id: Optional[int] = Field(None, gt=0, description="Customer ID")
     service_plan_id: Optional[int] = Field(None, gt=0, description="Service plan ID")
@@ -189,7 +189,7 @@ class UsageMonitoringRequest(BaseSchema):
     end_date: Optional[datetime] = Field(None, description="End date for monitoring")
 
 
-class UsageStatistics(BaseSchema):
+class UsageStatistics(BaseModel):
     """Schema for usage statistics"""
     customer_id: int = Field(..., description="Customer ID")
     service_plan_id: int = Field(..., description="Service plan ID")
@@ -202,7 +202,7 @@ class UsageStatistics(BaseSchema):
     data_usage_percentage: Optional[float] = Field(None, description="Data usage as percentage of limit")
 
 
-class UsageMonitoringResponse(BaseSchema):
+class UsageMonitoringResponse(BaseModel):
     """Schema for usage monitoring response"""
     time_period: str = Field(..., description="Monitoring period")
     start_date: datetime = Field(..., description="Period start date")
@@ -213,7 +213,7 @@ class UsageMonitoringResponse(BaseSchema):
 
 # Network Integration Schemas
 
-class NetworkProvisioningRequest(BaseSchema):
+class NetworkProvisioningRequest(BaseModel):
     """Schema for network provisioning requests"""
     customer_id: int = Field(..., gt=0, description="Customer ID")
     service_plan_id: int = Field(..., gt=0, description="Service plan ID")
@@ -222,7 +222,7 @@ class NetworkProvisioningRequest(BaseSchema):
     provisioning_type: str = Field("automatic", pattern="^(automatic|manual)$", description="Provisioning type")
 
 
-class NetworkProvisioningResponse(BaseSchema):
+class NetworkProvisioningResponse(BaseModel):
     """Schema for network provisioning response"""
     customer_id: int = Field(..., description="Customer ID")
     service_plan_id: int = Field(..., description="Service plan ID")

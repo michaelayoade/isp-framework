@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import  Field, field_validator
 from typing import Optional, List
 from datetime import datetime
@@ -6,7 +6,7 @@ from app.schemas.service_plan import ServicePlan
 from app.schemas.customer_extended import CustomerExtendedResponse
 
 # Basic customer response schema for customer service responses
-class BasicCustomerResponse(BaseSchema):
+class BasicCustomerResponse(BaseModel):
     id: int
     name: str
     email: Optional[str] = None
@@ -17,7 +17,7 @@ class BasicCustomerResponse(BaseSchema):
     updated_at: Optional[datetime] = None
     
 
-class CustomerServiceBase(BaseSchema):
+class CustomerServiceBase(BaseModel):
     """Base customer service schema with common fields."""
     customer_id: int = Field(..., description="Customer ID")
     service_plan_id: int = Field(..., description="Service plan ID")
@@ -40,7 +40,7 @@ class CustomerServiceCreate(CustomerServiceBase):
     pass
 
 
-class CustomerServiceUpdate(BaseSchema):
+class CustomerServiceUpdate(BaseModel):
     """Schema for updating an existing customer service assignment."""
     status: Optional[str] = Field(None, description="Service status")
     end_date: Optional[datetime] = Field(None, description="Service end date")
@@ -71,7 +71,7 @@ class CustomerServiceResponse(CustomerServiceBase):
     monthly_cost: Optional[int] = Field(None, description="Monthly cost calculation")
     
 
-class CustomerServiceSummary(BaseSchema):
+class CustomerServiceSummary(BaseModel):
     """Summary schema for customer service (lightweight)."""
     id: int
     customer_id: int
@@ -82,7 +82,7 @@ class CustomerServiceSummary(BaseSchema):
     effective_price: Optional[int] = None
     
 
-class CustomerServiceSearch(BaseSchema):
+class CustomerServiceSearch(BaseModel):
     """Schema for searching customer services."""
     customer_id: Optional[int] = Field(None, description="Filter by customer ID")
     service_plan_id: Optional[int] = Field(None, description="Filter by service plan ID")
@@ -94,7 +94,7 @@ class CustomerServiceSearch(BaseSchema):
     offset: int = Field(0, ge=0, description="Pagination offset")
 
 
-class CustomerServiceSearchResponse(BaseSchema):
+class CustomerServiceSearchResponse(BaseModel):
     """Response schema for customer service search."""
     services: List[CustomerServiceResponse]
     total_count: int
@@ -103,7 +103,7 @@ class CustomerServiceSearchResponse(BaseSchema):
     has_more: bool
     
 
-class ServiceProvisioningRequest(BaseSchema):
+class ServiceProvisioningRequest(BaseModel):
     """Schema for service provisioning requests."""
     customer_id: int = Field(..., description="Customer ID")
     service_plan_id: int = Field(..., description="Service plan ID")
@@ -113,7 +113,7 @@ class ServiceProvisioningRequest(BaseSchema):
     notes: Optional[str] = Field(None, max_length=1000, description="Provisioning notes")
 
 
-class ServiceProvisioningResponse(BaseSchema):
+class ServiceProvisioningResponse(BaseModel):
     """Response schema for service provisioning."""
     customer_service: CustomerServiceResponse
     provisioning_status: str = Field(..., description="Provisioning status")
@@ -121,7 +121,7 @@ class ServiceProvisioningResponse(BaseSchema):
     estimated_activation: Optional[datetime] = None
     
 
-class CustomerServicesOverview(BaseSchema):
+class CustomerServicesOverview(BaseModel):
     """Overview schema for customer's all services."""
     customer_id: int
     total_services: int
@@ -132,7 +132,7 @@ class CustomerServicesOverview(BaseSchema):
     services: List[CustomerServiceSummary]
     
 
-class ServicePlanAssignments(BaseSchema):
+class ServicePlanAssignments(BaseModel):
     """Schema showing all customers assigned to a service plan."""
     service_plan_id: int
     service_plan_name: str

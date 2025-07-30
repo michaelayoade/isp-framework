@@ -1,10 +1,10 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import  Field
 from typing import Optional
 from datetime import datetime
 
 
-class ServicePlanBase(BaseSchema):
+class ServicePlanBase(BaseModel):
     """Base service plan schema with common fields."""
     name: str = Field(..., min_length=1, max_length=255, description="Service plan name")
     display_name: Optional[str] = Field(None, max_length=255, description="Display name for customers")
@@ -24,7 +24,7 @@ class ServicePlanCreate(ServicePlanBase):
     pass
 
 
-class ServicePlanUpdate(BaseSchema):
+class ServicePlanUpdate(BaseModel):
     """Schema for updating an existing service plan."""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     display_name: Optional[str] = Field(None, max_length=255)
@@ -45,7 +45,7 @@ class ServicePlan(ServicePlanBase):
     updated_at: Optional[datetime] = None
     
 
-class ServicePlanSummary(BaseSchema):
+class ServicePlanSummary(BaseModel):
     """Simplified service plan schema for lists."""
     id: int
     name: str

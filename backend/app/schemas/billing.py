@@ -1,4 +1,3 @@
-from ._base import BaseSchema
 """
 Billing System Schemas
 
@@ -6,7 +5,7 @@ Comprehensive Pydantic schemas for billing module including invoices, payments,
 credit notes, and accounting for ISP Framework.
 """
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 from datetime import datetime, date
 from decimal import Decimal
@@ -56,7 +55,7 @@ class CreditNoteReason(str, Enum):
 
 
 # Invoice Schemas
-class InvoiceItemBase(BaseSchema):
+class InvoiceItemBase(BaseModel):
     """Base schema for invoice items"""
     description: str = Field(..., min_length=1, max_length=500)
     item_type: Optional[str] = Field(None, max_length=50)
@@ -78,7 +77,7 @@ class InvoiceItemCreate(InvoiceItemBase):
     pass
 
 
-class InvoiceItemUpdate(BaseSchema):
+class InvoiceItemUpdate(BaseModel):
     """Schema for updating invoice items"""
     description: Optional[str] = Field(None, min_length=1, max_length=500)
     item_type: Optional[str] = Field(None, max_length=50)
@@ -105,7 +104,7 @@ class InvoiceItemResponse(InvoiceItemBase):
     updated_at: Optional[datetime]
 
 
-class InvoiceBase(BaseSchema):
+class InvoiceBase(BaseModel):
     """Base schema for invoices"""
     customer_id: int = Field(..., gt=0)
     invoice_date: datetime
@@ -135,7 +134,7 @@ class InvoiceCreate(InvoiceBase):
     items: List[InvoiceItemCreate] = Field(default_factory=list)
 
 
-class InvoiceUpdate(BaseSchema):
+class InvoiceUpdate(BaseModel):
     """Schema for updating invoices"""
     customer_id: Optional[int] = Field(None, gt=0)
     invoice_date: Optional[datetime] = None
@@ -175,7 +174,7 @@ class InvoiceResponse(InvoiceBase):
     items: List[InvoiceItemResponse] = Field(default_factory=list)
 
 
-class InvoiceSearch(BaseSchema):
+class InvoiceSearch(BaseModel):
     """Schema for invoice search parameters"""
     customer_id: Optional[int] = Field(None, gt=0)
     status: Optional[InvoiceStatus] = None
@@ -191,7 +190,7 @@ class InvoiceSearch(BaseSchema):
 
 
 # Payment Schemas
-class PaymentBase(BaseSchema):
+class PaymentBase(BaseModel):
     """Base schema for payments"""
     invoice_id: int = Field(..., gt=0)
     customer_id: int = Field(..., gt=0)
@@ -211,7 +210,7 @@ class PaymentCreate(PaymentBase):
     pass
 
 
-class PaymentUpdate(BaseSchema):
+class PaymentUpdate(BaseModel):
     """Schema for updating payments"""
     payment_date: Optional[datetime] = None
     amount: Optional[Decimal] = Field(None, gt=0)
@@ -237,7 +236,7 @@ class PaymentResponse(PaymentBase):
     updated_at: Optional[datetime]
 
 
-class PaymentSearch(BaseSchema):
+class PaymentSearch(BaseModel):
     """Schema for payment search parameters"""
     customer_id: Optional[int] = Field(None, gt=0)
     invoice_id: Optional[int] = Field(None, gt=0)
@@ -251,7 +250,7 @@ class PaymentSearch(BaseSchema):
 
 
 # Payment Refund Schemas
-class PaymentRefundBase(BaseSchema):
+class PaymentRefundBase(BaseModel):
     """Base schema for payment refunds"""
     payment_id: int = Field(..., gt=0)
     amount: Decimal = Field(..., gt=0)
@@ -264,7 +263,7 @@ class PaymentRefundCreate(PaymentRefundBase):
     refund_date: datetime
 
 
-class PaymentRefundUpdate(BaseSchema):
+class PaymentRefundUpdate(BaseModel):
     """Schema for updating payment refunds"""
     amount: Optional[Decimal] = Field(None, gt=0)
     reason: Optional[str] = Field(None, max_length=200)
@@ -284,7 +283,7 @@ class PaymentRefundResponse(PaymentRefundBase):
 
 
 # Credit Note Schemas
-class CreditNoteBase(BaseSchema):
+class CreditNoteBase(BaseModel):
     """Base schema for credit notes"""
     invoice_id: int = Field(..., gt=0)
     customer_id: int = Field(..., gt=0)
@@ -302,7 +301,7 @@ class CreditNoteCreate(CreditNoteBase):
     pass
 
 
-class CreditNoteUpdate(BaseSchema):
+class CreditNoteUpdate(BaseModel):
     """Schema for updating credit notes"""
     credit_date: Optional[datetime] = None
     amount: Optional[Decimal] = Field(None, gt=0)
@@ -326,7 +325,7 @@ class CreditNoteResponse(CreditNoteBase):
     updated_at: Optional[datetime]
 
 
-class CreditNoteSearch(BaseSchema):
+class CreditNoteSearch(BaseModel):
     """Schema for credit note search parameters"""
     customer_id: Optional[int] = Field(None, gt=0)
     invoice_id: Optional[int] = Field(None, gt=0)
@@ -339,7 +338,7 @@ class CreditNoteSearch(BaseSchema):
 
 
 # Billing Cycle Schemas
-class BillingCycleBase(BaseSchema):
+class BillingCycleBase(BaseModel):
     """Base schema for billing cycles"""
     cycle_name: str = Field(..., min_length=1, max_length=100)
     cycle_type: str = Field(..., pattern="^(monthly|quarterly|yearly)$")
@@ -361,7 +360,7 @@ class BillingCycleCreate(BillingCycleBase):
     pass
 
 
-class BillingCycleUpdate(BaseSchema):
+class BillingCycleUpdate(BaseModel):
     """Schema for updating billing cycles"""
     cycle_name: Optional[str] = Field(None, min_length=1, max_length=100)
     cycle_type: Optional[str] = Field(None, pattern="^(monthly|quarterly|yearly)$")
@@ -387,7 +386,7 @@ class BillingCycleResponse(BillingCycleBase):
 
 
 # Accounting Schemas
-class AccountingEntryBase(BaseSchema):
+class AccountingEntryBase(BaseModel):
     """Base schema for accounting entries"""
     entry_date: datetime
     description: str = Field(..., min_length=1, max_length=500)
@@ -415,7 +414,7 @@ class AccountingEntryCreate(AccountingEntryBase):
     pass
 
 
-class AccountingEntryUpdate(BaseSchema):
+class AccountingEntryUpdate(BaseModel):
     """Schema for updating accounting entries"""
     entry_date: Optional[datetime] = None
     description: Optional[str] = Field(None, min_length=1, max_length=500)
@@ -438,7 +437,7 @@ class AccountingEntryResponse(AccountingEntryBase):
 
 
 # Tax Rate Schemas
-class TaxRateBase(BaseSchema):
+class TaxRateBase(BaseModel):
     """Base schema for tax rates"""
     name: str = Field(..., min_length=1, max_length=100)
     rate: Decimal = Field(..., ge=0, le=100)
@@ -463,7 +462,7 @@ class TaxRateCreate(TaxRateBase):
     pass
 
 
-class TaxRateUpdate(BaseSchema):
+class TaxRateUpdate(BaseModel):
     """Schema for updating tax rates"""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     rate: Optional[Decimal] = Field(None, ge=0, le=100)
@@ -489,7 +488,7 @@ class TaxRateResponse(TaxRateBase):
 
 
 # Summary and Statistics Schemas
-class BillingOverview(BaseSchema):
+class BillingOverview(BaseModel):
     """Schema for billing overview statistics"""
     total_invoices: int
     total_amount: Decimal
@@ -506,7 +505,7 @@ class BillingOverview(BaseSchema):
     collection_rate: Optional[float]  # Percentage
 
 
-class CustomerBillingSummary(BaseSchema):
+class CustomerBillingSummary(BaseModel):
     """Schema for customer billing summary"""
     customer_id: int
     total_invoices: int

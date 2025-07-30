@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 """
 Service Management Schemas - ISP Service Management System
 
@@ -29,7 +29,7 @@ from app.models.services.enums import (
 # Service Template Schemas
 # ============================================================================
 
-class ServiceTemplateBase(BaseSchema):
+class ServiceTemplateBase(BaseModel):
     """Base schema for service templates"""
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
@@ -48,7 +48,7 @@ class ServiceTemplateCreate(ServiceTemplateBase):
     pass
 
 
-class ServiceTemplateUpdate(BaseSchema):
+class ServiceTemplateUpdate(BaseModel):
     """Schema for updating service templates"""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
@@ -69,7 +69,7 @@ class ServiceTemplate(ServiceTemplateBase):
     
 
 # Internet Service Template Schemas
-class InternetServiceTemplateBase(BaseSchema):
+class InternetServiceTemplateBase(BaseModel):
     """Base schema for internet service templates"""
     template_id: int
     download_speed_kbps: int = Field(..., gt=0)
@@ -88,7 +88,7 @@ class InternetServiceTemplateCreate(InternetServiceTemplateBase):
     pass
 
 
-class InternetServiceTemplateUpdate(BaseSchema):
+class InternetServiceTemplateUpdate(BaseModel):
     """Schema for updating internet service templates"""
     download_speed_kbps: Optional[int] = Field(None, gt=0)
     upload_speed_kbps: Optional[int] = Field(None, gt=0)
@@ -108,7 +108,7 @@ class InternetServiceTemplate(InternetServiceTemplateBase):
     
 
 # Voice Service Template Schemas
-class VoiceServiceTemplateBase(BaseSchema):
+class VoiceServiceTemplateBase(BaseModel):
     """Base schema for voice service templates"""
     template_id: int
     included_minutes: Optional[int] = Field(None, gt=0)
@@ -127,7 +127,7 @@ class VoiceServiceTemplateCreate(VoiceServiceTemplateBase):
     pass
 
 
-class VoiceServiceTemplateUpdate(BaseSchema):
+class VoiceServiceTemplateUpdate(BaseModel):
     """Schema for updating voice service templates"""
     included_minutes: Optional[int] = Field(None, gt=0)
     is_unlimited: Optional[bool] = None
@@ -147,7 +147,7 @@ class VoiceServiceTemplate(VoiceServiceTemplateBase):
     
 
 # Bundle Service Template Schemas
-class BundleServiceTemplateBase(BaseSchema):
+class BundleServiceTemplateBase(BaseModel):
     """Base schema for bundle service templates"""
     template_id: int
     included_service_types: List[ServiceType]
@@ -162,7 +162,7 @@ class BundleServiceTemplateCreate(BundleServiceTemplateBase):
     pass
 
 
-class BundleServiceTemplateUpdate(BaseSchema):
+class BundleServiceTemplateUpdate(BaseModel):
     """Schema for updating bundle service templates"""
     included_service_types: Optional[List[ServiceType]] = None
     discount_percentage: Optional[Decimal] = Field(None, ge=0, le=100)
@@ -181,7 +181,7 @@ class BundleServiceTemplate(BundleServiceTemplateBase):
 # Customer Service Instance Schemas
 # ============================================================================
 
-class CustomerServiceBase(BaseSchema):
+class CustomerServiceBase(BaseModel):
     """Base schema for customer services"""
     customer_id: int
     template_id: int
@@ -198,7 +198,7 @@ class CustomerServiceCreate(CustomerServiceBase):
     pass
 
 
-class CustomerServiceUpdate(BaseSchema):
+class CustomerServiceUpdate(BaseModel):
     """Schema for updating customer services"""
     status: Optional[ServiceStatus] = None
     activation_date: Optional[datetime] = None
@@ -216,7 +216,7 @@ class CustomerService(CustomerServiceBase):
     
 
 # Customer Internet Service Schemas
-class CustomerInternetServiceBase(BaseSchema):
+class CustomerInternetServiceBase(BaseModel):
     """Base schema for customer internet services"""
     service_id: int
     pppoe_username: Optional[str] = Field(None, max_length=100)
@@ -237,7 +237,7 @@ class CustomerInternetServiceCreate(CustomerInternetServiceBase):
     pass
 
 
-class CustomerInternetServiceUpdate(BaseSchema):
+class CustomerInternetServiceUpdate(BaseModel):
     """Schema for updating customer internet services"""
     pppoe_username: Optional[str] = Field(None, max_length=100)
     pppoe_password: Optional[str] = Field(None, max_length=100)
@@ -259,7 +259,7 @@ class CustomerInternetService(CustomerInternetServiceBase):
     
 
 # Customer Voice Service Schemas
-class CustomerVoiceServiceBase(BaseSchema):
+class CustomerVoiceServiceBase(BaseModel):
     """Base schema for customer voice services"""
     service_id: int
     phone_number: Optional[str] = Field(None, max_length=20)
@@ -279,7 +279,7 @@ class CustomerVoiceServiceCreate(CustomerVoiceServiceBase):
     pass
 
 
-class CustomerVoiceServiceUpdate(BaseSchema):
+class CustomerVoiceServiceUpdate(BaseModel):
     """Schema for updating customer voice services"""
     phone_number: Optional[str] = Field(None, max_length=20)
     sip_username: Optional[str] = Field(None, max_length=100)
@@ -303,7 +303,7 @@ class CustomerVoiceService(CustomerVoiceServiceBase):
 # Service Provisioning Schemas
 # ============================================================================
 
-class ServiceProvisioningBase(BaseSchema):
+class ServiceProvisioningBase(BaseModel):
     """Base schema for service provisioning"""
     service_id: int
     template_id: Optional[int] = None
@@ -322,7 +322,7 @@ class ServiceProvisioningCreate(ServiceProvisioningBase):
     pass
 
 
-class ServiceProvisioningUpdate(BaseSchema):
+class ServiceProvisioningUpdate(BaseModel):
     """Schema for updating service provisioning"""
     status: Optional[ProvisioningStatus] = None
     priority: Optional[int] = Field(None, ge=1, le=10)
@@ -342,7 +342,7 @@ class ServiceProvisioning(ServiceProvisioningBase):
     
 
 # Provisioning Template Schemas
-class ProvisioningTemplateBase(BaseSchema):
+class ProvisioningTemplateBase(BaseModel):
     """Base schema for provisioning templates"""
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
@@ -360,7 +360,7 @@ class ProvisioningTemplateCreate(ProvisioningTemplateBase):
     pass
 
 
-class ProvisioningTemplateUpdate(BaseSchema):
+class ProvisioningTemplateUpdate(BaseModel):
     """Schema for updating provisioning templates"""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
@@ -385,7 +385,7 @@ class ProvisioningTemplate(ProvisioningTemplateBase):
 # ============================================================================
 
 # Service IP Assignment Schemas
-class ServiceIPAssignmentBase(BaseSchema):
+class ServiceIPAssignmentBase(BaseModel):
     """Base schema for service IP assignments"""
     service_id: int
     ip_address: str = Field(..., max_length=45)
@@ -402,7 +402,7 @@ class ServiceIPAssignmentCreate(ServiceIPAssignmentBase):
     pass
 
 
-class ServiceIPAssignmentUpdate(BaseSchema):
+class ServiceIPAssignmentUpdate(BaseModel):
     """Schema for updating service IP assignments"""
     ip_address: Optional[str] = Field(None, max_length=45)
     assignment_type: Optional[IPAssignmentType] = None
@@ -421,7 +421,7 @@ class ServiceIPAssignment(ServiceIPAssignmentBase):
     
 
 # Service Status History Schemas
-class ServiceStatusHistoryBase(BaseSchema):
+class ServiceStatusHistoryBase(BaseModel):
     """Base schema for service status history"""
     service_id: int
     previous_status: Optional[ServiceStatus] = None
@@ -444,7 +444,7 @@ class ServiceStatusHistory(ServiceStatusHistoryBase):
     
 
 # Service Suspension Schemas
-class ServiceSuspensionBase(BaseSchema):
+class ServiceSuspensionBase(BaseModel):
     """Base schema for service suspensions"""
     service_id: int
     reason: SuspensionReason
@@ -460,7 +460,7 @@ class ServiceSuspensionCreate(ServiceSuspensionBase):
     pass
 
 
-class ServiceSuspensionUpdate(BaseSchema):
+class ServiceSuspensionUpdate(BaseModel):
     """Schema for updating service suspensions"""
     grace_period_hours: Optional[int] = Field(None, gt=0)
     auto_restore_conditions: Optional[Dict[str, Any]] = None
@@ -477,7 +477,7 @@ class ServiceSuspension(ServiceSuspensionBase):
     
 
 # Service Usage Tracking Schemas
-class ServiceUsageTrackingBase(BaseSchema):
+class ServiceUsageTrackingBase(BaseModel):
     """Base schema for service usage tracking"""
     service_id: int
     metric_type: UsageMetricType
@@ -501,7 +501,7 @@ class ServiceUsageTracking(ServiceUsageTrackingBase):
     
 
 # Service Alert Schemas
-class ServiceAlertBase(BaseSchema):
+class ServiceAlertBase(BaseModel):
     """Base schema for service alerts"""
     service_id: int
     alert_type: str = Field(..., max_length=50)
@@ -518,7 +518,7 @@ class ServiceAlertCreate(ServiceAlertBase):
     pass
 
 
-class ServiceAlertUpdate(BaseSchema):
+class ServiceAlertUpdate(BaseModel):
     """Schema for updating service alerts"""
     status: Optional[AlertStatus] = None
     acknowledged_by: Optional[int] = None
@@ -543,7 +543,7 @@ class ServiceAlert(ServiceAlertBase):
 # Search and Filter Schemas
 # ============================================================================
 
-class ServiceTemplateSearchFilters(BaseSchema):
+class ServiceTemplateSearchFilters(BaseModel):
     """Search filters for service templates"""
     service_type: Optional[ServiceType] = None
     is_active: Optional[bool] = None
@@ -553,7 +553,7 @@ class ServiceTemplateSearchFilters(BaseSchema):
     search_query: Optional[str] = None
 
 
-class CustomerServiceSearchFilters(BaseSchema):
+class CustomerServiceSearchFilters(BaseModel):
     """Search filters for customer services"""
     customer_id: Optional[int] = None
     template_id: Optional[int] = None
@@ -564,7 +564,7 @@ class CustomerServiceSearchFilters(BaseSchema):
     search_query: Optional[str] = None
 
 
-class ServiceProvisioningSearchFilters(BaseSchema):
+class ServiceProvisioningSearchFilters(BaseModel):
     """Search filters for service provisioning"""
     service_id: Optional[int] = None
     status: Optional[ProvisioningStatus] = None
@@ -574,7 +574,7 @@ class ServiceProvisioningSearchFilters(BaseSchema):
     scheduled_date_to: Optional[date] = None
 
 
-class ServiceAlertSearchFilters(BaseSchema):
+class ServiceAlertSearchFilters(BaseModel):
     """Search filters for service alerts"""
     service_id: Optional[int] = None
     alert_type: Optional[str] = None
@@ -588,7 +588,7 @@ class ServiceAlertSearchFilters(BaseSchema):
 # Statistics and Dashboard Schemas
 # ============================================================================
 
-class ServiceStatistics(BaseSchema):
+class ServiceStatistics(BaseModel):
     """Service statistics schema"""
     total_services: int = 0
     active_services: int = 0
@@ -601,7 +601,7 @@ class ServiceStatistics(BaseSchema):
     average_activation_time_hours: Optional[float] = None
 
 
-class ProvisioningStatistics(BaseSchema):
+class ProvisioningStatistics(BaseModel):
     """Provisioning statistics schema"""
     total_provisioning_tasks: int = 0
     pending_tasks: int = 0
@@ -612,7 +612,7 @@ class ProvisioningStatistics(BaseSchema):
     success_rate_percentage: Optional[float] = None
 
 
-class UsageStatistics(BaseSchema):
+class UsageStatistics(BaseModel):
     """Usage statistics schema"""
     total_bandwidth_gb: Decimal = Field(default=Decimal('0'))
     average_usage_per_service_gb: Decimal = Field(default=Decimal('0'))
@@ -621,7 +621,7 @@ class UsageStatistics(BaseSchema):
     quality_score_average: Optional[float] = None
 
 
-class AlertStatistics(BaseSchema):
+class AlertStatistics(BaseModel):
     """Alert statistics schema"""
     total_alerts: int = 0
     active_alerts: int = 0
@@ -631,7 +631,7 @@ class AlertStatistics(BaseSchema):
     average_resolution_time_hours: Optional[float] = None
 
 
-class ServiceDashboard(BaseSchema):
+class ServiceDashboard(BaseModel):
     """Comprehensive service dashboard schema"""
     service_stats: ServiceStatistics
     provisioning_stats: ProvisioningStatistics
@@ -646,13 +646,13 @@ class ServiceDashboard(BaseSchema):
 # Pagination and Response Schemas
 # ============================================================================
 
-class PaginationParams(BaseSchema):
+class PaginationParams(BaseModel):
     """Pagination parameters"""
     page: int = Field(default=1, ge=1)
     size: int = Field(default=20, ge=1, le=100)
 
 
-class PaginatedResponse(BaseSchema):
+class PaginatedResponse(BaseModel):
     """Generic paginated response"""
     items: List[Any]
     total: int
@@ -671,7 +671,7 @@ class PaginatedResponse(BaseSchema):
 
 
 # Response wrapper schemas
-class ServiceTemplateListResponse(BaseSchema):
+class ServiceTemplateListResponse(BaseModel):
     """Service template list response"""
     items: List[ServiceTemplate]
     total: int
@@ -680,7 +680,7 @@ class ServiceTemplateListResponse(BaseSchema):
     pages: int
 
 
-class CustomerServiceListResponse(BaseSchema):
+class CustomerServiceListResponse(BaseModel):
     """Customer service list response"""
     items: List[CustomerService]
     total: int
@@ -689,7 +689,7 @@ class CustomerServiceListResponse(BaseSchema):
     pages: int
 
 
-class ServiceProvisioningListResponse(BaseSchema):
+class ServiceProvisioningListResponse(BaseModel):
     """Service provisioning list response"""
     items: List[ServiceProvisioning]
     total: int
@@ -702,7 +702,7 @@ class ServiceProvisioningListResponse(BaseSchema):
 # Bulk Operations Schemas
 # ============================================================================
 
-class BulkServiceOperation(BaseSchema):
+class BulkServiceOperation(BaseModel):
     """Schema for bulk service operations"""
     service_ids: List[int] = Field(..., min_items=1, max_items=100)
     operation: str = Field(..., max_length=50)
@@ -711,7 +711,7 @@ class BulkServiceOperation(BaseSchema):
     admin_id: int
 
 
-class BulkOperationResult(BaseSchema):
+class BulkOperationResult(BaseModel):
     """Schema for bulk operation results"""
     total_requested: int
     successful: int
@@ -724,7 +724,7 @@ class BulkOperationResult(BaseSchema):
 # Integration Schemas
 # ============================================================================
 
-class ServiceBillingIntegration(BaseSchema):
+class ServiceBillingIntegration(BaseModel):
     """Schema for service billing integration"""
     service_id: int
     billing_account_id: Optional[int] = None
@@ -735,7 +735,7 @@ class ServiceBillingIntegration(BaseSchema):
     billing_status: str = Field(default="active", max_length=20)
 
 
-class ServiceNetworkIntegration(BaseSchema):
+class ServiceNetworkIntegration(BaseModel):
     """Schema for service network integration"""
     service_id: int
     router_id: Optional[int] = None

@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 """
 Reseller Management Schemas
 
@@ -11,7 +11,7 @@ from typing import Optional, List
 from pydantic import  EmailStr, Field, ConfigDict
 
 
-class ResellerBase(BaseSchema):
+class ResellerBase(BaseModel):
     """Base reseller schema with common fields"""
     name: str = Field(..., min_length=1, max_length=255)
     code: str = Field(..., min_length=1, max_length=50)
@@ -44,7 +44,7 @@ class ResellerCreate(ResellerBase):
     password: str = Field(..., min_length=8, max_length=255, description="Password for reseller authentication")
 
 
-class ResellerUpdate(BaseSchema):
+class ResellerUpdate(BaseModel):
     """Schema for updating reseller information"""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     contact_person: Optional[str] = Field(None, max_length=255)
@@ -84,7 +84,7 @@ class ResellerResponse(ResellerBase):
     total_commission: Optional[Decimal] = Field(default=Decimal("0"), description="Total commission earned")
 
 
-class ResellerListResponse(BaseSchema):
+class ResellerListResponse(BaseModel):
     """Schema for paginated reseller list response"""
     resellers: List[ResellerResponse]
     total: int
@@ -93,7 +93,7 @@ class ResellerListResponse(BaseSchema):
     pages: int
 
 
-class ResellerStats(BaseSchema):
+class ResellerStats(BaseModel):
     """Schema for reseller statistics"""
     reseller_id: int
     reseller_name: str
@@ -105,7 +105,7 @@ class ResellerStats(BaseSchema):
     territory: Optional[str] = None
 
 
-class ResellerCommissionReport(BaseSchema):
+class ResellerCommissionReport(BaseModel):
     """Schema for reseller commission reporting"""
     reseller_id: int
     reseller_name: str
@@ -118,7 +118,7 @@ class ResellerCommissionReport(BaseSchema):
     customer_count: int
 
 
-class ResellerCustomerSummary(BaseSchema):
+class ResellerCustomerSummary(BaseModel):
     """Schema for reseller's customer summary"""
     customer_id: int
     portal_id: str
@@ -131,7 +131,7 @@ class ResellerCustomerSummary(BaseSchema):
     created_at: datetime
 
 
-class ResellerDashboard(BaseSchema):
+class ResellerDashboard(BaseModel):
     """Schema for reseller dashboard data"""
     reseller: ResellerResponse
     stats: ResellerStats

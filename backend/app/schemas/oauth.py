@@ -1,10 +1,10 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import  Field
 from typing import Optional
 from datetime import datetime
 
 
-class TokenRequest(BaseSchema):
+class TokenRequest(BaseModel):
     """OAuth 2.0 Token Request"""
     grant_type: str = Field(..., description="OAuth grant type")
     username: Optional[str] = Field(None, description="Username for password grant")
@@ -18,7 +18,7 @@ class TokenRequest(BaseSchema):
     code_verifier: Optional[str] = Field(None, description="PKCE code verifier")
 
 
-class TokenResponse(BaseSchema):
+class TokenResponse(BaseModel):
     """OAuth 2.0 Token Response"""
     access_token: str = Field(..., description="Access token")
     refresh_token: Optional[str] = Field(None, description="Refresh token")
@@ -27,13 +27,13 @@ class TokenResponse(BaseSchema):
     scope: Optional[str] = Field(None, description="Granted scope")
 
 
-class ClientCredentialsRequest(BaseSchema):
+class ClientCredentialsRequest(BaseModel):
     """OAuth 2.0 Client Credentials Request"""
     grant_type: str = Field(default="client_credentials")
     scope: Optional[str] = Field(None, description="Requested scope")
 
 
-class TokenIntrospectionResponse(BaseSchema):
+class TokenIntrospectionResponse(BaseModel):
     """OAuth 2.0 Token Introspection Response (RFC 7662)"""
     active: bool = Field(..., description="Whether the token is active")
     client_id: Optional[str] = Field(None, description="Client ID")
@@ -44,7 +44,7 @@ class TokenIntrospectionResponse(BaseSchema):
     token_type: Optional[str] = Field(None, description="Token type")
 
 
-class OAuthClientCreate(BaseSchema):
+class OAuthClientCreate(BaseModel):
     """Create OAuth Client Request"""
     client_name: str = Field(..., description="Client name")
     client_description: Optional[str] = Field(None, description="Client description")
@@ -54,7 +54,7 @@ class OAuthClientCreate(BaseSchema):
     redirect_uris: Optional[str] = Field(None, description="Allowed redirect URIs (JSON array)")
 
 
-class OAuthClientResponse(BaseSchema):
+class OAuthClientResponse(BaseModel):
     """OAuth Client Response"""
     client_id: str
     client_name: str
@@ -69,7 +69,7 @@ class OAuthClientResponse(BaseSchema):
     client_secret: Optional[str] = Field(None, description="Client secret (only on creation)")
 
 
-class AuthorizationCodeRequest(BaseSchema):
+class AuthorizationCodeRequest(BaseModel):
     """OAuth 2.0 Authorization Code Request"""
     response_type: str = Field(default="code")
     client_id: str = Field(..., description="OAuth client ID")
@@ -80,24 +80,24 @@ class AuthorizationCodeRequest(BaseSchema):
     code_challenge_method: Optional[str] = Field(None, description="PKCE code challenge method")
 
 
-class AuthorizationCodeResponse(BaseSchema):
+class AuthorizationCodeResponse(BaseModel):
     """OAuth 2.0 Authorization Code Response"""
     code: str = Field(..., description="Authorization code")
     state: Optional[str] = Field(None, description="State parameter")
 
 
-class TokenRevocationRequest(BaseSchema):
+class TokenRevocationRequest(BaseModel):
     """OAuth 2.0 Token Revocation Request (RFC 7009)"""
     token: str = Field(..., description="Token to revoke")
     token_type_hint: Optional[str] = Field(None, description="Token type hint")
 
 
-class TokenRevocationResponse(BaseSchema):
+class TokenRevocationResponse(BaseModel):
     """OAuth 2.0 Token Revocation Response"""
     revoked: bool = Field(..., description="Whether token was revoked")
 
 
-class OAuthErrorResponse(BaseSchema):
+class OAuthErrorResponse(BaseModel):
     """OAuth 2.0 Error Response"""
     error: str = Field(..., description="Error code")
     error_description: Optional[str] = Field(None, description="Error description")

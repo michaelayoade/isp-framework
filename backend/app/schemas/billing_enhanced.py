@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 """
 Billing Pydantic Schemas
 
@@ -20,14 +20,14 @@ from app.models.billing import (
 
 
 # Base Schemas
-class TimestampMixin(BaseSchema):
+class TimestampMixin(BaseModel):
     """Mixin for timestamp fields"""
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
 
 # Billing Account Schemas
-class BillingAccountBase(BaseSchema):
+class BillingAccountBase(BaseModel):
     """Base billing account schema"""
     account_name: Optional[str] = Field(None, max_length=255)
     billing_type: BillingType
@@ -46,7 +46,7 @@ class BillingAccountCreate(BillingAccountBase):
     customer_id: int = Field(..., gt=0)
 
 
-class BillingAccountUpdate(BaseSchema):
+class BillingAccountUpdate(BaseModel):
     """Schema for updating billing account"""
     account_name: Optional[str] = Field(None, max_length=255)
     account_status: Optional[AccountStatus] = None
@@ -70,7 +70,7 @@ class BillingAccountResponse(BillingAccountBase, TimestampMixin):
 
 
 # Balance and Transaction Schemas
-class BalanceUpdateRequest(BaseSchema):
+class BalanceUpdateRequest(BaseModel):
     """Schema for balance update request"""
     amount: Decimal = Field(..., description="Amount to add/subtract from balance")
     transaction_type: TransactionType
@@ -78,7 +78,7 @@ class BalanceUpdateRequest(BaseSchema):
     reference_id: Optional[int] = None
 
 
-class BalanceResponse(BaseSchema):
+class BalanceResponse(BaseModel):
     """Schema for balance response"""
     available_balance: Decimal
     reserved_balance: Decimal
@@ -102,7 +102,7 @@ class TransactionResponse(TimestampMixin):
 
 
 # Invoice Schemas
-class InvoiceItemCreate(BaseSchema):
+class InvoiceItemCreate(BaseModel):
     """Schema for creating invoice item"""
     description: str = Field(..., max_length=500)
     quantity: Decimal = Field(..., gt=0)
@@ -124,7 +124,7 @@ class InvoiceItemResponse(InvoiceItemCreate, TimestampMixin):
     proration_factor: Optional[Decimal] = None
 
 
-class InvoiceBase(BaseSchema):
+class InvoiceBase(BaseModel):
     """Base invoice schema"""
     description: Optional[str] = Field(None, max_length=1000)
     due_date: datetime
@@ -140,7 +140,7 @@ class InvoiceCreate(InvoiceBase):
     invoice_items: List[InvoiceItemCreate] = Field(..., min_items=1)
 
 
-class InvoiceUpdate(BaseSchema):
+class InvoiceUpdate(BaseModel):
     """Schema for updating invoice"""
     description: Optional[str] = Field(None, max_length=1000)
     due_date: Optional[datetime] = None
@@ -166,7 +166,7 @@ class InvoiceResponse(InvoiceBase, TimestampMixin):
 
 
 # Payment Schemas
-class PaymentMethodCreate(BaseSchema):
+class PaymentMethodCreate(BaseModel):
     """Schema for creating payment method"""
     billing_account_id: int = Field(..., gt=0)
     method_type: PaymentMethodType
@@ -186,7 +186,7 @@ class PaymentMethodResponse(PaymentMethodCreate, TimestampMixin):
     is_active: bool
 
 
-class PaymentCreate(BaseSchema):
+class PaymentCreate(BaseModel):
     """Schema for creating payment"""
     billing_account_id: int = Field(..., gt=0)
     amount: Decimal = Field(..., gt=0)
@@ -210,7 +210,7 @@ class PaymentResponse(PaymentCreate, TimestampMixin):
 
 
 # Credit Note Schemas
-class CreditNoteCreate(BaseSchema):
+class CreditNoteCreate(BaseModel):
     """Schema for creating credit note"""
     billing_account_id: int = Field(..., gt=0)
     original_invoice_id: Optional[int] = None
@@ -231,7 +231,7 @@ class CreditNoteResponse(CreditNoteCreate, TimestampMixin):
 
 
 # Payment Plan Schemas
-class PaymentPlanCreate(BaseSchema):
+class PaymentPlanCreate(BaseModel):
     """Schema for creating payment plan"""
     billing_account_id: int = Field(..., gt=0)
     original_amount: Decimal = Field(..., gt=0)
@@ -255,7 +255,7 @@ class PaymentPlanResponse(PaymentPlanCreate, TimestampMixin):
 
 
 # Dunning Schemas
-class DunningCaseCreate(BaseSchema):
+class DunningCaseCreate(BaseModel):
     """Schema for creating dunning case"""
     billing_account_id: int = Field(..., gt=0)
     overdue_amount: Decimal = Field(..., gt=0)
@@ -277,7 +277,7 @@ class DunningCaseResponse(DunningCaseCreate, TimestampMixin):
 
 
 # Billing Cycle Schemas
-class BillingCycleCreate(BaseSchema):
+class BillingCycleCreate(BaseModel):
     """Schema for creating billing cycle"""
     billing_account_id: int = Field(..., gt=0)
     cycle_name: str = Field(..., max_length=255)
@@ -300,7 +300,7 @@ class BillingCycleResponse(BillingCycleCreate, TimestampMixin):
 
 
 # Report and Analytics Schemas
-class AccountSummaryResponse(BaseSchema):
+class AccountSummaryResponse(BaseModel):
     """Schema for account summary response"""
     account_info: Dict[str, Any]
     transaction_summary: Dict[str, Any]
@@ -308,7 +308,7 @@ class AccountSummaryResponse(BaseSchema):
     payment_summary: Dict[str, Any]
 
 
-class BillingReportResponse(BaseSchema):
+class BillingReportResponse(BaseModel):
     """Schema for billing report response"""
     report_date: datetime
     total_accounts: int
@@ -322,7 +322,7 @@ class BillingReportResponse(BaseSchema):
 
 
 # Search and Filter Schemas
-class BillingAccountSearchRequest(BaseSchema):
+class BillingAccountSearchRequest(BaseModel):
     """Schema for billing account search request"""
     search_term: Optional[str] = None
     billing_type: Optional[BillingType] = None
@@ -333,7 +333,7 @@ class BillingAccountSearchRequest(BaseSchema):
     offset: int = Field(0, ge=0)
 
 
-class InvoiceSearchRequest(BaseSchema):
+class InvoiceSearchRequest(BaseModel):
     """Schema for invoice search request"""
     search_term: Optional[str] = None
     account_id: Optional[int] = None
@@ -346,7 +346,7 @@ class InvoiceSearchRequest(BaseSchema):
     offset: int = Field(0, ge=0)
 
 
-class PaymentSearchRequest(BaseSchema):
+class PaymentSearchRequest(BaseModel):
     """Schema for payment search request"""
     search_term: Optional[str] = None
     account_id: Optional[int] = None
@@ -360,7 +360,7 @@ class PaymentSearchRequest(BaseSchema):
 
 
 # Pagination Schemas
-class PaginatedResponse(BaseSchema):
+class PaginatedResponse(BaseModel):
     """Generic paginated response schema"""
     items: List[Any]
     total: int
@@ -403,14 +403,14 @@ class PaginatedTransactionResponse(PaginatedResponse):
 
 
 # Validation Schemas
-class BillingValidationResponse(BaseSchema):
+class BillingValidationResponse(BaseModel):
     """Schema for billing validation response"""
     is_valid: bool
     validation_errors: List[str] = []
     warnings: List[str] = []
 
 
-class BalanceValidationRequest(BaseSchema):
+class BalanceValidationRequest(BaseModel):
     """Schema for balance validation request"""
     account_id: int = Field(..., gt=0)
     requested_amount: Decimal = Field(..., gt=0)
@@ -425,19 +425,19 @@ class BalanceValidationResponse(BillingValidationResponse):
 
 
 # Bulk Operation Schemas
-class BulkInvoiceCreate(BaseSchema):
+class BulkInvoiceCreate(BaseModel):
     """Schema for bulk invoice creation"""
     billing_account_ids: List[int] = Field(..., min_items=1)
     invoice_template: InvoiceBase
     invoice_items_template: List[InvoiceItemCreate]
 
 
-class BulkPaymentProcess(BaseSchema):
+class BulkPaymentProcess(BaseModel):
     """Schema for bulk payment processing"""
     payment_requests: List[PaymentCreate] = Field(..., min_items=1)
 
 
-class BulkOperationResponse(BaseSchema):
+class BulkOperationResponse(BaseModel):
     """Schema for bulk operation response"""
     total_requested: int
     successful: int
@@ -447,7 +447,7 @@ class BulkOperationResponse(BaseSchema):
 
 
 # Configuration Schemas
-class BillingConfigurationResponse(BaseSchema):
+class BillingConfigurationResponse(BaseModel):
     """Schema for billing configuration response"""
     supported_currencies: List[str]
     default_currency: str

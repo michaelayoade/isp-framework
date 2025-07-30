@@ -1,11 +1,11 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import EmailStr, Field, validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from .customer_status import CustomerStatus  # Import CustomerStatus schema
 
 
-class CustomerBase(BaseSchema):
+class CustomerBase(BaseModel):
     """Base customer schema with common fields."""
     name: str = Field(..., min_length=1, max_length=255, description="Customer name")
     email: Optional[EmailStr] = Field(None, description="Customer email address")
@@ -29,7 +29,7 @@ class CustomerCreate(CustomerBase):
     status_id: Optional[int] = Field(None, description="Customer status ID")
 
 
-class CustomerUpdate(BaseSchema):
+class CustomerUpdate(BaseModel):
     """Schema for updating an existing customer."""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     email: Optional[EmailStr] = None
@@ -58,7 +58,7 @@ class Customer(CustomerBase):
     updated_at: Optional[datetime] = None
     
 
-class CustomerSummary(BaseSchema):
+class CustomerSummary(BaseModel):
     """Simplified customer schema for lists."""
     id: int
     name: str
@@ -70,7 +70,7 @@ class CustomerSummary(BaseSchema):
     created_at: datetime
     
 
-class CustomerList(BaseSchema):
+class CustomerList(BaseModel):
     """Schema for paginated customer list response."""
     customers: List[CustomerSummary]
     total: int = Field(..., description="Total number of customers")
@@ -79,13 +79,13 @@ class CustomerList(BaseSchema):
     pages: int = Field(..., description="Total number of pages")
 
 
-class CustomerStatusUpdate(BaseSchema):
+class CustomerStatusUpdate(BaseModel):
     """Schema for updating customer status."""
     status: str = Field(..., description="New customer status")
 
 
 # Contact Type Schemas
-class ContactTypeBase(BaseSchema):
+class ContactTypeBase(BaseModel):
     """Base schema for contact types."""
     code: str = Field(..., min_length=1, max_length=50, description="Contact type code")
     name: str = Field(..., min_length=1, max_length=100, description="Display name")
@@ -99,7 +99,7 @@ class ContactTypeCreate(ContactTypeBase):
     pass
 
 
-class ContactTypeUpdate(BaseSchema):
+class ContactTypeUpdate(BaseModel):
     """Schema for updating contact type."""
     code: Optional[str] = Field(None, min_length=1, max_length=50)
     name: Optional[str] = Field(None, min_length=1, max_length=100)
@@ -117,7 +117,7 @@ class ContactType(ContactTypeBase):
 
 
 # Extended Customer Information Schemas
-class CustomerContactBase(BaseSchema):
+class CustomerContactBase(BaseModel):
     """Base schema for customer contacts."""
     contact_type_id: int = Field(..., description="Contact type ID")
     name: str = Field(..., min_length=1, max_length=255, description="Contact name")
@@ -136,7 +136,7 @@ class CustomerContactCreate(CustomerContactBase):
     pass
 
 
-class CustomerContactUpdate(BaseSchema):
+class CustomerContactUpdate(BaseModel):
     """Schema for updating customer contact."""
     contact_type_id: Optional[int] = Field(None, description="Contact type ID")
     name: Optional[str] = Field(None, min_length=1, max_length=255)
@@ -159,7 +159,7 @@ class CustomerContact(CustomerContactBase):
     updated_at: Optional[datetime] = None
 
 
-class CustomerExtendedBase(BaseSchema):
+class CustomerExtendedBase(BaseModel):
     """Base schema for extended customer information."""
     company_name: Optional[str] = Field(None, max_length=255, description="Company name")
     tax_number: Optional[str] = Field(None, max_length=100, description="Tax number")
@@ -179,7 +179,7 @@ class CustomerExtendedCreate(CustomerExtendedBase):
     pass
 
 
-class CustomerExtendedUpdate(BaseSchema):
+class CustomerExtendedUpdate(BaseModel):
     """Schema for updating extended customer info."""
     company_name: Optional[str] = Field(None, max_length=255)
     tax_number: Optional[str] = Field(None, max_length=100)

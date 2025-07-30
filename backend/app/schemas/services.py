@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 """
 Service Management Schemas
 
@@ -13,7 +13,7 @@ from pydantic import  Field, validator
 
 
 # Internet Service Schemas
-class InternetServiceBase(BaseSchema):
+class InternetServiceBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     download_speed: int = Field(..., gt=0, description="Download speed in Mbps")
@@ -39,7 +39,7 @@ class InternetServiceCreate(InternetServiceBase):
     pass
 
 
-class InternetServiceUpdate(BaseSchema):
+class InternetServiceUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     download_speed: Optional[int] = Field(None, gt=0)
@@ -70,7 +70,7 @@ class InternetService(InternetServiceBase):
 
 
 # Voice Service Schemas
-class VoiceServiceBase(BaseSchema):
+class VoiceServiceBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     included_minutes: int = Field(0, ge=0)
@@ -91,7 +91,7 @@ class VoiceServiceCreate(VoiceServiceBase):
     pass
 
 
-class VoiceServiceUpdate(BaseSchema):
+class VoiceServiceUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     included_minutes: Optional[int] = Field(None, ge=0)
@@ -116,7 +116,7 @@ class VoiceService(VoiceServiceBase):
 
 
 # Bundle Service Schemas
-class BundleServiceBase(BaseSchema):
+class BundleServiceBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     internet_service_id: Optional[int] = None
@@ -136,7 +136,7 @@ class BundleServiceCreate(BundleServiceBase):
     pass
 
 
-class BundleServiceUpdate(BaseSchema):
+class BundleServiceUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     internet_service_id: Optional[int] = None
@@ -163,7 +163,7 @@ class BundleService(BundleServiceBase):
 
 
 # Recurring Service Schemas
-class RecurringServiceBase(BaseSchema):
+class RecurringServiceBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     service_type: str = Field(..., pattern="^(addon|maintenance|support)$")
@@ -181,7 +181,7 @@ class RecurringServiceCreate(RecurringServiceBase):
     pass
 
 
-class RecurringServiceUpdate(BaseSchema):
+class RecurringServiceUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     service_type: Optional[str] = Field(None, pattern="^(addon|maintenance|support)$")
@@ -202,7 +202,7 @@ class RecurringService(RecurringServiceBase):
 
 
 # Service Tariff Schemas
-class ServiceTariffBase(BaseSchema):
+class ServiceTariffBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     tariff_type: str = Field(..., pattern="^(internet|voice|bundle|recurring)$")
@@ -224,7 +224,7 @@ class ServiceTariffCreate(ServiceTariffBase):
     pass
 
 
-class ServiceTariffUpdate(BaseSchema):
+class ServiceTariffUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     tariff_type: Optional[str] = Field(None, pattern="^(internet|voice|bundle|recurring)$")
@@ -250,7 +250,7 @@ class ServiceTariff(ServiceTariffBase):
 
 
 # Service Management Overview Schemas
-class ServiceOverview(BaseSchema):
+class ServiceOverview(BaseModel):
     """Overview of all service types and counts"""
     internet_services: int
     voice_services: int
@@ -261,7 +261,7 @@ class ServiceOverview(BaseSchema):
     public_services: int
 
 
-class ServiceSearchFilters(BaseSchema):
+class ServiceSearchFilters(BaseModel):
     """Filters for service search and listing"""
     service_type: Optional[str] = Field(None, pattern="^(internet|voice|bundle|recurring)$")
     is_active: Optional[bool] = None
@@ -271,7 +271,7 @@ class ServiceSearchFilters(BaseSchema):
     search_term: Optional[str] = Field(None, min_length=1)
 
 
-class ServiceListResponse(BaseSchema):
+class ServiceListResponse(BaseModel):
     """Response for service listing with pagination"""
     services: List[dict]  # Mixed service types
     total: int

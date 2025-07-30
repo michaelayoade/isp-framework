@@ -1,11 +1,11 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import  Field, EmailStr, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
 
 
-class CustomerContactCreate(BaseSchema):
+class CustomerContactCreate(BaseModel):
     """Schema for creating customer contact"""
     contact_type: str = Field("primary", description="Contact type")
     name: str = Field(..., description="Contact name")
@@ -24,7 +24,7 @@ class CustomerContactCreate(BaseSchema):
     is_primary: bool = Field(False, description="Is primary contact")
 
 
-class CustomerContactResponse(BaseSchema):
+class CustomerContactResponse(BaseModel):
     """Schema for customer contact response"""
     id: int
     customer_id: int
@@ -48,7 +48,7 @@ class CustomerContactResponse(BaseSchema):
     updated_at: Optional[datetime]
 
 
-class CustomerLabelCreate(BaseSchema):
+class CustomerLabelCreate(BaseModel):
     """Schema for creating customer label"""
     name: str = Field(..., description="Label name")
     display_name: Optional[str] = Field(None, description="Display name")
@@ -58,7 +58,7 @@ class CustomerLabelCreate(BaseSchema):
     priority: int = Field(0, description="Label priority")
 
 
-class CustomerLabelResponse(BaseSchema):
+class CustomerLabelResponse(BaseModel):
     """Schema for customer label response"""
     id: int
     name: str
@@ -74,7 +74,7 @@ class CustomerLabelResponse(BaseSchema):
     updated_at: Optional[datetime]
 
 
-class CustomerNoteCreate(BaseSchema):
+class CustomerNoteCreate(BaseModel):
     """Schema for creating customer note"""
     title: Optional[str] = Field(None, description="Note title")
     content: str = Field(..., description="Note content")
@@ -83,7 +83,7 @@ class CustomerNoteCreate(BaseSchema):
     priority: str = Field("normal", description="Note priority")
 
 
-class CustomerNoteResponse(BaseSchema):
+class CustomerNoteResponse(BaseModel):
     """Schema for customer note response"""
     id: int
     customer_id: int
@@ -97,7 +97,7 @@ class CustomerNoteResponse(BaseSchema):
     updated_at: Optional[datetime]
 
 
-class CustomerDocumentCreate(BaseSchema):
+class CustomerDocumentCreate(BaseModel):
     """Schema for creating customer document"""
     document_name: str = Field(..., description="Document name")
     document_type: Optional[str] = Field(None, description="Document type")
@@ -109,7 +109,7 @@ class CustomerDocumentCreate(BaseSchema):
     expiry_date: Optional[date] = Field(None, description="Expiry date")
 
 
-class CustomerDocumentResponse(BaseSchema):
+class CustomerDocumentResponse(BaseModel):
     """Schema for customer document response"""
     id: int
     customer_id: int
@@ -130,7 +130,7 @@ class CustomerDocumentResponse(BaseSchema):
     updated_at: Optional[datetime]
 
 
-class CustomerBillingConfigCreate(BaseSchema):
+class CustomerBillingConfigCreate(BaseModel):
     """Schema for creating customer billing configuration"""
     billing_cycle: str = Field("monthly", description="Billing cycle")
     billing_day: int = Field(1, description="Billing day")
@@ -148,7 +148,7 @@ class CustomerBillingConfigCreate(BaseSchema):
     tax_rate_override: Optional[Decimal] = Field(None, description="Tax rate override")
 
 
-class CustomerBillingConfigResponse(BaseSchema):
+class CustomerBillingConfigResponse(BaseModel):
     """Schema for customer billing configuration response"""
     id: int
     customer_id: int
@@ -170,7 +170,7 @@ class CustomerBillingConfigResponse(BaseSchema):
     updated_at: Optional[datetime]
 
 
-class CustomerExtendedCreate(BaseSchema):
+class CustomerExtendedCreate(BaseModel):
     """Schema for creating extended customer"""
     login: Optional[str] = Field(None, description="Customer login")
     password: Optional[str] = Field(None, description="Customer password")
@@ -230,7 +230,7 @@ class CustomerExtendedCreate(BaseSchema):
         return v
 
 
-class CustomerExtendedUpdate(BaseSchema):
+class CustomerExtendedUpdate(BaseModel):
     """Schema for updating extended customer"""
     name: Optional[str] = Field(None, description="Customer name")
     email: Optional[EmailStr] = Field(None, description="Customer email")
@@ -276,7 +276,7 @@ class CustomerExtendedUpdate(BaseSchema):
     tags: Optional[str] = Field(None, description="Customer tags")
 
 
-class CustomerExtendedResponse(BaseSchema):
+class CustomerExtendedResponse(BaseModel):
     """Schema for extended customer response"""
     id: int
     login: str
@@ -340,7 +340,7 @@ class CustomerExtendedResponse(BaseSchema):
     last_login: Optional[datetime]
 
 
-class CustomerDetailsResponse(BaseSchema):
+class CustomerDetailsResponse(BaseModel):
     """Schema for comprehensive customer details"""
     customer: CustomerExtendedResponse
     contacts: List[CustomerContactResponse]
@@ -352,7 +352,7 @@ class CustomerDetailsResponse(BaseSchema):
     account_summary: Dict[str, Any]
 
 
-class CustomerSearchRequest(BaseSchema):
+class CustomerSearchRequest(BaseModel):
     """Schema for customer search request"""
     query: Optional[str] = Field(None, description="Search query")
     status: Optional[str] = Field(None, description="Customer status filter")
@@ -364,7 +364,7 @@ class CustomerSearchRequest(BaseSchema):
     offset: int = Field(0, description="Results offset", ge=0)
 
 
-class CustomerSearchResponse(BaseSchema):
+class CustomerSearchResponse(BaseModel):
     """Schema for customer search response"""
     customers: List[CustomerExtendedResponse]
     total_count: int
@@ -372,19 +372,19 @@ class CustomerSearchResponse(BaseSchema):
     offset: int
 
 
-class CustomerStatusChangeRequest(BaseSchema):
+class CustomerStatusChangeRequest(BaseModel):
     """Schema for customer status change"""
     new_status: str = Field(..., description="New customer status")
     reason: Optional[str] = Field(None, description="Reason for status change")
 
 
-class CustomerLabelAssignmentRequest(BaseSchema):
+class CustomerLabelAssignmentRequest(BaseModel):
     """Schema for customer label assignment"""
     label_id: int = Field(..., description="Label ID to assign")
     notes: Optional[str] = Field(None, description="Assignment notes")
 
 
-class CustomerHierarchyResponse(BaseSchema):
+class CustomerHierarchyResponse(BaseModel):
     """Schema for customer hierarchy response"""
     customer: CustomerExtendedResponse
     parent_chain: List[CustomerExtendedResponse]

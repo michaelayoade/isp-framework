@@ -1,10 +1,10 @@
-from app.schemas._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import Field
 from typing import Optional
 from datetime import datetime
 
 
-class CustomerStatusBase(BaseSchema):
+class CustomerStatusBase(BaseModel):
     """Base schema for customer statuses."""
     code: str = Field(..., min_length=1, max_length=50, description="Status code")
     name: str = Field(..., min_length=1, max_length=100, description="Display name")
@@ -27,7 +27,7 @@ class CustomerStatusCreate(CustomerStatusBase):
     pass
 
 
-class CustomerStatusUpdate(BaseSchema):
+class CustomerStatusUpdate(BaseModel):
     """Schema for updating customer status."""
     code: Optional[str] = Field(None, min_length=1, max_length=50)
     name: Optional[str] = Field(None, min_length=1, max_length=100)

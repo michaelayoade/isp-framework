@@ -1,10 +1,10 @@
-from app.schemas._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import Field
 from typing import Optional
 from datetime import datetime
 
 
-class BillingTypeBase(BaseSchema):
+class BillingTypeBase(BaseModel):
     """Base schema for billing types."""
     code: str = Field(..., min_length=1, max_length=50, description="Billing type code")
     name: str = Field(..., min_length=1, max_length=100, description="Display name")
@@ -37,7 +37,7 @@ class BillingTypeCreate(BillingTypeBase):
     pass
 
 
-class BillingTypeUpdate(BaseSchema):
+class BillingTypeUpdate(BaseModel):
     """Schema for updating billing type."""
     code: Optional[str] = Field(None, min_length=1, max_length=50)
     name: Optional[str] = Field(None, min_length=1, max_length=100)

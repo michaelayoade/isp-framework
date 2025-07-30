@@ -1,28 +1,28 @@
 from pydantic import EmailStr, Field
-from ._base import BaseSchema
+from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 
 
-class TokenResponse(BaseSchema):
+class TokenResponse(BaseModel):
     """Schema for token response."""
     access_token: str = Field(..., description="JWT access token")
     refresh_token: str = Field(..., description="JWT refresh token")
     token_type: str = Field("bearer", description="Token type")
 
 
-class RefreshTokenRequest(BaseSchema):
+class RefreshTokenRequest(BaseModel):
     """Schema for refresh token request."""
     refresh_token: str = Field(..., description="Refresh token to exchange for new access token")
 
 
-class TokenData(BaseSchema):
+class TokenData(BaseModel):
     """Schema for token payload data."""
     username: Optional[str] = None
     admin_id: Optional[int] = None
 
 
-class AdminBase(BaseSchema):
+class AdminBase(BaseModel):
     """Base administrator schema."""
     username: str = Field(..., min_length=3, max_length=100, description="Administrator username")
     email: EmailStr = Field(..., description="Administrator email")
@@ -37,7 +37,7 @@ class AdminCreate(AdminBase):
     is_superuser: bool = Field(False, description="Is superuser")
 
 
-class AdminUpdate(BaseSchema):
+class AdminUpdate(BaseModel):
     """Schema for updating an administrator."""
     username: Optional[str] = Field(None, min_length=3, max_length=100)
     email: Optional[EmailStr] = None
@@ -60,7 +60,7 @@ class Admin(AdminBase):
 
 
 
-class PasswordChangeRequest(BaseSchema):
+class PasswordChangeRequest(BaseModel):
     """Schema for password change request."""
     old_password: str = Field(..., description="Current password")
     new_password: str = Field(..., min_length=8, description="New password")

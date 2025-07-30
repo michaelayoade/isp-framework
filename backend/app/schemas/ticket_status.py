@@ -1,10 +1,10 @@
-from app.schemas._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import Field
 from typing import Optional
 from datetime import datetime
 
 
-class TicketStatusBase(BaseSchema):
+class TicketStatusBase(BaseModel):
     """Base schema for ticket statuses."""
     code: str = Field(..., min_length=1, max_length=50, description="Status code")
     name: str = Field(..., min_length=1, max_length=100, description="Display name")
@@ -36,7 +36,7 @@ class TicketStatusCreate(TicketStatusBase):
     pass
 
 
-class TicketStatusUpdate(BaseSchema):
+class TicketStatusUpdate(BaseModel):
     """Schema for updating ticket status."""
     code: Optional[str] = Field(None, min_length=1, max_length=50)
     name: Optional[str] = Field(None, min_length=1, max_length=100)

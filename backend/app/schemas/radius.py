@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 """
 RADIUS Session Management Schemas
 
@@ -39,7 +39,7 @@ class PeriodType(str, Enum):
 
 
 # RADIUS Session Schemas
-class RadiusSessionBase(BaseSchema):
+class RadiusSessionBase(BaseModel):
     customer_id: Optional[int] = None
     service_id: Optional[int] = None
     tariff_id: Optional[int] = None
@@ -89,7 +89,7 @@ class RadiusSessionCreate(RadiusSessionBase):
     pass
 
 
-class RadiusSessionUpdate(BaseSchema):
+class RadiusSessionUpdate(BaseModel):
     in_bytes: Optional[int] = Field(None, ge=0)
     out_bytes: Optional[int] = Field(None, ge=0)
     end_session: Optional[datetime] = None
@@ -108,7 +108,7 @@ class RadiusSession(RadiusSessionBase):
 
 
 # Customer Online Schemas
-class CustomerOnlineBase(BaseSchema):
+class CustomerOnlineBase(BaseModel):
     customer_id: int
     service_id: Optional[int] = None
     tariff_id: Optional[int] = None
@@ -155,7 +155,7 @@ class CustomerOnlineCreate(CustomerOnlineBase):
     pass
 
 
-class CustomerOnlineUpdate(BaseSchema):
+class CustomerOnlineUpdate(BaseModel):
     in_bytes: Optional[int] = Field(None, ge=0)
     out_bytes: Optional[int] = Field(None, ge=0)
     time_on: Optional[int] = Field(None, ge=0)
@@ -173,7 +173,7 @@ class CustomerOnline(CustomerOnlineBase):
 
 
 # Customer Statistics Schemas
-class CustomerStatisticsBase(BaseSchema):
+class CustomerStatisticsBase(BaseModel):
     customer_id: int
     service_id: Optional[int] = None
     tariff_id: Optional[int] = None
@@ -204,7 +204,7 @@ class CustomerStatisticsCreate(CustomerStatisticsBase):
     pass
 
 
-class CustomerStatisticsUpdate(BaseSchema):
+class CustomerStatisticsUpdate(BaseModel):
     in_bytes: Optional[int] = Field(None, ge=0)
     out_bytes: Optional[int] = Field(None, ge=0)
     time_on: Optional[int] = Field(None, ge=0)
@@ -223,21 +223,21 @@ class CustomerStatistics(CustomerStatisticsBase):
 
 
 # Response schemas for lists and analytics
-class RadiusSessionList(BaseSchema):
+class RadiusSessionList(BaseModel):
     sessions: List[RadiusSession]
     total: int
     page: int
     per_page: int
 
 
-class CustomerOnlineList(BaseSchema):
+class CustomerOnlineList(BaseModel):
     online_customers: List[CustomerOnline]
     total: int
     page: int
     per_page: int
 
 
-class CustomerStatisticsList(BaseSchema):
+class CustomerStatisticsList(BaseModel):
     statistics: List[CustomerStatistics]
     total: int
     page: int
@@ -245,7 +245,7 @@ class CustomerStatisticsList(BaseSchema):
 
 
 # Analytics and reporting schemas
-class SessionAnalytics(BaseSchema):
+class SessionAnalytics(BaseModel):
     total_sessions: int
     active_sessions: int
     stopped_sessions: int
@@ -255,7 +255,7 @@ class SessionAnalytics(BaseSchema):
     peak_concurrent_users: int
 
 
-class CustomerUsageSummary(BaseSchema):
+class CustomerUsageSummary(BaseModel):
     customer_id: int
     customer_name: Optional[str] = None
     total_sessions: int
@@ -266,7 +266,7 @@ class CustomerUsageSummary(BaseSchema):
     current_status: str  # online, offline
 
 
-class NetworkUtilization(BaseSchema):
+class NetworkUtilization(BaseModel):
     period_start: datetime
     period_end: datetime
     total_data_gb: float
@@ -276,7 +276,7 @@ class NetworkUtilization(BaseSchema):
     unique_customers: int
 
 
-class TopCustomersByUsage(BaseSchema):
+class TopCustomersByUsage(BaseModel):
     customers: List[CustomerUsageSummary]
     period_start: datetime
     period_end: datetime

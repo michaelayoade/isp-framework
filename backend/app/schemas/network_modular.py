@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 """
 Pydantic Schemas for Modular Network Architecture
 
@@ -72,7 +72,7 @@ class AllocationTypeEnum(str, Enum):
 
 
 # Network Site Schemas
-class NetworkSiteBase(BaseSchema):
+class NetworkSiteBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     site_code: Optional[str] = Field(None, max_length=50)
     site_type: SiteTypeEnum
@@ -96,7 +96,7 @@ class NetworkSiteCreate(NetworkSiteBase):
     pass
 
 
-class NetworkSiteUpdate(BaseSchema):
+class NetworkSiteUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     site_type: Optional[SiteTypeEnum] = None
     address: Optional[str] = None
@@ -122,7 +122,7 @@ class NetworkSiteResponse(NetworkSiteBase):
 
 
 # Network Device Schemas
-class NetworkDeviceBase(BaseSchema):
+class NetworkDeviceBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     device_type: DeviceTypeEnum
     site_id: Optional[int] = None
@@ -151,7 +151,7 @@ class NetworkDeviceCreate(NetworkDeviceBase):
     pass
 
 
-class NetworkDeviceUpdate(BaseSchema):
+class NetworkDeviceUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     device_type: Optional[DeviceTypeEnum] = None
     site_id: Optional[int] = None
@@ -176,13 +176,13 @@ class NetworkDeviceResponse(NetworkDeviceBase):
 
 
 # Vendor Configuration Schemas
-class VendorConfigurationCreate(BaseSchema):
+class VendorConfigurationCreate(BaseModel):
     vendor: str = Field(..., min_length=1)
     configuration: Dict[str, Any]
 
 
 # IP Pool Schemas
-class IPPoolBase(BaseSchema):
+class IPPoolBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     network: str
     prefix_length: int = Field(..., ge=1, le=128)
@@ -227,7 +227,7 @@ class IPPoolCreate(IPPoolBase):
     pass
 
 
-class IPPoolUpdate(BaseSchema):
+class IPPoolUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
     vlan_id: Optional[int] = Field(None, ge=1, le=4094)
@@ -244,7 +244,7 @@ class IPPoolResponse(IPPoolBase):
 
 
 # IP Allocation Schemas
-class IPAllocationBase(BaseSchema):
+class IPAllocationBase(BaseModel):
     ip_address: str
     allocation_type: AllocationTypeEnum
     customer_id: Optional[int] = None
@@ -278,7 +278,7 @@ class IPAllocationResponse(IPAllocationBase):
 
 
 # IP Utilization Schema
-class IPUtilizationResponse(BaseSchema):
+class IPUtilizationResponse(BaseModel):
     pool: IPPoolResponse
     total_addresses: int
     allocations: Dict[str, int]
@@ -286,7 +286,7 @@ class IPUtilizationResponse(BaseSchema):
 
 
 # Network Topology Schemas
-class TopologyNode(BaseSchema):
+class TopologyNode(BaseModel):
     id: int
     name: str
     type: str
@@ -295,7 +295,7 @@ class TopologyNode(BaseSchema):
     is_active: bool
 
 
-class TopologyEdge(BaseSchema):
+class TopologyEdge(BaseModel):
     from_: int = Field(..., alias="from")
     to: int
     type: str
@@ -303,12 +303,12 @@ class TopologyEdge(BaseSchema):
     status: str
 
 
-class NetworkTopologyResponse(BaseSchema):
+class NetworkTopologyResponse(BaseModel):
     nodes: List[TopologyNode]
     edges: List[TopologyEdge]
 
 
-class DeviceConnectionCreate(BaseSchema):
+class DeviceConnectionCreate(BaseModel):
     from_device_id: int
     to_device_id: int
     from_port: str = Field(..., max_length=50)
@@ -322,7 +322,7 @@ class DeviceConnectionCreate(BaseSchema):
 
 
 # Monitoring Schemas
-class DeviceMetricCreate(BaseSchema):
+class DeviceMetricCreate(BaseModel):
     device_id: int
     metric_type: str = Field(..., max_length=50)
     metric_name: Optional[str] = Field(None, max_length=100)
@@ -331,7 +331,7 @@ class DeviceMetricCreate(BaseSchema):
     interface_name: Optional[str] = Field(None, max_length=50)
 
 
-class NetworkAlertResponse(BaseSchema):
+class NetworkAlertResponse(BaseModel):
     id: int
     device_id: Optional[int] = None
     alert_type: str
@@ -352,7 +352,7 @@ class NetworkAlertResponse(BaseSchema):
 
 
 # Pagination Schema
-class PaginatedResponse(BaseSchema, Generic[T]):
+class PaginatedResponse(BaseModel, Generic[T]):
     items: List[T]
     total: int
     skip: int
@@ -367,7 +367,7 @@ class PaginatedResponse(BaseSchema, Generic[T]):
 
 
 # Filter Parameters Schema
-class FilterParams(BaseSchema):
+class FilterParams(BaseModel):
     search: Optional[str] = None
     site_id: Optional[int] = None
     device_type: Optional[DeviceTypeEnum] = None
@@ -378,7 +378,7 @@ class FilterParams(BaseSchema):
 
 
 # Migration Status Schema
-class MigrationStatusResponse(BaseSchema):
+class MigrationStatusResponse(BaseModel):
     phase: int
     status: str
     message: str
@@ -389,7 +389,7 @@ class MigrationStatusResponse(BaseSchema):
 
 
 # Network Statistics Schema
-class NetworkStatistics(BaseSchema):
+class NetworkStatistics(BaseModel):
     sites: Dict[str, Any]
     devices: Dict[str, Any]
     ip_pools: Dict[str, Any]

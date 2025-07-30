@@ -1,4 +1,4 @@
-from ._base import BaseSchema
+from pydantic import BaseModel
 """
 ISP Tariff Schemas
 
@@ -11,7 +11,7 @@ from decimal import Decimal
 from pydantic import  Field
 
 
-class InternetTariffBase(BaseSchema):
+class InternetTariffBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     service_name: Optional[str] = Field(None, max_length=255)
     partners_ids: List[int] = Field(default_factory=list)
@@ -56,7 +56,7 @@ class InternetTariffCreate(InternetTariffBase):
     pass
 
 
-class InternetTariffUpdate(BaseSchema):
+class InternetTariffUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     service_name: Optional[str] = Field(None, max_length=255)
     partners_ids: Optional[List[int]] = None
@@ -107,7 +107,7 @@ class InternetTariff(InternetTariffBase):
     updated_at: Optional[datetime] = None
 
 
-class TariffSearchFilters(BaseSchema):
+class TariffSearchFilters(BaseModel):
     is_active: Optional[bool] = None
     is_public: Optional[bool] = None
     partner_id: Optional[int] = None
@@ -119,7 +119,7 @@ class TariffSearchFilters(BaseSchema):
     has_burst: Optional[bool] = None
 
 
-class TariffListResponse(BaseSchema):
+class TariffListResponse(BaseModel):
     tariffs: List[InternetTariff]
     total: int
     page: int
@@ -128,7 +128,7 @@ class TariffListResponse(BaseSchema):
     has_prev: bool
 
 
-class TariffStatistics(BaseSchema):
+class TariffStatistics(BaseModel):
     total_tariffs: int
     active_tariffs: int
     public_tariffs: int

@@ -1,11 +1,11 @@
-from app.schemas._base import BaseSchema
+from pydantic import BaseModel
 from pydantic import Field
 from typing import Optional, List
 from datetime import datetime
 
 
 # Permission schemas
-class PermissionBase(BaseSchema):
+class PermissionBase(BaseModel):
     """Base schema for permissions."""
     code: str = Field(..., min_length=1, max_length=100, description="Permission code (e.g., customers.view)")
     name: str = Field(..., min_length=1, max_length=150, description="Display name")
@@ -24,7 +24,7 @@ class PermissionCreate(PermissionBase):
     pass
 
 
-class PermissionUpdate(BaseSchema):
+class PermissionUpdate(BaseModel):
     """Schema for updating permission."""
     code: Optional[str] = Field(None, min_length=1, max_length=100)
     name: Optional[str] = Field(None, min_length=1, max_length=150)
@@ -47,7 +47,7 @@ class Permission(PermissionBase):
 
 
 # Role schemas
-class RoleBase(BaseSchema):
+class RoleBase(BaseModel):
     """Base schema for roles."""
     code: str = Field(..., min_length=1, max_length=50, description="Role code")
     name: str = Field(..., min_length=1, max_length=100, description="Display name")
@@ -66,7 +66,7 @@ class RoleCreate(RoleBase):
     permission_ids: Optional[List[int]] = Field(None, description="List of permission IDs to assign")
 
 
-class RoleUpdate(BaseSchema):
+class RoleUpdate(BaseModel):
     """Schema for updating role."""
     code: Optional[str] = Field(None, min_length=1, max_length=50)
     name: Optional[str] = Field(None, min_length=1, max_length=100)
@@ -95,7 +95,7 @@ class RoleWithPermissions(Role):
 
 
 # User role assignment schemas
-class UserRoleBase(BaseSchema):
+class UserRoleBase(BaseModel):
     """Base schema for user role assignments."""
     user_id: int = Field(..., description="User ID")
     role_id: int = Field(..., description="Role ID")
@@ -108,7 +108,7 @@ class UserRoleCreate(UserRoleBase):
     pass
 
 
-class UserRoleUpdate(BaseSchema):
+class UserRoleUpdate(BaseModel):
     """Schema for updating user role assignment."""
     is_active: Optional[bool] = None
     expires_at: Optional[datetime] = None
@@ -124,34 +124,34 @@ class UserRole(UserRoleBase):
 
 
 # Permission check schemas
-class PermissionCheck(BaseSchema):
+class PermissionCheck(BaseModel):
     """Schema for permission check requests."""
     user_id: int = Field(..., description="User ID to check")
     permission_code: str = Field(..., description="Permission code to check")
     resource_id: Optional[int] = Field(None, description="Optional resource ID for scope checking")
 
 
-class PermissionCheckResult(BaseSchema):
+class PermissionCheckResult(BaseModel):
     """Schema for permission check results."""
     has_permission: bool = Field(..., description="Whether user has the permission")
     reason: Optional[str] = Field(None, description="Reason for denial if applicable")
 
 
 # Bulk operations schemas
-class BulkRolePermissionUpdate(BaseSchema):
+class BulkRolePermissionUpdate(BaseModel):
     """Schema for bulk role permission updates."""
     role_id: int = Field(..., description="Role ID")
     permission_ids: List[int] = Field(..., description="List of permission IDs to assign")
 
 
-class BulkUserRoleUpdate(BaseSchema):
+class BulkUserRoleUpdate(BaseModel):
     """Schema for bulk user role updates."""
     user_id: int = Field(..., description="User ID")
     role_ids: List[int] = Field(..., description="List of role IDs to assign")
 
 
 # Summary schemas for dashboard/overview
-class RoleSummary(BaseSchema):
+class RoleSummary(BaseModel):
     """Summary schema for role overview."""
     id: int
     name: str
@@ -162,7 +162,7 @@ class RoleSummary(BaseSchema):
     color_hex: str
 
 
-class PermissionSummary(BaseSchema):
+class PermissionSummary(BaseModel):
     """Summary schema for permission overview."""
     id: int
     name: str
