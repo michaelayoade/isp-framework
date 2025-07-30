@@ -77,6 +77,9 @@ class Customer(Base):
     # Customer status relationship
     status_ref = relationship("CustomerStatus", back_populates="customers")
     
+    # Device relationships for MAC authentication
+    devices = relationship("Device", back_populates="customer")
+    
     # Billing relationships (commented out until billing models are properly integrated)
     # invoices = relationship("Invoice", back_populates="customer")
     # payments = relationship("Payment", back_populates="customer")

@@ -63,6 +63,16 @@ class CustomerService(Base):
     # Service Configuration (can override template defaults)
     service_config = Column(JSONB, default=dict)  # Service-specific overrides
     
+    # MAC Authentication Settings
+    mac_auth_enabled = Column(Boolean, default=False)  # Enable MAC-based authentication
+    auto_register_mac = Column(Boolean, default=False)  # Auto-register unknown MACs
+    max_devices = Column(Integer, default=5)  # Maximum devices allowed
+    
+    # IPoE Authentication Settings
+    ipoe_auth_enabled = Column(Boolean, default=False)  # Enable IPoE/DHCP Option 82 authentication
+    access_circuit_id = Column(String(255), nullable=True)  # Assigned circuit ID
+    onu_serial = Column(String(100), nullable=True)  # ONU serial number
+    
     # Customer Preferences
     maintenance_window = Column(String(100))  # Preferred maintenance hours
     contact_preferences = Column(JSONB, default=dict)

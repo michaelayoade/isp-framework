@@ -15,7 +15,9 @@ from app.api.v1.endpoints import (
     # Lookup tables
     contact_types, customer_statuses, service_types, ticket_statuses, billing_types,
     # RBAC system
-    rbac
+    rbac,
+    # Device management
+    devices
 )
 # Redirects removed - using direct RESTful URLs
 
@@ -43,6 +45,9 @@ api_router.include_router(billing_types.router, prefix="/billing-types", tags=["
 
 # RBAC System
 api_router.include_router(rbac.router, prefix="/rbac", tags=["rbac"])
+
+# Device Management
+api_router.include_router(devices.router, prefix="/devices", tags=["devices"])
 
 # Service Management (Consolidated)
 api_router.include_router(services.router, prefix="/services", tags=["services"])
