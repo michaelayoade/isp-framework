@@ -78,6 +78,16 @@ from .dunning import (
     DunningRule
 )
 
+# Import accounting models
+from .accounting import (
+    AccountingEntry
+)
+
+# Import tax models
+from .tax_rates import (
+    TaxRate
+)
+
 # Import billing cycle models
 from .billing_cycles import (
     BillingCycle,

@@ -3,6 +3,8 @@ Comprehensive Ticketing Service Layer
 Business logic for ISP customer support ticket management
 """
 
+import logging
+import secrets
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -17,6 +19,7 @@ from app.models.ticketing import (
     FieldWorkOrder, FieldWorkStatus, NetworkIncident,
     KnowledgeBaseArticle, TicketTemplate
 )
+from app.models.auth.base import Administrator
 from app.models.customer.base import Customer
 from app.core.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.services.webhook_integration_service import WebhookTriggers

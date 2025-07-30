@@ -35,10 +35,10 @@ class InternetTariffBase(BaseSchema):
     burst_threshold_fixed_down: int = Field(default=0, ge=0)
     burst_threshold_fixed_up: int = Field(default=0, ge=0)
     burst_time: int = Field(default=0, ge=0)
-    burst_type: str = Field(default="none", regex="^(none|percent|fixed)$")
+    burst_type: str = Field(default="none", pattern="^(none|percent|fixed)$")
     
     # Speed Limit Configuration
-    speed_limit_type: str = Field(default="none", regex="^(none|percent|fixed)$")
+    speed_limit_type: str = Field(default="none", pattern="^(none|percent|fixed)$")
     speed_limit_fixed_down: int = Field(default=0, ge=0)
     speed_limit_fixed_up: int = Field(default=0, ge=0)
     
@@ -80,10 +80,10 @@ class InternetTariffUpdate(BaseSchema):
     burst_threshold_fixed_down: Optional[int] = Field(None, ge=0)
     burst_threshold_fixed_up: Optional[int] = Field(None, ge=0)
     burst_time: Optional[int] = Field(None, ge=0)
-    burst_type: Optional[str] = Field(None, regex="^(none|percent|fixed)$")
+    burst_type: Optional[str] = Field(None, pattern="^(none|percent|fixed)$")
     
     # Speed Limit Configuration
-    speed_limit_type: Optional[str] = Field(None, regex="^(none|percent|fixed)$")
+    speed_limit_type: Optional[str] = Field(None, pattern="^(none|percent|fixed)$")
     speed_limit_fixed_down: Optional[int] = Field(None, ge=0)
     speed_limit_fixed_up: Optional[int] = Field(None, ge=0)
     

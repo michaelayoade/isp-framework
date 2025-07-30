@@ -43,7 +43,7 @@ class DeviceUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
     device_type: Optional[str] = Field(None, max_length=50)
-    status: Optional[str] = Field(None, regex="^(pending|active|blocked|expired)$")
+    status: Optional[str] = Field(None, pattern="^(pending|active|blocked|expired)$")
 
 
 class DeviceApproval(BaseModel):
@@ -99,7 +99,7 @@ class DeviceGroupBase(BaseModel):
     name: str = Field(..., max_length=255, description="Group name")
     description: Optional[str] = Field(None, description="Group description")
     auto_approve_devices: bool = Field(False, description="Auto-approve new devices in this group")
-    default_device_status: str = Field("pending", regex="^(pending|active|blocked)$")
+    default_device_status: str = Field("pending", pattern="^(pending|active|blocked)$")
     bandwidth_limit_mbps: Optional[int] = Field(None, ge=1, description="Bandwidth limit in Mbps")
 
 
@@ -113,7 +113,7 @@ class DeviceGroupUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
     auto_approve_devices: Optional[bool] = None
-    default_device_status: Optional[str] = Field(None, regex="^(pending|active|blocked)$")
+    default_device_status: Optional[str] = Field(None, pattern="^(pending|active|blocked)$")
     bandwidth_limit_mbps: Optional[int] = Field(None, ge=1)
 
 
@@ -189,7 +189,7 @@ class DeviceBulkApproval(BaseModel):
 class DeviceBulkUpdate(BaseModel):
     """Schema for bulk device updates."""
     device_ids: List[int] = Field(..., description="List of device IDs to update")
-    status: Optional[str] = Field(None, regex="^(pending|active|blocked|expired)$")
+    status: Optional[str] = Field(None, pattern="^(pending|active|blocked|expired)$")
     device_type: Optional[str] = Field(None, max_length=50)
 
 
@@ -204,7 +204,7 @@ class DeviceBulkResponse(BaseModel):
 class DeviceFilters(BaseModel):
     """Schema for device search and filtering."""
     customer_id: Optional[int] = None
-    status: Optional[str] = Field(None, regex="^(pending|active|blocked|expired)$")
+    status: Optional[str] = Field(None, pattern="^(pending|active|blocked|expired)$")
     device_type: Optional[str] = None
     is_approved: Optional[bool] = None
     is_auto_registered: Optional[bool] = None
@@ -217,5 +217,5 @@ class DeviceFilters(BaseModel):
 
 class DeviceSort(BaseModel):
     """Schema for device sorting options."""
-    field: str = Field("last_seen", regex="^(name|mac_address|status|last_seen|created_at)$")
-    direction: str = Field("desc", regex="^(asc|desc)$")
+    field: str = Field("last_seen", pattern="^(name|mac_address|status|last_seen|created_at)$")
+    direction: str = Field("desc", pattern="^(asc|desc)$")

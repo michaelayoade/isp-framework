@@ -17,7 +17,8 @@ from datetime import datetime, date, timezone, timedelta
 
 # Import models and services
 from app.models.billing import Invoice, InvoiceItem, Payment, CreditNote, BillingCycle, AccountingEntry, TaxRate
-from app.models.base import Customer, Administrator
+from app.models.customer.base import Customer
+from app.models.auth.base import Administrator
 from app.services.billing import InvoiceService, PaymentService, CreditNoteService, BillingManagementService
 from app.schemas.billing import InvoiceCreate, InvoiceItemCreate, PaymentCreate, CreditNoteCreate, InvoiceSearch, PaymentSearch
 from app.core.config import settings

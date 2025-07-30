@@ -379,7 +379,7 @@ async def check_rate_limit(
 @router.get("/quota/check")
 async def check_quota(
     api_key: str = Query(..., description="API key to check"),
-    quota_type: str = Query("daily", regex="^(daily|monthly)$"),
+    quota_type: str = Query("daily", pattern="^(daily|monthly)$"),
     db: Session = Depends(get_db)
 ):
     """Check quota status"""

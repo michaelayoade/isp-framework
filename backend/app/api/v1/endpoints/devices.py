@@ -23,15 +23,15 @@ router = APIRouter()
 @require_permission("devices.view")
 async def list_devices(
     customer_id: Optional[int] = Query(None, description="Filter by customer ID"),
-    status: Optional[str] = Query(None, regex="^(pending|active|blocked|expired)$"),
+    status: Optional[str] = Query(None, pattern="^(pending|active|blocked|expired)$"),
     device_type: Optional[str] = Query(None, description="Filter by device type"),
     is_approved: Optional[bool] = Query(None, description="Filter by approval status"),
     is_auto_registered: Optional[bool] = Query(None, description="Filter by auto-registration"),
     mac_address: Optional[str] = Query(None, description="Filter by MAC address"),
     name: Optional[str] = Query(None, description="Filter by device name"),
     nas_identifier: Optional[str] = Query(None, description="Filter by NAS identifier"),
-    sort_field: str = Query("last_seen", regex="^(name|mac_address|status|last_seen|created_at)$"),
-    sort_direction: str = Query("desc", regex="^(asc|desc)$"),
+    sort_field: str = Query("last_seen", pattern="^(name|mac_address|status|last_seen|created_at)$"),
+    sort_direction: str = Query("desc", pattern="^(asc|desc)$"),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(50, ge=1, le=100, description="Items per page"),
     db: Session = Depends(get_db),

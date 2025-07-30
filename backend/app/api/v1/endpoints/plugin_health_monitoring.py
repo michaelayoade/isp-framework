@@ -271,7 +271,7 @@ async def get_plugin_metrics(
 @router.get("/alerts/recent", response_model=dict)
 async def get_recent_health_alerts(
     hours: int = Query(24, ge=1, le=168, description="Hours to look back for alerts"),
-    severity: Optional[str] = Query(None, regex="^(warning|critical)$", description="Filter by severity"),
+    severity: Optional[str] = Query(None, pattern="^(warning|critical)$", description="Filter by severity"),
     current_admin: Administrator = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):

@@ -277,7 +277,7 @@ async def get_quota_violation_alerts(
 @router.post("/keys/{api_key}/reset-quota", response_model=dict)
 async def reset_api_key_quota(
     api_key: str,
-    quota_type: str = Query(..., regex="^(daily|monthly)$", description="Type of quota to reset"),
+    quota_type: str = Query(..., pattern="^(daily|monthly)$", description="Type of quota to reset"),
     current_admin: Administrator = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):

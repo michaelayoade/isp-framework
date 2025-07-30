@@ -15,7 +15,7 @@ from .base import BaseRepository
 from ..models.billing import (
     Invoice, InvoiceItem, Payment, PaymentRefund, CreditNote,
     BillingCycle, CustomerBillingAccount, BillingTransaction,
-    InvoiceStatus, PaymentStatus, CreditNoteReason
+    InvoiceStatus, PaymentStatus, CreditNoteReason, AccountingEntry, TaxRate
 )
 
 
@@ -439,15 +439,13 @@ class AccountingEntryRepository(BaseRepository[AccountingEntry]):
 
 class TaxRateRepository(BaseRepository[TaxRate]):
     """Repository for tax rate management"""
-#     """Repository for tax rate management"""
-#     
-#     def __init__(self, db: Session):
-#         super().__init__(TaxRate, db)
-#     
-#     def get_active_rates(self) -> List[TaxRate]:
-#         """Get all active tax rates"""
-#         return self.get_all(filters={"is_active": True})
-#     
+    
+    def __init__(self, db: Session):
+        super().__init__(TaxRate, db)
+    
+    def get_active_rates(self) -> List[TaxRate]:
+        """Get all active tax rates"""
+        return self.get_all(filters={"is_active": True})
 #     def get_default_rate(self) -> Optional[TaxRate]:
 #         """Get default tax rate"""
 #         return self.db.query(self.model).filter(

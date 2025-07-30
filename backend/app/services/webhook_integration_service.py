@@ -15,7 +15,7 @@ from fastapi import BackgroundTasks
 from app.models.webhooks.models import WebhookEvent, WebhookEventType
 from app.models.webhooks.enums import EventCategory
 from app.services.webhook_service import WebhookEventService, WebhookDeliveryEngine
-from app.core.database import SessionLocal
+from app.core.database import SessionLocal, get_db
 
 
 class WebhookIntegrationService:
@@ -60,7 +60,7 @@ class WebhookIntegrationService:
         """Process webhook event asynchronously"""
         try:
             # Get fresh session for async processing
-            db = next(get_db_session())
+            db = next(get_db())
             try:
                 delivery_engine = WebhookDeliveryEngine(db)
                 event = db.query(WebhookEvent).filter(WebhookEvent.id == event_id).first()
