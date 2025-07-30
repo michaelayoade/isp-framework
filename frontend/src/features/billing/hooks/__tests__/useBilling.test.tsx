@@ -1,7 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useInvoices, usePayments } from '../useBilling';
-import { server } from '@/__mocks__/server';
 
 // Create a wrapper component for React Query
 const createWrapper = () => {
@@ -24,9 +23,6 @@ const createWrapper = () => {
 };
 
 describe('useBilling hooks', () => {
-  beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
 
   describe('useInvoices', () => {
     it('should fetch and map invoices from API', async () => {

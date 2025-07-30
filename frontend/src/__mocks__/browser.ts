@@ -1,4 +1,4 @@
-import { setupWorker } from 'msw';
+import { setupWorker } from 'msw/browser';
 import { customerHandlers } from './handlers/customers';
 import { billingHandlers } from './handlers/billing';
 

@@ -12,4 +12,5 @@ const handlers = [
 ];
 
 // Setup MSW server for Node.js (Jest tests)
+// Only active when NEXT_PUBLIC_API_MOCKING is enabled
 export const server = setupServer(...handlers);

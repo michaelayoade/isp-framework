@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import type { PaginatedCustomerResponse, Customer } from '@/api/_schemas';
 
 // Mock customer data
@@ -54,11 +54,12 @@ const mockCustomers: Customer[] = [
 
 export const customerHandlers = [
   // GET /customers - List customers with pagination and filters
-  rest.get('http://localhost:8000/customers', (req, res, ctx) => {
-    const page = parseInt(req.url.searchParams.get('page') || '1');
-    const perPage = parseInt(req.url.searchParams.get('per_page') || '10');
-    const search = req.url.searchParams.get('search');
-    const status = req.url.searchParams.get('status');
+  http.get('http://localhost:8000/customers', ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const perPage = parseInt(url.searchParams.get('per_page') || '10');
+    const search = url.searchParams.get('search');
+    const status = url.searchParams.get('status');
 
     // Filter customers based on query params
     let filteredCustomers = [...mockCustomers];
@@ -66,8 +67,8 @@ export const customerHandlers = [
     if (search) {
       filteredCustomers = filteredCustomers.filter(
         (customer) =>
-          customer.name.toLowerCase().includes(search.toLowerCase()) ||
-          customer.email.toLowerCase().includes(search.toLowerCase())
+          customer.name?.toLowerCase().includes(search.toLowerCase()) ||
+          customer.email?.toLowerCase().includes(search.toLowerCase())
       );
     }
     
@@ -92,24 +93,24 @@ export const customerHandlers = [
       },
     };
 
-    return res(ctx.status(200), ctx.json(response));
+    return HttpResponse.json(response);
   }),
 
   // GET /customers/:id - Get single customer
-  rest.get('http://localhost:8000/customers/:id', (req, res, ctx) => {
-    const { id } = req.params;
+  http.get('http://localhost:8000/customers/:id', ({ params }) => {
+    const { id } = params;
     const customer = mockCustomers.find((c) => c.id === parseInt(id as string));
     
     if (!customer) {
-      return res(ctx.status(404));
+      return new HttpResponse(null, { status: 404 });
     }
     
-    return res(ctx.status(200), ctx.json(customer));
+    return HttpResponse.json(customer);
   }),
 
   // POST /customers - Create customer
-  rest.post('http://localhost:8000/customers', async (req, res, ctx) => {
-    const newCustomer = await req.json() as Partial<Customer>;
+  http.post('http://localhost:8000/customers', async ({ request }) => {
+    const newCustomer = await request.json() as Partial<Customer>;
     
     const customer: Customer = {
       id: mockCustomers.length + 1,
@@ -125,17 +126,17 @@ export const customerHandlers = [
     };
     
     mockCustomers.push(customer);
-    return res(ctx.status(201), ctx.json(customer));
+    return HttpResponse.json(customer, { status: 201 });
   }),
 
   // PUT /customers/:id - Update customer
-  rest.put('http://localhost:8000/customers/:id', async (req, res, ctx) => {
-    const { id } = req.params;
-    const updates = await req.json() as Partial<Customer>;
+  http.put('http://localhost:8000/customers/:id', async ({ params, request }) => {
+    const { id } = params;
+    const updates = await request.json() as Partial<Customer>;
     const customerIndex = mockCustomers.findIndex((c) => c.id === parseInt(id as string));
     
     if (customerIndex === -1) {
-      return res(ctx.status(404));
+      return new HttpResponse(null, { status: 404 });
     }
     
     mockCustomers[customerIndex] = {
@@ -144,6 +145,6 @@ export const customerHandlers = [
       updated_at: new Date().toISOString(),
     };
     
-    return res(ctx.status(200), ctx.json(mockCustomers[customerIndex]));
+    return HttpResponse.json(mockCustomers[customerIndex]);
   }),
 ];

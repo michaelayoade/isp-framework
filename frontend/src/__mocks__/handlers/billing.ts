@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import type { PaginatedInvoiceResponse, PaginatedPaymentResponse, Invoice, Payment } from '@/api/_schemas';
 
 // Mock invoice data
@@ -107,13 +107,14 @@ const mockPayments: Payment[] = [
 
 export const billingHandlers = [
   // GET /invoices - List invoices with pagination and filters
-  rest.get('http://localhost:8000/invoices', (req, res, ctx) => {
-    const page = parseInt(req.url.searchParams.get('page') || '1');
-    const perPage = parseInt(req.url.searchParams.get('per_page') || '10');
-    const customerId = req.url.searchParams.get('customer_id');
-    const status = req.url.searchParams.get('status');
-    const dateFrom = req.url.searchParams.get('date_from');
-    const dateTo = req.url.searchParams.get('date_to');
+  http.get('http://localhost:8000/invoices', ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const perPage = parseInt(url.searchParams.get('per_page') || '10');
+    const customerId = url.searchParams.get('customer_id');
+    const status = url.searchParams.get('status');
+    const dateFrom = url.searchParams.get('date_from');
+    const dateTo = url.searchParams.get('date_to');
 
     // Filter invoices based on query params
     let filteredInvoices = [...mockInvoices];
@@ -157,24 +158,24 @@ export const billingHandlers = [
       },
     };
 
-    return res(ctx.status(200), ctx.json(response));
+    return HttpResponse.json(response);
   }),
 
   // GET /invoices/:id - Get single invoice
-  rest.get('http://localhost:8000/invoices/:id', (req, res, ctx) => {
-    const { id } = req.params;
+  http.get('http://localhost:8000/invoices/:id', ({ params }) => {
+    const { id } = params;
     const invoice = mockInvoices.find((i) => i.id === parseInt(id as string));
     
     if (!invoice) {
-      return res(ctx.status(404));
+      return new HttpResponse(null, { status: 404 });
     }
     
-    return res(ctx.status(200), ctx.json(invoice));
+    return HttpResponse.json(invoice);
   }),
 
   // POST /invoices - Create invoice
-  rest.post('http://localhost:8000/invoices', async (req, res, ctx) => {
-    const newInvoice = await req.json() as Partial<Invoice>;
+  http.post('http://localhost:8000/invoices', async ({ request }) => {
+    const newInvoice = await request.json() as Partial<Invoice>;
     
     const invoice: Invoice = {
       id: mockInvoices.length + 1,
@@ -194,15 +195,16 @@ export const billingHandlers = [
     };
     
     mockInvoices.push(invoice);
-    return res(ctx.status(201), ctx.json(invoice));
+    return HttpResponse.json(invoice, { status: 201 });
   }),
 
   // GET /payments - List payments with pagination and filters
-  rest.get('http://localhost:8000/payments', (req, res, ctx) => {
-    const page = parseInt(req.url.searchParams.get('page') || '1');
-    const perPage = parseInt(req.url.searchParams.get('per_page') || '10');
-    const customerId = req.url.searchParams.get('customer_id');
-    const invoiceId = req.url.searchParams.get('invoice_id');
+  http.get('http://localhost:8000/payments', ({ request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const perPage = parseInt(url.searchParams.get('per_page') || '10');
+    const customerId = url.searchParams.get('customer_id');
+    const invoiceId = url.searchParams.get('invoice_id');
 
     // Filter payments based on query params
     let filteredPayments = [...mockPayments];
@@ -234,12 +236,12 @@ export const billingHandlers = [
       },
     };
 
-    return res(ctx.status(200), ctx.json(response));
+    return HttpResponse.json(response);
   }),
 
   // POST /payments - Create payment
-  rest.post('http://localhost:8000/payments', async (req, res, ctx) => {
-    const newPayment = await req.json() as Partial<Payment>;
+  http.post('http://localhost:8000/payments', async ({ request }) => {
+    const newPayment = await request.json() as Partial<Payment>;
     
     const payment: Payment = {
       id: mockPayments.length + 1,
@@ -249,12 +251,12 @@ export const billingHandlers = [
       currency: 'USD',
       payment_method: newPayment.payment_method || 'credit_card',
       payment_date: new Date().toISOString(),
-      reference_number: newPayment.reference_number,
+      reference_number: `REF-${Date.now()}`,
       notes: newPayment.notes,
       created_at: new Date().toISOString(),
     };
     
     mockPayments.push(payment);
-    return res(ctx.status(201), ctx.json(payment));
+    return HttpResponse.json(payment, { status: 201 });
   }),
 ];
