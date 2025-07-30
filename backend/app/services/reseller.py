@@ -182,9 +182,9 @@ class ResellerService:
                 'name': customer.name,
                 'email': customer.email,
                 'status': customer.status,
-                'services_count': 0,  # TODO: Calculate actual service count
-                'monthly_revenue': Decimal('0'),  # TODO: Calculate actual revenue
-                'last_payment': None,  # TODO: Get last payment date
+                'services_count': self._get_customer_services_count(customer.id),
+                'monthly_revenue': self._get_customer_monthly_revenue(customer.id),
+                'last_payment': self._get_customer_last_payment_date(customer.id),
                 'created_at': customer.created_at
             }
             results.append(ResellerCustomerSummary.model_validate(customer_data))
@@ -265,26 +265,89 @@ class ResellerService:
         """Remove customer assignment from reseller"""
         logger.info(f"Unassigning customer {customer_id} from reseller")
         
-        success = self.repository.unassign_customer_from_reseller(customer_id)
-        if not success:
-            raise ValidationError("Failed to unassign customer from reseller")
+        # Find the customer and remove reseller assignment
+        customer = self.db.query(Customer).filter(Customer.id == customer_id).first()
+        if not customer:
+            raise NotFoundError(f"Customer with ID {customer_id} not found")
+        
+        if not customer.reseller_id:
+            logger.warning(f"Customer {customer_id} is not assigned to any reseller")
+            return False
+        
+        # Remove reseller assignment
+        customer.reseller_id = None
+        customer.updated_at = datetime.now(timezone.utc)
+        self.db.commit()
         
         logger.info(f"Customer {customer_id} unassigned from reseller successfully")
         return True
-    
-    def check_customer_limit(self, reseller_id: int) -> Dict[str, Any]:
-        """Check reseller customer limit status"""
+
+    def get_resellers(self, limit: int = 50, offset: int = 0, active_only: bool = True) -> List[ResellerResponse]:
+        """Get list of resellers with customer counts"""
+        logger.info(f"Retrieving resellers: limit={limit}, offset={offset}, active_only={active_only}")
+        
+        filters = {"is_active": True} if active_only else {}
+        resellers = self.repository.get_all(filters=filters, limit=limit, skip=offset)
+        
+        results = []
+        for reseller in resellers:
+            customer_count = self.repository.get_reseller_customer_count(reseller.id)
+            reseller_data = reseller.__dict__.copy()
+            reseller_data['customer_count'] = customer_count
+            results.append(ResellerResponse.model_validate(reseller_data))
+        
+        return results
+
+    def search_resellers(self, query: str, limit: int = 50, offset: int = 0) -> List[ResellerResponse]:
+        """Search resellers by name, code, or email"""
+        logger.info(f"Searching resellers: query='{query}'")
+        
+        resellers = self.repository.search_resellers(query, limit, offset)
+        
+        results = []
+        for reseller in resellers:
+            customer_count = self.repository.get_reseller_customer_count(reseller.id)
+            reseller_data = reseller.__dict__.copy()
+            reseller_data['customer_count'] = customer_count
+            results.append(ResellerResponse.model_validate(reseller_data))
+        
+        return results
+
+    def get_reseller_stats(self, reseller_id: int) -> ResellerStats:
+        """Get comprehensive reseller statistics"""
+        logger.info(f"Retrieving reseller stats: {reseller_id}")
+        
         reseller = self.repository.get_by_id(reseller_id)
         if not reseller:
             raise NotFoundError(f"Reseller with ID {reseller_id} not found")
         
-        current_count = self.repository.get_reseller_customer_count(reseller_id)
-        limit = reseller.customer_limit
+        stats_data = self.repository.get_reseller_stats(reseller_id)
+        return ResellerStats.model_validate(stats_data)
+
+    def get_reseller_customers(self, reseller_id: int, limit: int = 50, offset: int = 0) -> List[ResellerCustomerSummary]:
+        """Get customers assigned to a reseller"""
+        logger.info(f"Retrieving reseller customers: reseller_id={reseller_id}")
         
-        return {
-            'reseller_id': reseller_id,
-            'current_customers': current_count,
-            'customer_limit': limit,
-            'limit_reached': limit is not None and current_count >= limit,
-            'available_slots': limit - current_count if limit else None
-        }
+        reseller = self.repository.get_by_id(reseller_id)
+        if not reseller:
+            raise NotFoundError(f"Reseller with ID {reseller_id} not found")
+        
+        customers = self.repository.get_reseller_customers(reseller_id, limit, offset)
+        
+        results = []
+        for customer in customers:
+            # Get customer service count and revenue (simplified for now)
+            customer_data = {
+                'customer_id': customer.id,
+                'portal_id': customer.portal_id,
+                'name': customer.name,
+                'email': customer.email,
+                'status': customer.status,
+                'services_count': self._get_customer_services_count(customer.id),
+                'monthly_revenue': self._get_customer_monthly_revenue(customer.id),
+                'last_payment': self._get_customer_last_payment_date(customer.id),
+                'created_at': customer.created_at
+            }
+            results.append(ResellerCustomerSummary.model_validate(customer_data))
+        
+        return results

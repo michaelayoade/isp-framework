@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- alert
+- text: ISP Framework
+- button "Collapse sidebar"
+- navigation:
+  - link "Dashboard":
+    - /url: /admin
+  - link "Customers":
+    - /url: /customers
+  - link "Billing":
+    - /url: /billing
+  - link "Network":
+    - /url: /network
+  - link "Tickets":
+    - /url: /tickets
+  - link "Customer Portal":
+    - /url: /customer-portal
+  - link "Reseller Portal":
+    - /url: /reseller-portal
+  - link "Devices":
+    - /url: /admin/devices
+  - link "Tickets 3":
+    - /url: /admin/tickets
+  - link "Settings":
+    - /url: /admin/settings
+- text: ISP Framework v1.0
+- banner:
+  - textbox "Search customers, devices, tickets..."
+  - button "ISP Framework Demo Enterprise"
+  - button "3"
+  - button "John Admin admin@ispframework.com"
+- main:
+  - heading "Admin Portal" [level=3]
+  - paragraph: Sign in to access the ISP management system
+  - text: Username
+  - textbox "Username"
+  - text: Password
+  - textbox "Password"
+  - button "Sign In"
+  - paragraph: Administrator access only
+  - link "Customer Portal":
+    - /url: /customer/login
+  - link "Reseller Portal":
+    - /url: /reseller/login
+- region "Notifications (F8)":
+  - list
+- button "Open Tanstack query devtools":
+  - img
+```

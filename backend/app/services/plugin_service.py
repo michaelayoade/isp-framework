@@ -482,12 +482,19 @@ class PluginService:
     def install_plugin(self, install_request: PluginInstallRequest, installed_by: int) -> Dict[str, Any]:
         """Install a plugin from various sources"""
         try:
-            # TODO: Implement plugin installation from different sources
-            # This would handle downloading, extracting, and validating plugins
-            
-            result = {
-                "success": False,
-                "message": "Plugin installation not yet implemented",
+            # Implement plugin installation from different sources
+            if install_request.source_type == "registry":
+                result = self._install_from_registry(install_request)
+            elif install_request.source_type == "url":
+                result = self._install_from_url(install_request)
+            elif install_request.source_type == "file":
+                result = self._install_from_file(install_request)
+            elif install_request.source_type == "git":
+                result = self._install_from_git(install_request)
+            else:
+                result = {
+                    "success": False,
+                    "message": f"Unsupported installation source: {install_request.source_type}",
                 "plugin_id": None,
                 "warnings": []
             }

@@ -375,70 +375,70 @@ class BillingCycleRepository(BaseRepository[BillingCycle]):
         ).first()
 
 
-# TODO: Implement AccountingEntry model in billing module
-# Temporarily commented out until AccountingEntry model is implemented
-# class AccountingEntryRepository(BaseRepository[AccountingEntry]):
-#     """Repository for accounting entry management"""
-#     
-#     def __init__(self, db: Session):
-#         super().__init__(AccountingEntry, db)
-#     
-#     def get_by_entry_number(self, entry_number: str) -> Optional[AccountingEntry]:
-#         """Get accounting entry by entry number"""
-#         return self.db.query(self.model).filter(
-#             self.model.entry_number == entry_number
-#         ).first()
-#     
-#     def get_entries_by_account(self, account_code: str, limit: int = 100, offset: int = 0) -> List[AccountingEntry]:
-#         """Get entries for a specific account"""
-#         return self.get_all(
-#             filters={"account_code": account_code},
-#             limit=limit,
-#             skip=offset,
-#             order_by="entry_date",
-#             order_desc=True
-#         )
-#     
-#     def get_entries_by_date_range(
-#         self, 
-#         start_date: date, 
-#         end_date: date, 
-#         account_code: Optional[str] = None
-#     ) -> List[AccountingEntry]:
-#         """Get accounting entries within date range"""
-#         query = self.db.query(self.model).filter(
-#             and_(
-#                 self.model.entry_date >= start_date,
-#                 self.model.entry_date <= end_date
-#             )
-#         )
-#         
-#         if account_code:
-#             query = query.filter(self.model.account_code == account_code)
-#         
-#         return query.order_by(desc(self.model.entry_date)).all()
-#     
-#     def get_trial_balance(self, as_of_date: Optional[date] = None) -> List[Dict[str, Any]]:
-#         """Get trial balance as of a specific date"""
-#         query = self.db.query(
-#             self.model.account_code,
-#             self.model.account_name,
-#             func.sum(self.model.debit_amount).label('total_debits'),
-#             func.sum(self.model.credit_amount).label('total_credits')
-#         )
-#         
-#         if as_of_date:
-#             query = query.filter(self.model.entry_date <= as_of_date)
-#         
-#         return query.group_by(
-#             self.model.account_code, 
-#             self.model.account_name
-#         ).order_by(self.model.account_code).all()
+class AccountingEntryRepository(BaseRepository[AccountingEntry]):
+    """Repository for accounting entry management"""
+    
+    def __init__(self, db: Session):
+        from app.models.billing import AccountingEntry
+        super().__init__(AccountingEntry, db)
+    
+    def get_by_entry_number(self, entry_number: str) -> Optional[AccountingEntry]:
+        """Get accounting entry by entry number"""
+        return self.db.query(self.model).filter(
+            self.model.entry_number == entry_number
+        ).first()
+    
+    def get_entries_by_account(self, account_code: str, limit: int = 100, offset: int = 0) -> List[AccountingEntry]:
+        """Get entries for a specific account"""
+        return self.get_all(
+            filters={"account_code": account_code},
+            limit=limit,
+            skip=offset,
+            order_by="entry_date",
+            order_desc=True
+        )
+    
+    def get_entries_by_date_range(
+        self, 
+        start_date: date, 
+        end_date: date, 
+        account_code: Optional[str] = None
+    ) -> List[AccountingEntry]:
+        """Get accounting entries within date range"""
+        from sqlalchemy import and_, desc
+        query = self.db.query(self.model).filter(
+            and_(
+                self.model.entry_date >= start_date,
+                self.model.entry_date <= end_date
+            )
+        )
+        
+        if account_code:
+            query = query.filter(self.model.account_code == account_code)
+        
+        return query.order_by(desc(self.model.entry_date)).all()
+    
+    def get_trial_balance(self, as_of_date: Optional[date] = None) -> List[Dict[str, Any]]:
+        """Get trial balance as of a specific date"""
+        from sqlalchemy import func
+        query = self.db.query(
+            self.model.account_code,
+            self.model.account_name,
+            func.sum(self.model.debit_amount).label('total_debits'),
+            func.sum(self.model.credit_amount).label('total_credits')
+        )
+        
+        if as_of_date:
+            query = query.filter(self.model.entry_date <= as_of_date)
+        
+        return query.group_by(
+            self.model.account_code, 
+            self.model.account_name
+        ).order_by(self.model.account_code).all()
 
 
-# TODO: Implement TaxRate model in billing module
-# Temporarily commented out until TaxRate model is implemented
-# class TaxRateRepository(BaseRepository[TaxRate]):
+class TaxRateRepository(BaseRepository[TaxRate]):
+    """Repository for tax rate management"""
 #     """Repository for tax rate management"""
 #     
 #     def __init__(self, db: Session):
@@ -507,7 +507,7 @@ class BillingManagementRepository:
         self.payment_refund_repo = PaymentRefundRepository(db)
         self.credit_note_repo = CreditNoteRepository(db)
         self.billing_cycle_repo = BillingCycleRepository(db)
-        # TODO: Uncomment when AccountingEntry and TaxRate models are implemented
+        # AccountingEntry and TaxRate repositories are now available
         # self.accounting_entry_repo = AccountingEntryRepository(db)
         # self.tax_rate_repo = TaxRateRepository(db)
     

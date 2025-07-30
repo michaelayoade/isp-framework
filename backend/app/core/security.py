@@ -257,6 +257,8 @@ def get_current_admin_user(
     return current_user
 from app.models.customer.base import Customer
 from app.models.customer.portal_complete import CustomerPortalSession
+from app.models.foundation.base import Reseller
+from app.services.reseller_auth import ResellerAuthService
 
 
 def get_current_customer(
@@ -301,6 +303,46 @@ def get_current_customer(
             raise credentials_exception
             
         return customer
+        
+    except (JWTError, ValueError):
+        raise credentials_exception
+
+
+def get_current_reseller(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> Reseller:
+    """Get current reseller from JWT token."""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate reseller credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        # Verify JWT token
+        payload = verify_token(token)
+        if payload is None:
+            raise credentials_exception
+            
+        # Extract reseller info from token
+        reseller_id = payload.get("sub")
+        user_type = payload.get("user_type")
+        
+        # Ensure this is a reseller token
+        if user_type != "reseller" or reseller_id is None:
+            raise credentials_exception
+        
+        # Get reseller from database
+        reseller = db.query(Reseller).filter(
+            Reseller.id == reseller_id,
+            Reseller.is_active == True
+        ).first()
+        
+        if reseller is None:
+            raise credentials_exception
+            
+        return reseller
         
     except (JWTError, ValueError):
         raise credentials_exception

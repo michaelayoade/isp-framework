@@ -3,7 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.services.customer import CustomerService
-from app.schemas.customer import Customer, CustomerCreate, CustomerUpdate, CustomerList
+from app.schemas.customer import (
+    Customer, CustomerCreate, CustomerUpdate, CustomerList, CustomerWithExtended,
+    CustomerContact, CustomerContactCreate, CustomerContactUpdate,
+    CustomerExtended, CustomerExtendedCreate, CustomerExtendedUpdate
+)
 from app.api.dependencies import get_current_active_admin, validate_pagination
 from app.models import Administrator
 import logging
@@ -190,4 +194,201 @@ async def update_customer_status(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error updating customer status"
+        )
+
+
+# Extended Customer Information Endpoints
+@router.get("/{customer_id}/extended", response_model=CustomerWithExtended)
+async def get_customer_with_extended(
+    customer_id: int,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    """Get customer with extended information and contacts."""
+    customer_service = CustomerService(db)
+    
+    try:
+        customer = customer_service.get_customer_with_extended(customer_id)
+        if not customer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Customer with ID {customer_id} not found"
+            )
+        return customer
+    except Exception as e:
+        logger.error(f"Error retrieving extended customer {customer_id}: {e}")
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error retrieving customer"
+        )
+
+
+@router.post("/{customer_id}/extended", response_model=CustomerExtended, status_code=status.HTTP_201_CREATED)
+async def create_customer_extended(
+    customer_id: int,
+    extended_data: CustomerExtendedCreate,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    """Create extended information for a customer."""
+    customer_service = CustomerService(db)
+    
+    try:
+        extended_info = customer_service.create_customer_extended(customer_id, extended_data)
+        logger.info(f"Admin {current_admin.username} created extended info for customer {customer_id}")
+        return extended_info
+    except Exception as e:
+        logger.error(f"Error creating extended info for customer {customer_id}: {e}")
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        elif "already exists" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error creating extended customer information"
+        )
+
+
+@router.put("/{customer_id}/extended", response_model=CustomerExtended)
+async def update_customer_extended(
+    customer_id: int,
+    extended_data: CustomerExtendedUpdate,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    """Update extended information for a customer."""
+    customer_service = CustomerService(db)
+    
+    try:
+        extended_info = customer_service.update_customer_extended(customer_id, extended_data)
+        logger.info(f"Admin {current_admin.username} updated extended info for customer {customer_id}")
+        return extended_info
+    except Exception as e:
+        logger.error(f"Error updating extended info for customer {customer_id}: {e}")
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error updating extended customer information"
+        )
+
+
+# Customer Contacts Endpoints
+@router.get("/{customer_id}/contacts", response_model=list[CustomerContact])
+async def list_customer_contacts(
+    customer_id: int,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    """List all contacts for a customer."""
+    customer_service = CustomerService(db)
+    
+    try:
+        contacts = customer_service.list_customer_contacts(customer_id)
+        return contacts
+    except Exception as e:
+        logger.error(f"Error listing contacts for customer {customer_id}: {e}")
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error retrieving customer contacts"
+        )
+
+
+@router.post("/{customer_id}/contacts", response_model=CustomerContact, status_code=status.HTTP_201_CREATED)
+async def create_customer_contact(
+    customer_id: int,
+    contact_data: CustomerContactCreate,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    """Create a new contact for a customer."""
+    customer_service = CustomerService(db)
+    
+    try:
+        contact = customer_service.create_customer_contact(customer_id, contact_data)
+        logger.info(f"Admin {current_admin.username} created contact for customer {customer_id}")
+        return contact
+    except Exception as e:
+        logger.error(f"Error creating contact for customer {customer_id}: {e}")
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error creating customer contact"
+        )
+
+
+@router.put("/{customer_id}/contacts/{contact_id}", response_model=CustomerContact)
+async def update_customer_contact(
+    customer_id: int,
+    contact_id: int,
+    contact_data: CustomerContactUpdate,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    """Update a customer contact."""
+    customer_service = CustomerService(db)
+    
+    try:
+        contact = customer_service.update_customer_contact(customer_id, contact_id, contact_data)
+        logger.info(f"Admin {current_admin.username} updated contact {contact_id} for customer {customer_id}")
+        return contact
+    except Exception as e:
+        logger.error(f"Error updating contact {contact_id} for customer {customer_id}: {e}")
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error updating customer contact"
+        )
+
+
+@router.delete("/{customer_id}/contacts/{contact_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_customer_contact(
+    customer_id: int,
+    contact_id: int,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db)
+):
+    """Delete a customer contact."""
+    customer_service = CustomerService(db)
+    
+    try:
+        customer_service.delete_customer_contact(customer_id, contact_id)
+        logger.info(f"Admin {current_admin.username} deleted contact {contact_id} for customer {customer_id}")
+    except Exception as e:
+        logger.error(f"Error deleting contact {contact_id} for customer {customer_id}: {e}")
+        if "not found" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e)
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error deleting customer contact"
         )

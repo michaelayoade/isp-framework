@@ -86,6 +86,12 @@ from .billing_cycles import (
     BillingCycleJob
 )
 
+# Import accounting models
+from .accounting import (
+    AccountingEntry,
+    ChartOfAccounts
+)
+
 # Export all models for easy importing
 __all__ = [
     # Enumerations
@@ -145,6 +151,10 @@ __all__ = [
     "BillingCycleCustomer",
     "BillingCycleTemplate",
     "BillingCycleJob",
+    
+    # Accounting
+    "AccountingEntry",
+    "ChartOfAccounts",
 ]
 
 # Convenience imports for common use cases

@@ -14,13 +14,12 @@ from sqlalchemy.orm import Session
 from ..repositories.billing import (
     InvoiceRepository, InvoiceItemRepository, PaymentRepository,
     PaymentRefundRepository, CreditNoteRepository, BillingCycleRepository,
-    # TODO: Uncomment when AccountingEntry and TaxRate models are implemented
-    # AccountingEntryRepository, TaxRateRepository,
+    AccountingEntryRepository, TaxRateRepository,
     BillingManagementRepository
 )
 from ..models.billing import (
     Invoice, InvoiceItem, Payment, PaymentRefund, CreditNote,
-    BillingCycle, # TODO: Add AccountingEntry, TaxRate when implemented
+    BillingCycle, AccountingEntry, TaxRate,
     InvoiceStatus, PaymentStatus, CreditNoteReason
 )
 from ..schemas.billing import (

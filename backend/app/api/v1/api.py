@@ -11,7 +11,11 @@ from app.api.v1.endpoints import (
     # Additional endpoints (maintained for compatibility)
     portal_auth, two_factor, service_plans, customer_services, oauth,
     reseller, reseller_auth, service_instances, service_provisioning,
-    service_templates, customer_portal
+    service_templates, customer_portal,
+    # Lookup tables
+    contact_types, customer_statuses, service_types, ticket_statuses, billing_types,
+    # RBAC system
+    rbac
 )
 # Redirects removed - using direct RESTful URLs
 
@@ -31,6 +35,14 @@ api_router.include_router(reseller_auth.router, prefix="/auth/resellers", tags=[
 # Customer Management
 api_router.include_router(customers.router, prefix="/customers", tags=["customers"])
 api_router.include_router(customer_portal.router, prefix="/customers", tags=["customers"])
+api_router.include_router(contact_types.router, prefix="/contact-types", tags=["lookups"])
+api_router.include_router(customer_statuses.router, prefix="/customer-statuses", tags=["lookups"])
+api_router.include_router(service_types.router, prefix="/service-types", tags=["lookups"])
+api_router.include_router(ticket_statuses.router, prefix="/ticket-statuses", tags=["lookups"])
+api_router.include_router(billing_types.router, prefix="/billing-types", tags=["lookups"])
+
+# RBAC System
+api_router.include_router(rbac.router, prefix="/rbac", tags=["rbac"])
 
 # Service Management (Consolidated)
 api_router.include_router(services.router, prefix="/services", tags=["services"])

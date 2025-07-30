@@ -92,7 +92,9 @@ class ServicePlanService:
         # Check if plan exists
         self.get_service_plan(plan_id)
         
-        # TODO: Check if plan is in use by any services before deletion
+        # Check if plan is in use by any services before deletion
+        if self._is_plan_in_use(plan_id):
+            raise ValidationError(f"Cannot delete service plan {plan_id}: it is currently in use by active services")
         
         try:
             result = self.service_plan_repo.delete(plan_id)
@@ -133,3 +135,15 @@ class ServicePlanService:
     def get_bundle_plans(self, active_only: bool = True):
         """Get bundle service plans."""
         return self.service_plan_repo.get_bundle_plans(active_only)
+    
+    def _is_plan_in_use(self, plan_id: int) -> bool:
+        """Check if a service plan is currently in use by any active services."""
+        from app.models.service.base import Service
+        
+        # Check if any active services are using this plan
+        active_services = self.db.query(Service).filter(
+            Service.service_plan_id == plan_id,
+            Service.status.in_(['active', 'suspended'])  # Consider both active and suspended as "in use"
+        ).count()
+        
+        return active_services > 0

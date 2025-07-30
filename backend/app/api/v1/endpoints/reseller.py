@@ -17,6 +17,8 @@ from app.schemas.reseller import (
     ResellerDashboard
 )
 from app.core.exceptions import ValidationError, NotFoundError, DuplicateError
+from app.core.security import get_current_reseller
+from app.models.foundation.base import Reseller
 
 router = APIRouter()
 
@@ -215,13 +217,15 @@ async def check_reseller_customer_limit(
 @router.get("/me/dashboard", response_model=ResellerDashboard)
 async def get_my_dashboard(
     db: Session = Depends(get_db),
-    # TODO: Implement reseller authentication
-    # current_reseller = Depends(get_current_reseller)
+    current_reseller: Reseller = Depends(get_current_reseller)
 ):
     """Get dashboard data for authenticated reseller"""
-    # TODO: Implement reseller authentication system
-    # For now, this is a placeholder
-    raise HTTPException(status_code=501, detail="Reseller authentication not yet implemented")
+    try:
+        service = ResellerService(db)
+        dashboard_data = await service.get_reseller_dashboard(current_reseller.id)
+        return dashboard_data
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/me/customers", response_model=List[ResellerCustomerSummary])
@@ -229,13 +233,19 @@ async def get_my_customers(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    # TODO: Implement reseller authentication
-    # current_reseller = Depends(get_current_reseller)
+    current_reseller: Reseller = Depends(get_current_reseller)
 ):
     """Get customers for authenticated reseller"""
-    # TODO: Implement reseller authentication system
-    # For now, this is a placeholder
-    raise HTTPException(status_code=501, detail="Reseller authentication not yet implemented")
+    try:
+        service = ResellerService(db)
+        customers = await service.get_reseller_customers(
+            reseller_id=current_reseller.id,
+            limit=limit,
+            offset=offset
+        )
+        return customers
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/me/commission-report", response_model=ResellerCommissionReport)
@@ -243,10 +253,16 @@ async def get_my_commission_report(
     start_date: datetime = Query(..., description="Start date for commission report"),
     end_date: datetime = Query(..., description="End date for commission report"),
     db: Session = Depends(get_db),
-    # TODO: Implement reseller authentication
-    # current_reseller = Depends(get_current_reseller)
+    current_reseller: Reseller = Depends(get_current_reseller)
 ):
     """Get commission report for authenticated reseller"""
-    # TODO: Implement reseller authentication system
-    # For now, this is a placeholder
-    raise HTTPException(status_code=501, detail="Reseller authentication not yet implemented")
+    try:
+        service = ResellerService(db)
+        commission_report = await service.get_commission_report(
+            reseller_id=current_reseller.id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        return commission_report
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))

@@ -390,7 +390,7 @@ async def get_plugin_health(
             health_status=health_check.get("status", "unknown"),
             checks=health_check.get("checks", []),
             last_check=plugin.updated_at or plugin.created_at,
-            uptime=0  # TODO: Calculate actual uptime
+            uptime=self._calculate_plugin_uptime(plugin)
         )
         
     except HTTPException:
@@ -754,9 +754,10 @@ async def bulk_plugin_operation(
                 elif operation_request.operation == "disable":
                     success = plugin_service.disable_plugin(plugin_id)
                 elif operation_request.operation == "update":
-                    # TODO: Implement bulk update
-                    success = False
-                    warnings.append(f"Bulk update not implemented for plugin {plugin_id}")
+                    # Implement bulk update
+                    success = plugin_service.update_plugin_from_registry(plugin_id)
+                    if not success:
+                        warnings.append(f"No update available for plugin {plugin_id}")
                 elif operation_request.operation == "uninstall":
                     success = plugin_service.delete_plugin(plugin_id)
                 else:
@@ -798,3 +799,24 @@ async def bulk_plugin_operation(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to perform bulk operation: {str(e)}"
         )
+
+
+# Helper Functions
+def _calculate_plugin_uptime(plugin) -> int:
+    """Calculate plugin uptime in seconds since last restart/activation."""
+    from datetime import datetime, timezone
+    
+    if not plugin.updated_at and not plugin.created_at:
+        return 0
+    
+    # Use the most recent timestamp (updated_at if available, otherwise created_at)
+    last_restart = plugin.updated_at or plugin.created_at
+    
+    # Calculate uptime in seconds
+    now = datetime.now(timezone.utc)
+    if last_restart.tzinfo is None:
+        # Handle naive datetime by assuming UTC
+        last_restart = last_restart.replace(tzinfo=timezone.utc)
+    
+    uptime_delta = now - last_restart
+    return int(uptime_delta.total_seconds())

@@ -32,3 +32,5 @@ class Administrator(Base):
     # Relationships (defined as strings to avoid circular imports)
     two_factor_auth = relationship("TwoFactorAuth", back_populates="administrator", uselist=False)
     api_keys = relationship("ApiKey", back_populates="administrator")
+    # RBAC relationships
+    user_roles = relationship("UserRole", foreign_keys="UserRole.user_id", back_populates="user")

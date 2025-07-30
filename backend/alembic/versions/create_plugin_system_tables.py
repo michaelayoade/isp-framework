@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'create_plugin_system_tables'
-down_revision = '0016_create_file_storage_tables'  # Current head revision
+down_revision = '0016_create_file_storage_tables'
 branch_labels = None
 depends_on = None
 

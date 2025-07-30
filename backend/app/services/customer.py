@@ -8,6 +8,7 @@ from app.core.exceptions import NotFoundError, DuplicateError, ValidationError
 from app.core.config import settings
 from app.services.portal_id import PortalIDService
 from app.services.webhook_integration_service import WebhookTriggers
+from app.services.customer_status import CustomerStatusService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -391,3 +392,190 @@ class CustomerService:
             "documents": customer.documents,
             "services": customer.services
         }
+    
+    # Extended Customer Information Methods
+    def get_customer_with_extended(self, customer_id: int):
+        """Get customer with extended information and contacts."""
+        from app.models.customer.base import CustomerExtended, CustomerContact
+        
+        customer = self.get_customer(customer_id)
+        
+        # Get extended info
+        extended_info = self.db.query(CustomerExtended).filter(
+            CustomerExtended.customer_id == customer_id
+        ).first()
+        
+        # Get contacts
+        contacts = self.db.query(CustomerContact).filter(
+            CustomerContact.customer_id == customer_id
+        ).all()
+        
+        # Build response
+        customer_dict = {
+            "id": customer.id,
+            "portal_id": customer.portal_id,
+            "name": customer.name,
+            "email": customer.email,
+            "phone": customer.phone,
+            "category": customer.category,
+            "address": customer.address,
+            "city": customer.city,
+            "zip_code": customer.zip_code,
+            "billing_email": customer.billing_email,
+            "gps": customer.gps,
+            "custom_fields": customer.custom_fields or {},
+            "status": customer.status,
+            "created_at": customer.date_add,
+            "updated_at": customer.last_update,
+            "extended_info": extended_info,
+            "contacts": contacts
+        }
+        
+        return customer_dict
+    
+    def create_customer_extended(self, customer_id: int, extended_data):
+        """Create extended information for a customer."""
+        from app.models.customer.base import CustomerExtended
+        
+        # Verify customer exists
+        customer = self.get_customer(customer_id)
+        
+        # Check if extended info already exists
+        existing = self.db.query(CustomerExtended).filter(
+            CustomerExtended.customer_id == customer_id
+        ).first()
+        
+        if existing:
+            raise ValidationError(f"Extended information already exists for customer {customer_id}")
+        
+        # Create extended info
+        extended_dict = extended_data.model_dump()
+        extended_dict['customer_id'] = customer_id
+        
+        extended_info = CustomerExtended(**extended_dict)
+        self.db.add(extended_info)
+        self.db.commit()
+        self.db.refresh(extended_info)
+        
+        logger.info(f"Created extended info for customer {customer_id}")
+        return extended_info
+    
+    def update_customer_extended(self, customer_id: int, extended_data):
+        """Update extended information for a customer."""
+        from app.models.customer.base import CustomerExtended
+        
+        # Verify customer exists
+        customer = self.get_customer(customer_id)
+        
+        # Get existing extended info
+        extended_info = self.db.query(CustomerExtended).filter(
+            CustomerExtended.customer_id == customer_id
+        ).first()
+        
+        if not extended_info:
+            raise NotFoundError(f"Extended information not found for customer {customer_id}")
+        
+        # Update fields
+        update_data = extended_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(extended_info, field, value)
+        
+        extended_info.updated_at = datetime.now(timezone.utc)
+        self.db.commit()
+        self.db.refresh(extended_info)
+        
+        logger.info(f"Updated extended info for customer {customer_id}")
+        return extended_info
+    
+    # Customer Contacts Methods
+    def list_customer_contacts(self, customer_id: int):
+        """List all contacts for a customer."""
+        from app.models.customer.base import CustomerContact
+        from sqlalchemy.orm import joinedload
+        
+        # Verify customer exists
+        customer = self.get_customer(customer_id)
+        
+        contacts = self.db.query(CustomerContact).options(
+            joinedload(CustomerContact.contact_type_ref)
+        ).filter(
+            CustomerContact.customer_id == customer_id
+        ).all()
+        
+        return contacts
+    
+    def create_customer_contact(self, customer_id: int, contact_data):
+        """Create a new contact for a customer."""
+        from app.models.customer.base import CustomerContact, ContactType
+        
+        # Verify customer exists
+        customer = self.get_customer(customer_id)
+        
+        # Verify contact type exists
+        contact_type = self.db.query(ContactType).filter(
+            ContactType.id == contact_data.contact_type_id,
+            ContactType.is_active == True
+        ).first()
+        if not contact_type:
+            raise ValidationError(f"Contact type with ID {contact_data.contact_type_id} not found or inactive")
+        
+        # Create contact
+        contact_dict = contact_data.model_dump()
+        contact_dict['customer_id'] = customer_id
+        
+        contact = CustomerContact(**contact_dict)
+        self.db.add(contact)
+        self.db.commit()
+        self.db.refresh(contact)
+        
+        logger.info(f"Created contact for customer {customer_id}")
+        return contact
+    
+    def update_customer_contact(self, customer_id: int, contact_id: int, contact_data):
+        """Update a customer contact."""
+        from app.models.customer.base import CustomerContact
+        
+        # Verify customer exists
+        customer = self.get_customer(customer_id)
+        
+        # Get contact
+        contact = self.db.query(CustomerContact).filter(
+            CustomerContact.id == contact_id,
+            CustomerContact.customer_id == customer_id
+        ).first()
+        
+        if not contact:
+            raise NotFoundError(f"Contact {contact_id} not found for customer {customer_id}")
+        
+        # Update fields
+        update_data = contact_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(contact, field, value)
+        
+        contact.updated_at = datetime.now(timezone.utc)
+        self.db.commit()
+        self.db.refresh(contact)
+        
+        logger.info(f"Updated contact {contact_id} for customer {customer_id}")
+        return contact
+    
+    def delete_customer_contact(self, customer_id: int, contact_id: int):
+        """Delete a customer contact."""
+        from app.models.customer.base import CustomerContact
+        
+        # Verify customer exists
+        customer = self.get_customer(customer_id)
+        
+        # Get contact
+        contact = self.db.query(CustomerContact).filter(
+            CustomerContact.id == contact_id,
+            CustomerContact.customer_id == customer_id
+        ).first()
+        
+        if not contact:
+            raise NotFoundError(f"Contact {contact_id} not found for customer {customer_id}")
+        
+        self.db.delete(contact)
+        self.db.commit()
+        
+        logger.info(f"Deleted contact {contact_id} for customer {customer_id}")

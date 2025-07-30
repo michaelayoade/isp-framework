@@ -14,7 +14,7 @@ class Customer(Base):
     id = Column(Integer, primary_key=True, index=True)
     portal_id = Column(String(100), unique=True, nullable=False, index=True)  # Portal ID for RADIUS/portal/PPPoE auth
     password_hash = Column(String(255))
-    status = Column(String(20), default="new")  # new, active, blocked, disabled
+    status_id = Column(Integer, ForeignKey("customer_statuses.id"), nullable=False)
     reseller_id = Column(Integer, ForeignKey("resellers.id"), nullable=True)  # Optional - customers can be direct or via reseller
     location_id = Column(Integer, ForeignKey("locations.id"), nullable=False)
     parent_id = Column(Integer, ForeignKey("customers.id"))  # for sub-accounts
@@ -74,6 +74,8 @@ class Customer(Base):
     api_keys = relationship("APIKey", back_populates="customer", cascade="all, delete-orphan")
     # File storage for customer documents and uploads
     files = relationship("FileMetadata", back_populates="customer", cascade="all, delete-orphan")
+    # Customer status relationship
+    status_ref = relationship("CustomerStatus", back_populates="customers")
     
     # Billing relationships (commented out until billing models are properly integrated)
     # invoices = relationship("Invoice", back_populates="customer")
@@ -197,15 +199,35 @@ class CustomerBilling(Base):
     customer = relationship("Customer", back_populates="billing_config")
 
 
+class ContactType(Base):
+    """Contact type lookup table for admin-configurable contact types"""
+    __tablename__ = "contact_types"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(50), unique=True, nullable=False, index=True)  # primary, billing, technical, etc.
+    name = Column(String(100), nullable=False)  # Display name
+    description = Column(String(255))  # Optional description
+    is_active = Column(Boolean, default=True)
+    is_system = Column(Boolean, default=False)  # System types cannot be deleted
+    sort_order = Column(Integer, default=0)  # For ordering in UI
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    contacts = relationship("CustomerContact", back_populates="contact_type_ref")
+
+
 class CustomerContact(Base):
     """Customer contact information"""
     __tablename__ = "customer_contacts"
 
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("customers.id", ondelete="CASCADE"), nullable=False)
+    contact_type_id = Column(Integer, ForeignKey("contact_types.id"), nullable=False)
     
     # Contact details
-    contact_type = Column(String(50), default="primary")  # primary, billing, technical, emergency
     name = Column(String(255), nullable=False)
     email = Column(String(255))
     phone = Column(String(50))
@@ -224,6 +246,7 @@ class CustomerContact(Base):
 
     # Relationships
     customer = relationship("Customer", back_populates="contacts")
+    contact_type_ref = relationship("ContactType", back_populates="contacts")
 
 
 class CustomerDocument(Base):
