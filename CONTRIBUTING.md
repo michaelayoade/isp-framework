@@ -48,6 +48,88 @@ Welcome to the ISP Framework! We're excited to have you contribute to building t
 
 ## 📋 Development Workflow
 
+### Git Branching Strategy
+
+We follow a structured branching model for clean, maintainable development:
+
+#### Branch Types
+- **`main`** - Production-ready code only, always green CI
+- **`develop`** - Integration branch for multiple parallel features (optional)
+- **`feat/<topic>`** - New features or sizable refactors
+- **`fix/<topic>`** - Bug fixes
+- **`hotfix/<topic>`** - Critical production fixes (cut from main)
+- **`chore/<topic>`** - CI, docs, dependency updates
+
+#### Branch Naming Examples
+```bash
+feat/customer-portal-redesign
+fix/billing-calculation-error
+hotfix/security-vulnerability-patch
+chore/update-dependencies
+```
+
+### Pull Request Workflow
+
+#### Requirements
+- ✅ **Passing CI/CD** - All quality checks must pass
+- ✅ **Code Review** - Minimum one approving review
+- ✅ **Conventional Commits** - Follow commit message format
+- ✅ **Squash Merge** - Clean, linear history
+
+#### PR Template
+```markdown
+## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+- [ ] Unit tests added/updated
+- [ ] Integration tests pass
+- [ ] Manual testing completed
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated
+- [ ] No breaking changes (or documented)
+```
+
+### Commit Message Format
+
+We use [Conventional Commits](https://www.conventionalcommits.org/) for automated changelog generation:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+#### Types
+- **feat**: New feature
+- **fix**: Bug fix
+- **docs**: Documentation changes
+- **style**: Code style changes (formatting, etc.)
+- **refactor**: Code refactoring
+- **test**: Adding or updating tests
+- **chore**: Maintenance tasks
+- **perf**: Performance improvements
+- **ci**: CI/CD changes
+
+#### Examples
+```bash
+feat(customers): add bulk customer import functionality
+fix(billing): resolve invoice calculation rounding error
+docs(api): update authentication endpoint documentation
+chore(deps): update FastAPI to v0.104.0
+```
+
 ### Branch Strategy
 
 - **main**: Production-ready code

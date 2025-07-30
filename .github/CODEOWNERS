@@ -1,0 +1,53 @@
+# ISP Framework Code Owners
+# These users/teams will be requested for review when someone opens a pull request
+
+# Global owners - require review for all changes
+* @michaelayoade
+
+# Backend API and core services
+/backend/ @michaelayoade
+/backend/app/models/ @michaelayoade
+/backend/app/api/ @michaelayoade
+/backend/alembic/ @michaelayoade
+
+# Frontend application
+/frontend/ @michaelayoade
+/frontend/src/features/ @michaelayoade
+/frontend/src/components/ @michaelayoade
+
+# Infrastructure and deployment
+/docker-compose.yml @michaelayoade
+/Dockerfile* @michaelayoade
+/.github/workflows/ @michaelayoade
+/scripts/ @michaelayoade
+
+# Documentation
+/docs/ @michaelayoade
+/README.md @michaelayoade
+/CONTRIBUTING.md @michaelayoade
+/RELEASE_PROCESS.md @michaelayoade
+
+# Configuration files
+/.env.example @michaelayoade
+/backend/requirements*.txt @michaelayoade
+/frontend/package.json @michaelayoade
+/frontend/package-lock.json @michaelayoade
+
+# Security and compliance
+/.github/workflows/security.yml @michaelayoade
+/.pre-commit-config.yaml @michaelayoade
+/backend/app/core/security.py @michaelayoade
+
+# Database migrations - require careful review
+/backend/alembic/versions/ @michaelayoade
+
+# Critical business logic
+/backend/app/services/billing* @michaelayoade
+/backend/app/services/customer* @michaelayoade
+/backend/app/services/reseller* @michaelayoade
+
+# ISP-specific features
+/backend/app/models/radius* @michaelayoade
+/backend/app/services/radius* @michaelayoade
+/backend/app/api/v1/endpoints/network* @michaelayoade
+/backend/app/services/ansible* @michaelayoade

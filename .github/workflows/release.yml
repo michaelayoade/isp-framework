@@ -1,0 +1,286 @@
+name: Release Automation
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.2.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Validate release
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+            # Check if version contains pre-release identifiers
+            if [[ $VERSION =~ (alpha|beta|rc) ]]; then
+              IS_PRERELEASE=true
+            else
+              IS_PRERELEASE=false
+            fi
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          
+          echo "Release version: $VERSION"
+          echo "Is pre-release: $IS_PRERELEASE"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Version must be in format X.Y.Z or X.Y.Z-prerelease"
+            exit 1
+          fi
+
+  # Run comprehensive tests
+  test:
+    needs: validate
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  # Build and push Docker images
+  build:
+    needs: [validate, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        component: [backend, frontend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.component }}
+          tags: |
+            type=semver,pattern={{version}},value=v${{ needs.validate.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.validate.outputs.version }}
+            type=semver,pattern={{major}},value=v${{ needs.validate.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.component }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.validate.outputs.version }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+  # Generate changelog
+  changelog:
+    needs: validate
+    runs-on: ubuntu-latest
+    outputs:
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install conventional-changelog
+        run: npm install -g conventional-changelog-cli
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "Generating changelog from $PREVIOUS_TAG to v${{ needs.validate.outputs.version }}"
+            CHANGELOG=$(conventional-changelog -p angular -r 1)
+          else
+            echo "No previous tag found, generating full changelog"
+            CHANGELOG=$(conventional-changelog -p angular)
+          fi
+          
+          # Save changelog to file and output
+          echo "$CHANGELOG" > RELEASE_CHANGELOG.md
+          
+          # Escape for GitHub output
+          CHANGELOG_ESCAPED=$(echo "$CHANGELOG" | sed ':a;N;$!ba;s/\n/%0A/g' | sed 's/\r/%0D/g')
+          echo "changelog=$CHANGELOG_ESCAPED" >> $GITHUB_OUTPUT
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: RELEASE_CHANGELOG.md
+
+  # Create GitHub release
+  release:
+    needs: [validate, test, build, changelog]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.validate.outputs.version }}
+          release_name: Release v${{ needs.validate.outputs.version }}
+          body_path: RELEASE_CHANGELOG.md
+          draft: false
+          prerelease: ${{ needs.validate.outputs.is_prerelease }}
+
+      - name: Generate release assets
+        run: |
+          # Create release archive
+          tar -czf isp-framework-v${{ needs.validate.outputs.version }}.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='__pycache__' \
+            --exclude='.pytest_cache' \
+            .
+          
+          # Create checksums
+          sha256sum isp-framework-v${{ needs.validate.outputs.version }}.tar.gz > checksums.txt
+
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./isp-framework-v${{ needs.validate.outputs.version }}.tar.gz
+          asset_name: isp-framework-v${{ needs.validate.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+  # Deploy to staging/production
+  deploy:
+    needs: [validate, release]
+    runs-on: ubuntu-latest
+    if: needs.validate.outputs.is_prerelease == 'false'
+    environment:
+      name: production
+      url: https://ispframework.com
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying v${{ needs.validate.outputs.version }} to production"
+          # Add your deployment commands here
+          # e.g., kubectl apply, helm upgrade, etc.
+
+  # Notify stakeholders
+  notify:
+    needs: [validate, release]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify Slack
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            🎉 Release v${{ needs.validate.outputs.version }} has been published!
+            
+            📦 Docker images available at: ghcr.io/${{ github.repository }}
+            📋 Release notes: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.validate.outputs.version }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            ❌ Release v${{ needs.validate.outputs.version }} failed!
+            
+            Please check the workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Update documentation
+  docs:
+    needs: [validate, release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update documentation
+        run: |
+          echo "📚 Updating documentation for v${{ needs.validate.outputs.version }}"
+          # Add documentation update commands here
+          # e.g., update API docs, deploy to docs site, etc.
+
+      - name: Trigger documentation build
+        run: |
+          # Trigger documentation site rebuild
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "${{ github.api_url }}/repos/${{ github.repository }}/dispatches" \
+            -d '{"event_type":"docs-update","client_payload":{"version":"${{ needs.validate.outputs.version }}"}}'
