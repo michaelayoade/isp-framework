@@ -7,7 +7,7 @@ architecture API endpoints, providing type safety and validation for all
 network-related operations.
 """
 
-from pydantic import  Field, validator
+from pydantic import  Field, field_validator
 from typing import List, Optional, Dict, Any, Union, Generic, TypeVar
 from datetime import datetime
 from enum import Enum
@@ -137,7 +137,7 @@ class NetworkDeviceBase(BaseSchema):
     is_active: bool = True
     is_monitored: bool = True
 
-    @validator('management_ip')
+    @field_validator('management_ip')
     def validate_management_ip(cls, v):
         if v:
             try:
@@ -195,7 +195,7 @@ class IPPoolBase(BaseSchema):
     is_active: bool = True
     allow_auto_assignment: bool = True
 
-    @validator('network')
+    @field_validator('network')
     def validate_network(cls, v):
         try:
             ipaddress.ip_network(v, strict=False)
@@ -203,7 +203,7 @@ class IPPoolBase(BaseSchema):
             raise ValueError('Invalid network format')
         return v
 
-    @validator('gateway')
+    @field_validator('gateway')
     def validate_gateway(cls, v):
         if v:
             try:
@@ -212,7 +212,7 @@ class IPPoolBase(BaseSchema):
                 raise ValueError('Invalid gateway IP address')
         return v
 
-    @validator('dns_servers')
+    @field_validator('dns_servers')
     def validate_dns_servers(cls, v):
         if v:
             for dns in v:
@@ -254,7 +254,7 @@ class IPAllocationBase(BaseSchema):
     description: Optional[str] = None
     expires_at: Optional[datetime] = None
 
-    @validator('ip_address')
+    @field_validator('ip_address')
     def validate_ip_address(cls, v):
         try:
             ipaddress.ip_address(v)

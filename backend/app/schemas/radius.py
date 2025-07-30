@@ -6,7 +6,7 @@ This module contains Pydantic schemas for RADIUS session tracking,
 customer online status, and network usage statistics.
 """
 
-from pydantic import  Field, validator
+from pydantic import  Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
@@ -63,7 +63,7 @@ class RadiusSessionBase(BaseSchema):
     session_id: Optional[str] = Field(None, max_length=255)
     session_status: SessionStatus = SessionStatus.ACTIVE
 
-    @validator('mac')
+    @field_validator('mac')
     def validate_mac_address(cls, v):
         if v is None:
             return v
@@ -73,7 +73,7 @@ class RadiusSessionBase(BaseSchema):
             raise ValueError('Invalid MAC address format')
         return v.upper()
 
-    @validator('ipv4', 'ipv6')
+    @field_validator('ipv4', 'ipv6')
     def validate_ip_address(cls, v):
         if v is None:
             return v
@@ -130,7 +130,7 @@ class CustomerOnlineBase(BaseSchema):
     login_is: LoginType = LoginType.USER
     session_id: str = Field(..., max_length=255)
 
-    @validator('mac')
+    @field_validator('mac')
     def validate_mac_address(cls, v):
         if v is None:
             return v
@@ -139,7 +139,7 @@ class CustomerOnlineBase(BaseSchema):
             raise ValueError('Invalid MAC address format')
         return v.upper()
 
-    @validator('ipv4', 'ipv6')
+    @field_validator('ipv4', 'ipv6')
     def validate_ip_address(cls, v):
         if v is None:
             return v

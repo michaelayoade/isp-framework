@@ -179,7 +179,7 @@ async def cleanup_security_data(
         )
 
 
-@router.get("/health")
+@router.get("/health", include_in_schema=False)
 async def security_health_check():
     """Security system health check (no auth required)."""
     try:

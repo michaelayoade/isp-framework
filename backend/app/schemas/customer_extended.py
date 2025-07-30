@@ -1,5 +1,5 @@
 from ._base import BaseSchema
-from pydantic import  Field, EmailStr, validator
+from pydantic import  Field, EmailStr, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
@@ -223,7 +223,7 @@ class CustomerExtendedCreate(BaseSchema):
     # Tags and Labels
     tags: Optional[str] = Field(None, description="Customer tags")
 
-    @validator('billing_day')
+    @field_validator('billing_day')
     def validate_billing_day(cls, v):
         if not 1 <= v <= 31:
             raise ValueError('Billing day must be between 1 and 31')

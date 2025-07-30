@@ -1,0 +1,134 @@
+# ISP Framework Pre-commit Configuration
+# Ensures code quality and security before commits
+
+repos:
+  # Python Code Quality
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=88]
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # Type Checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests, types-redis, types-PyYAML]
+        args: [--strict, --ignore-missing-imports]
+        files: ^backend/
+
+  # Security Scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-r, backend/, -f, json, -o, bandit-report.json]
+        files: ^backend/.*\.py$
+
+  # Secret Detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+
+  # General Quality
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: debug-statements
+      - id: requirements-txt-fixer
+
+  # Documentation
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        files: ^backend/app/
+        args: [--convention=google]
+
+  # Frontend Quality (if Node.js is available)
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+
+      - id: prettier
+        name: prettier
+        entry: bash -c 'cd frontend && npm run format:check'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|json|css|md)$
+        pass_filenames: false
+
+      - id: typescript-check
+        name: typescript-check
+        entry: bash -c 'cd frontend && npm run type-check'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+
+  # Docker Security
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3009]
+
+  # SQL Quality
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 2.3.5
+    hooks:
+      - id: sqlfluff-lint
+        files: ^.*\.sql$
+        args: [--dialect=postgres]
+
+# Configuration
+default_language_version:
+  python: python3.11
+  node: 18.19.0
+
+# Performance optimization
+default_stages: [commit, push]
+minimum_pre_commit_version: 3.6.0
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+    .*\.min\.(js|css)|
+    .*\.bundle\.(js|css)|
+    node_modules/.*|
+    \.git/.*|
+    \.venv/.*|
+    __pycache__/.*|
+    \.pytest_cache/.*|
+    \.mypy_cache/.*|
+    migrations/versions/.*\.py|
+    alembic/versions/.*\.py
+  )$

@@ -5,7 +5,7 @@ Pydantic schemas for customer portal operations including sessions, payments,
 service requests, dashboard data, and notifications.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from decimal import Decimal
@@ -278,10 +278,13 @@ class PaginatedResponse(BaseModel):
     per_page: int
     pages: int
 
-    @validator('pages', pre=True, always=True)
-    def calculate_pages(cls, v, values):
-        total = values.get('total', 0)
-        per_page = values.get('per_page', 10)
+    @field_validator('pages', mode='before')
+    @classmethod
+    def calculate_pages(cls, v, info):
+        # Get values from the data being validated
+        data = info.data if hasattr(info, 'data') else {}
+        total = data.get('total', 0)
+        per_page = data.get('per_page', 10)
         return (total + per_page - 1) // per_page if per_page > 0 else 0
 
 

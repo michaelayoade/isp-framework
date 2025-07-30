@@ -535,7 +535,7 @@ async def get_system_templates(
 
 
 # Health Check
-@router.get("/health")
+@router.get("/health", include_in_schema=False)
 async def health_check(
     db: Session = Depends(get_db)
 ):

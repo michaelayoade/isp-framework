@@ -5,7 +5,7 @@ Pydantic schemas for file management, CSV imports, ticket attachments,
 and MinIO S3 operations.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -82,13 +82,13 @@ class PresignedUploadRequest(BaseModel):
     ticket_id: Optional[int] = None
     metadata: Dict[str, Any] = {}
 
-    @validator('filename')
+    @field_validator('filename')
     def validate_filename(cls, v):
         if not v.strip():
             raise ValueError('Filename cannot be empty')
         return v.strip()
 
-    @validator('mime_type')
+    @field_validator('mime_type')
     def validate_mime_type(cls, v):
         allowed_types = [
             'text/csv', 'application/vnd.ms-excel',

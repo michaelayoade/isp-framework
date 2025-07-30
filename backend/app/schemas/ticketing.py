@@ -90,11 +90,26 @@ class TicketBase(BaseModel):
 
 
 class TicketCreate(TicketBase):
-    customer_id: Optional[int] = None
-    service_id: Optional[int] = None
-    contact_id: Optional[int] = None
+    """Schema for creating tickets."""
+    customer_id: Optional[int] = Field(None, example=123)
+    service_id: Optional[int] = Field(None, example=456)
+    contact_id: Optional[int] = Field(None, example=789)
     source: TicketSourceEnum = TicketSourceEnum.CUSTOMER_PORTAL
-    source_reference: Optional[str] = None
+    source_reference: Optional[str] = Field(None, example="EMAIL-2024-001")
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "ticket_type": "support",
+                "title": "Internet connection issues",
+                "description": "Customer experiencing intermittent connectivity issues since yesterday",
+                "priority": "normal",
+                "customer_id": 123,
+                "service_id": 456,
+                "source": "customer_portal",
+                "tags": ["connectivity", "intermittent"]
+            }
+        }
 
 
 class TicketUpdate(BaseModel):

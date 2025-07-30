@@ -1,0 +1,189 @@
+
+==================================== ERRORS ====================================
+[31m[1m_______________ ERROR collecting tests/services/test_billing.py ________________[0m
+[31mImportError while importing test module '/app/tests/services/test_billing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/services/test_billing.py:21: in <module>
+    from app.models.base import Customer
+E   ImportError: cannot import name 'Customer' from 'app.models.base' (/app/app/models/base.py)[0m
+[33m=============================== warnings summary ===============================[0m
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/_internal/_config.py:291: 49 warnings
+  /home/appuser/.local/lib/python3.11/site-packages/pydantic/_internal/_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+app/core/database.py:23
+  /app/app/core/database.py:23: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:312
+  /home/appuser/.local/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:312: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.9/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warnings.warn(
+
+../usr/local/lib/python3.11/site-packages/passlib/utils/__init__.py:854
+  /usr/local/lib/python3.11/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+app/schemas/webhooks.py:134
+  /app/app/schemas/webhooks.py:134: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('values')
+
+app/schemas/billing.py:125
+  /app/app/schemas/billing.py:125: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('due_date')
+
+app/schemas/billing.py:351
+  /app/app/schemas/billing.py:351: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('end_date')
+
+app/schemas/billing.py:405
+  /app/app/schemas/billing.py:405: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('credit_amount')
+
+app/schemas/billing.py:453
+  /app/app/schemas/billing.py:453: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('expiry_date')
+
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:826
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:826
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:826
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:826
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:826
+  /home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:826: PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use `json_schema_extra` instead. (Extra keys: 'example'). Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warn(
+
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/_internal/_config.py:341
+  /home/appuser/.local/lib/python3.11/site-packages/pydantic/_internal/_config.py:341: UserWarning: Valid config keys have changed in V2:
+  * 'schema_extra' has been renamed to 'json_schema_extra'
+    warnings.warn(message, UserWarning)
+
+../usr/local/lib/python3.11/site-packages/pysnmp/smi/compiler.py:20
+  /usr/local/lib/python3.11/site-packages/pysnmp/smi/compiler.py:20: DeprecationWarning: getReadersFromUrls is deprecated. Please use get_readers_from_urls instead.
+    from pysmi.reader.url import getReadersFromUrls
+
+../usr/local/lib/python3.11/site-packages/pysnmp/smi/compiler.py:26
+  /usr/local/lib/python3.11/site-packages/pysnmp/smi/compiler.py:26: DeprecationWarning: smiV1Relaxed is deprecated. Please use smi_v1_relaxed instead.
+    from pysmi.parser.dialect import smiV1Relaxed
+
+app/schemas/radius.py:66
+  /app/app/schemas/radius.py:66: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('mac')
+
+app/schemas/radius.py:76
+  /app/app/schemas/radius.py:76: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('ipv4', 'ipv6')
+
+app/schemas/radius.py:133
+  /app/app/schemas/radius.py:133: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('mac')
+
+app/schemas/radius.py:142
+  /app/app/schemas/radius.py:142: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('ipv4', 'ipv6')
+
+app/schemas/communications.py:131
+  /app/app/schemas/communications.py:131: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('recipient_email', 'recipient_phone')
+
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:795
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:795
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:795
+  /home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:795: PydanticDeprecatedSince20: `min_items` is deprecated and will be removed, use `min_length` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warn('`min_items` is deprecated and will be removed, use `min_length` instead', DeprecationWarning)
+
+app/schemas/communications.py:331
+  /app/app/schemas/communications.py:331: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('recipient_email', 'recipient_phone')
+
+app/schemas/communications.py:337
+  /app/app/schemas/communications.py:337: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('body')
+
+app/schemas/api_management.py:65
+  /app/app/schemas/api_management.py:65: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('partner_id', 'customer_id', 'admin_id')
+
+app/schemas/file_storage.py:85
+  /app/app/schemas/file_storage.py:85: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('filename')
+
+app/schemas/file_storage.py:91
+  /app/app/schemas/file_storage.py:91: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('mime_type')
+
+app/schemas/customer_extended.py:226
+  /app/app/schemas/customer_extended.py:226: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('billing_day')
+
+app/schemas/customer_service.py:30
+  /app/app/schemas/customer_service.py:30: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('status')
+
+app/schemas/customer_service.py:50
+  /app/app/schemas/customer_service.py:50: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('status')
+
+app/schemas/service_management.py:663
+  /app/app/schemas/service_management.py:663: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('pages', pre=True, always=True)
+
+../home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:801
+  /home/appuser/.local/lib/python3.11/site-packages/pydantic/fields.py:801: PydanticDeprecatedSince20: `max_items` is deprecated and will be removed, use `max_length` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    warn('`max_items` is deprecated and will be removed, use `max_length` instead', DeprecationWarning)
+
+app/schemas/customer_portal.py:281
+  /app/app/schemas/customer_portal.py:281: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('pages', pre=True, always=True)
+
+app/schemas/device.py:15
+  /app/app/schemas/device.py:15: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.9/migration/
+    @validator('mac_address')
+
+tests/api/test_auth_basic.py:22
+  /app/tests/api/test_auth_basic.py:22: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(1)
+
+tests/api/test_auth_basic.py:30
+  /app/tests/api/test_auth_basic.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(2)
+
+tests/api/test_auth_basic.py:39
+  /app/tests/api/test_auth_basic.py:39: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(3)
+
+tests/api/test_device_management.py:11
+  /app/tests/api/test_device_management.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(1)
+
+tests/api/test_device_management.py:21
+  /app/tests/api/test_device_management.py:21: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(2)
+
+tests/integrations/test_file_storage.py:10
+  /app/tests/integrations/test_file_storage.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(1)
+
+tests/integrations/test_file_storage.py:18
+  /app/tests/integrations/test_file_storage.py:18: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(2)
+
+tests/integrations/test_webhook.py:9
+  /app/tests/integrations/test_webhook.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(1)
+
+tests/integrations/test_webhook.py:25
+  /app/tests/integrations/test_webhook.py:25: PytestUnknownMarkWarning: Unknown pytest.mark.order - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.order(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.11.13-final-0 ----------
+Coverage HTML written to dir /app/audit-results/coverage_html
+Coverage JSON written to file coverage.json
+
+[36m[1m=========================== short test summary info ============================[0m
+[31mERROR[0m tests/services/test_billing.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+[31m[33m94 warnings[0m, [31m[1m1 error[0m[31m in 32.78s[0m[0m

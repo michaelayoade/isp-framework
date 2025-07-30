@@ -32,7 +32,7 @@ from ....schemas.billing import (
     BillingOverview, CustomerBillingSummary
 )
 
-router = APIRouter()
+router = APIRouter(tags=["Billing"])
 
 
 # Invoice Management Endpoints

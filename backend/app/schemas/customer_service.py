@@ -1,5 +1,5 @@
 from ._base import BaseSchema
-from pydantic import  Field, validator
+from pydantic import  Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 from app.schemas.service_plan import ServicePlan
@@ -27,7 +27,7 @@ class CustomerServiceBase(BaseSchema):
     custom_price: Optional[int] = Field(None, description="Custom price override in cents")
     discount_percentage: Optional[int] = Field(0, ge=0, le=100, description="Discount percentage (0-100)")
     
-    @validator('status')
+    @field_validator('status')
     def validate_status(cls, v):
         valid_statuses = ["active", "suspended", "terminated", "pending"]
         if v not in valid_statuses:
@@ -47,7 +47,7 @@ class CustomerServiceUpdate(BaseSchema):
     custom_price: Optional[int] = Field(None, description="Custom price override")
     discount_percentage: Optional[int] = Field(None, ge=0, le=100, description="Discount percentage")
     
-    @validator('status')
+    @field_validator('status')
     def validate_status(cls, v):
         if v is not None:
             valid_statuses = ["active", "suspended", "terminated", "pending"]

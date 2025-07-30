@@ -14,7 +14,7 @@ Provides comprehensive validation and serialization for all service operations.
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime, date
 from decimal import Decimal
-from pydantic import  Field, validator
+from pydantic import  Field, field_validator
 from enum import Enum
 
 # Import service enums
@@ -660,10 +660,13 @@ class PaginatedResponse(BaseSchema):
     size: int
     pages: int
     
-    @validator('pages', pre=True, always=True)
-    def calculate_pages(cls, v, values):
-        total = values.get('total', 0)
-        size = values.get('size', 20)
+    @field_validator('pages', mode='before')
+    @classmethod
+    def calculate_pages(cls, v, info):
+        # Get values from the data being validated
+        data = info.data if hasattr(info, 'data') else {}
+        total = data.get('total', 0)
+        size = data.get('size', 20)
         return (total + size - 1) // size if total > 0 else 0
 
 

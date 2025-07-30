@@ -9,7 +9,7 @@ Pydantic schemas for API management including:
 - Quota management
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -62,7 +62,7 @@ class APIKeyCreate(APIKeyBase):
     customer_id: Optional[int] = None
     admin_id: Optional[int] = None
     
-    @validator('partner_id', 'customer_id', 'admin_id')
+    @field_validator('partner_id', 'customer_id', 'admin_id')
     def validate_owner(cls, v, values):
         # Ensure at least one owner is specified
         if not any([values.get('partner_id'), values.get('customer_id'), values.get('admin_id')]):

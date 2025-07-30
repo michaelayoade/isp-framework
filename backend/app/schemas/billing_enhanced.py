@@ -9,7 +9,7 @@ and serialization for all billing entities and API operations.
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from decimal import Decimal
-from pydantic import  Field, validator
+from pydantic import  Field, field_validator
 from enum import Enum
 
 from app.models.billing import (
@@ -369,14 +369,14 @@ class PaginatedResponse(BaseSchema):
     has_next: bool
     has_previous: bool
 
-    @validator('has_next', always=True)
+    @field_validator('has_next', always=True)
     def validate_has_next(cls, v, values):
         total = values.get('total', 0)
         limit = values.get('limit', 0)
         offset = values.get('offset', 0)
         return (offset + limit) < total
 
-    @validator('has_previous', always=True)
+    @field_validator('has_previous', always=True)
     def validate_has_previous(cls, v, values):
         offset = values.get('offset', 0)
         return offset > 0

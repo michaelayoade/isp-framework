@@ -1,7 +1,7 @@
 """Pydantic schemas for device management and MAC authentication."""
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 import re
 
 
@@ -12,7 +12,8 @@ class DeviceBase(BaseModel):
     description: Optional[str] = Field(None, description="Device description")
     device_type: Optional[str] = Field(None, max_length=50, description="Device type (router, switch, camera, etc.)")
     
-    @validator('mac_address')
+    @field_validator('mac_address')
+    @classmethod
     def validate_mac_address(cls, v):
         """Validate and normalize MAC address format."""
         if not v:

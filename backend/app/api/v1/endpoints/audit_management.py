@@ -486,7 +486,7 @@ async def get_processor_stats(
 
 # Audit Health and Monitoring
 
-@router.get("/health", response_model=AuditHealthResponse)
+@router.get("/health", response_model=AuditHealthResponse, include_in_schema=False)
 async def get_audit_health(
     db: Session = Depends(get_db),
     current_admin: Administrator = Depends(get_current_admin)

@@ -9,7 +9,7 @@ and service integration API endpoints.
 
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from pydantic import  Field, validator
+from pydantic import  Field, field_validator
 from decimal import Decimal
 
 
@@ -236,7 +236,7 @@ class NetworkProvisioningResponse(BaseSchema):
 
 # Validation methods
 
-@validator('portal_id')
+@field_validator('portal_id')
 def validate_portal_id(cls, v):
     """Validate portal ID format"""
     if not v or not v.strip():
@@ -244,7 +244,7 @@ def validate_portal_id(cls, v):
     return v.strip()
 
 
-@validator('session_id')
+@field_validator('session_id')
 def validate_session_id(cls, v):
     """Validate session ID format"""
     if not v or not v.strip():

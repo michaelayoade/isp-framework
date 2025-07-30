@@ -12,7 +12,7 @@ from app.core.permissions import require_permission
 import logging
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(tags=["Automation"])
 
 
 # Dynamic Inventory Endpoint
@@ -96,7 +96,15 @@ async def list_sites(
         )
 
 
-@router.post("/sites", status_code=status.HTTP_201_CREATED)
+@router.post("/sites", 
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        201: {"description": "Site created successfully"},
+        400: {"description": "Invalid site data or validation error"},
+        403: {"description": "Insufficient permissions"},
+        409: {"description": "Site with this code already exists"}
+    }
+)
 @require_permission("automation.sites.create")
 async def create_site(
     site_data: Dict[str, Any],

@@ -6,7 +6,7 @@ Comprehensive Pydantic schemas for billing module including invoices, payments,
 credit notes, and accounting for ISP Framework.
 """
 
-from pydantic import  Field, validator
+from pydantic import Field, field_validator
 from typing import Optional, List
 from datetime import datetime, date
 from decimal import Decimal
@@ -122,9 +122,10 @@ class InvoiceBase(BaseSchema):
     parent_invoice_id: Optional[int] = Field(None, gt=0)
     additional_data: Optional[dict] = None
 
-    @validator('due_date')
-    def due_date_must_be_after_invoice_date(cls, v, values):
-        if 'invoice_date' in values and v <= values['invoice_date']:
+    @field_validator('due_date')
+    @classmethod
+    def due_date_must_be_after_invoice_date(cls, v, info):
+        if hasattr(info, 'data') and 'invoice_date' in info.data and v <= info.data['invoice_date']:
             raise ValueError('Due date must be after invoice date')
         return v
 
@@ -348,9 +349,9 @@ class BillingCycleBase(BaseSchema):
     due_date: datetime
     additional_data: Optional[dict] = None
 
-    @validator('end_date')
+    @field_validator('end_date')
     def end_date_must_be_after_start_date(cls, v, values):
-        if 'start_date' in values and v <= values['start_date']:
+        if (info and hasattr(info, 'data') and 'start_date' in info.data) and v <= (info.data.get('start_date') if info and hasattr(info, 'data') else None):
             raise ValueError('End date must be after start date')
         return v
 
@@ -402,9 +403,9 @@ class AccountingEntryBase(BaseSchema):
     notes: Optional[str] = None
     additional_data: Optional[dict] = None
 
-    @validator('credit_amount')
+    @field_validator('credit_amount')
     def debit_or_credit_must_be_positive(cls, v, values):
-        if 'debit_amount' in values and values['debit_amount'] == 0 and v == 0:
+        if (info and hasattr(info, 'data') and 'debit_amount' in info.data) and (info.data.get('debit_amount') if info and hasattr(info, 'data') else None) == 0 and v == 0:
             raise ValueError('Either debit_amount or credit_amount must be greater than 0')
         return v
 
@@ -450,9 +451,9 @@ class TaxRateBase(BaseSchema):
     tax_type: Optional[str] = Field(None, max_length=50)
     description: Optional[str] = None
 
-    @validator('expiry_date')
+    @field_validator('expiry_date')
     def expiry_date_must_be_after_effective_date(cls, v, values):
-        if v and 'effective_date' in values and v <= values['effective_date']:
+        if v and (info and hasattr(info, 'data') and 'effective_date' in info.data) and v <= (info.data.get('effective_date') if info and hasattr(info, 'data') else None):
             raise ValueError('Expiry date must be after effective date')
         return v
 

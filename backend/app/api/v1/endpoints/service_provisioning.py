@@ -711,7 +711,7 @@ async def test_provisioning_template(
 # Health Check and Monitoring Endpoints
 # ============================================================================
 
-@router.get("/health", response_model=Dict[str, Any])
+@router.get("/health", response_model=Dict[str, Any], include_in_schema=False)
 async def get_provisioning_health(
     db: Session = Depends(get_db),
     current_admin: Administrator = Depends(get_current_admin)

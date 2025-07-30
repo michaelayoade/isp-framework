@@ -169,7 +169,7 @@ async def get_active_system_alerts(
         raise HTTPException(status_code=500, detail="Failed to retrieve active system alerts")
 
 
-@router.get("/health-check")
+@router.get("/health-check", include_in_schema=False)
 async def health_check_endpoint(
     db: Session = Depends(get_db)
 ) -> Dict[str, Any]:

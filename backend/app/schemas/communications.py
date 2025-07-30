@@ -5,7 +5,7 @@ Pydantic schemas for communication templates, providers, logs, and preferences
 with comprehensive validation and type safety.
 """
 
-from pydantic import BaseModel, Field, EmailStr, validator
+from pydantic import BaseModel, Field, EmailStr, field_validator
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
@@ -128,7 +128,7 @@ class CommunicationLogBase(BaseModel):
     template_variables: Dict[str, Any] = Field(default_factory=dict)
     scheduled_at: Optional[datetime] = None
 
-    @validator('recipient_email', 'recipient_phone')
+    @field_validator('recipient_email', 'recipient_phone')
     def validate_recipient(cls, v, values):
         if not v and not values.get('recipient_phone') and not values.get('recipient_email'):
             raise ValueError('At least one recipient method (email or phone) must be provided')
@@ -328,13 +328,13 @@ class SendCommunicationRequest(BaseModel):
     context_type: Optional[str] = Field(None, max_length=50)
     context_id: Optional[int] = None
 
-    @validator('recipient_email', 'recipient_phone')
+    @field_validator('recipient_email', 'recipient_phone')
     def validate_recipient(cls, v, values):
         if not v and not values.get('recipient_phone') and not values.get('recipient_email'):
             raise ValueError('At least one recipient method (email or phone) must be provided')
         return v
 
-    @validator('body')
+    @field_validator('body')
     def validate_content(cls, v, values):
         if not v and not values.get('template_id'):
             raise ValueError('Either body content or template_id must be provided')

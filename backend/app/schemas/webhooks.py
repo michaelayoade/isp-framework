@@ -4,7 +4,7 @@ Webhook System Schemas
 Pydantic schemas for webhook API validation and serialization.
 """
 
-from pydantic import BaseModel, Field, HttpUrl, validator
+from pydantic import BaseModel, Field, HttpUrl, field_validator
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from decimal import Decimal
@@ -131,7 +131,7 @@ class WebhookFilterBase(BaseModel):
     include_on_match: bool = True
     is_active: bool = True
 
-    @validator('values')
+    @field_validator('values')
     def validate_values_for_operator(cls, v, values):
         operator = values.get('operator')
         if operator in [FilterOperator.IN, FilterOperator.NOT_IN] and not v:
