@@ -9,6 +9,7 @@ from typing import List, Optional, Dict, Any
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from sqlalchemy import func
 
 from app.models.foundation import Reseller
 from app.models.customer import Customer
@@ -18,6 +19,12 @@ from app.schemas.reseller import (
     ResellerCommissionReport, ResellerCustomerSummary, ResellerDashboard
 )
 from app.core.exceptions import ValidationError, NotFoundError, DuplicateError
+from app.services.billing_service import get_billing_account_service, get_billing_report_service
+from app.models.billing import CustomerBillingAccount, Payment
+from app.models.services import CustomerService
+from app.services.reseller_helpers import (
+    get_customer_services_count, get_customer_monthly_revenue, get_customer_last_payment_date
+)
 
 logger = logging.getLogger(__name__)
 
@@ -182,9 +189,9 @@ class ResellerService:
                 'name': customer.name,
                 'email': customer.email,
                 'status': customer.status,
-                'services_count': self._get_customer_services_count(customer.id),
-                'monthly_revenue': self._get_customer_monthly_revenue(customer.id),
-                'last_payment': self._get_customer_last_payment_date(customer.id),
+                'services_count': get_customer_services_count(self.db, customer.id),
+                'monthly_revenue': get_customer_monthly_revenue(self.db, customer.id),
+                'last_payment': get_customer_last_payment_date(self.db, customer.id),
                 'created_at': customer.created_at
             }
             results.append(ResellerCustomerSummary.model_validate(customer_data))
@@ -343,9 +350,9 @@ class ResellerService:
                 'name': customer.name,
                 'email': customer.email,
                 'status': customer.status,
-                'services_count': self._get_customer_services_count(customer.id),
-                'monthly_revenue': self._get_customer_monthly_revenue(customer.id),
-                'last_payment': self._get_customer_last_payment_date(customer.id),
+                'services_count': get_customer_services_count(self.db, customer.id),
+                'monthly_revenue': get_customer_monthly_revenue(self.db, customer.id),
+                'last_payment': get_customer_last_payment_date(self.db, customer.id),
                 'created_at': customer.created_at
             }
             results.append(ResellerCustomerSummary.model_validate(customer_data))
