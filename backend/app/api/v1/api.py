@@ -17,7 +17,9 @@ from app.api.v1.endpoints import (
     # RBAC system
     rbac,
     # Device management
-    devices
+    devices,
+    # Ansible automation
+    automation
 )
 # Redirects removed - using direct RESTful URLs
 
@@ -48,6 +50,9 @@ api_router.include_router(rbac.router, prefix="/rbac", tags=["rbac"])
 
 # Device Management
 api_router.include_router(devices.router, prefix="/devices", tags=["devices"])
+
+# Ansible Automation
+api_router.include_router(automation.router, prefix="/automation", tags=["automation"])
 
 # Service Management (Consolidated)
 api_router.include_router(services.router, prefix="/services", tags=["services"])
