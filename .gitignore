@@ -95,8 +95,57 @@ radius-logs/
 
 # MinIO data (if running locally)
 minio-data/
+
 # SECURITY: Critical files that must NEVER be committed
 # This file contains patterns for sensitive data that could compromise security
+
+# Documentation and internal notes (exclude from public repo)
+docs/
+backend/docs/
+*.md
+!README.md
+!CONTRIBUTING.md
+!LICENSE.md
+!CHANGELOG.md
+
+# Secrets and keys
+backend/keys/
+*.key
+*.pem
+*.p12
+*.pfx
+jwt_keys.json
+
+# Configuration files with potential secrets
+*.conf
+!*.conf.example
+radius-config/
+deployment/postgres/pg_hba.conf
+
+# Audit and internal reports
+*AUDIT*
+*audit*
+*REPORT*
+*report*
+
+# Development and planning files
+*PLAN*
+*plan*
+*TODO*
+*todo*
+*NOTES*
+*notes*
+
+# CSV exports and data files
+*.csv
+*.xlsx
+*.xls
+
+# Temporary development files
+*.draft
+*.wip
+*.backup
+*.old
 
 # Environment files with secrets
 .env
