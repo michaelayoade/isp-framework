@@ -9,7 +9,7 @@ import structlog
 
 from app.core.celery import celery_app
 from app.core.database import get_db
-from app.services.networking import NetworkService
+from app.services.network_service import NetworkService
 
 logger = structlog.get_logger("isp.tasks.network")
 

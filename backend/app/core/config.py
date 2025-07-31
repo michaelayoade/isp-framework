@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     allowed_headers: List[str] = ["*"]
 
     # Redis
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str = "redis://redis:6379/0"
 
     # File Storage
     minio_endpoint: str = "localhost:9000"

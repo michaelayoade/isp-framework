@@ -16,8 +16,8 @@ from app.core.config import settings
 # Configure Celery app
 celery_app = Celery(
     "isp_framework",
-    broker=getattr(settings, "REDIS_URL", "redis://localhost:6379/0"),
-    backend=getattr(settings, "REDIS_URL", "redis://localhost:6379/0"),
+    broker=getattr(settings, "redis_url", "redis://redis:6379/0"),
+    backend=getattr(settings, "redis_url", "redis://redis:6379/0"),
     include=[
         "app.tasks.service_provisioning",
         "app.tasks.billing_tasks",

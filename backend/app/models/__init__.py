@@ -5,7 +5,7 @@ domain-organized structure for better maintainability and scalability.
 """
 
 # Import all models here to ensure they are registered with SQLAlchemy
-from app.core.database import Base
+from .base import Base
 
 # Enhanced Audit Models
 from .audit import AuditProcessingStatus, AuditQueue, CDCLog, ConfigurationSnapshot

@@ -23,7 +23,6 @@ from sqlalchemy import text
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import settings
-from app.core.database import engine
 
 # Configure structured logging
 structlog.configure(
@@ -216,6 +215,8 @@ async def health_check() -> dict:
 
 async def readiness_check() -> dict:
     """Readiness check - validates external dependencies."""
+    from app.core.database import engine
+    
     checks = {}
     overall_status = "ready"
 

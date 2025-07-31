@@ -9,7 +9,7 @@ import structlog
 
 from app.core.celery import celery_app
 from app.core.database import get_db
-from app.services.monitoring import MonitoringService
+from app.services.sla_monitoring import SLAMonitoringService
 
 logger = structlog.get_logger("isp.tasks.monitoring")
 
@@ -21,7 +21,7 @@ def system_health_check_task(self):
         logger.info("Starting system health check")
 
         db = next(get_db())
-        monitoring_service = MonitoringService(db)
+        monitoring_service = SLAMonitoringService(db)
 
         result = monitoring_service.perform_system_health_check()
 
@@ -52,7 +52,7 @@ def collect_performance_metrics_task(self):
         logger.info("Starting performance metrics collection")
 
         db = next(get_db())
-        monitoring_service = MonitoringService(db)
+        monitoring_service = SLAMonitoringService(db)
 
         result = monitoring_service.collect_performance_metrics()
 
@@ -79,7 +79,7 @@ def check_service_sla_task(self, service_id: int = None):
         logger.info("Starting SLA compliance check", service_id=service_id)
 
         db = next(get_db())
-        monitoring_service = MonitoringService(db)
+        monitoring_service = SLAMonitoringService(db)
 
         if service_id:
             result = monitoring_service.check_service_sla(service_id)
@@ -111,7 +111,7 @@ def generate_alerts_task(self, alert_type: str = None):
         logger.info("Starting alert generation", alert_type=alert_type)
 
         db = next(get_db())
-        monitoring_service = MonitoringService(db)
+        monitoring_service = SLAMonitoringService(db)
 
         result = monitoring_service.generate_alerts(alert_type)
 
@@ -140,7 +140,7 @@ def cleanup_old_metrics_task(self, retention_days: int = 90):
         logger.info("Starting metrics cleanup", retention_days=retention_days)
 
         db = next(get_db())
-        monitoring_service = MonitoringService(db)
+        monitoring_service = SLAMonitoringService(db)
 
         result = monitoring_service.cleanup_old_metrics(retention_days)
 
@@ -169,7 +169,7 @@ def bandwidth_usage_analysis_task(self, customer_id: int = None):
         logger.info("Starting bandwidth usage analysis", customer_id=customer_id)
 
         db = next(get_db())
-        monitoring_service = MonitoringService(db)
+        monitoring_service = SLAMonitoringService(db)
 
         if customer_id:
             result = monitoring_service.analyze_customer_bandwidth(customer_id)

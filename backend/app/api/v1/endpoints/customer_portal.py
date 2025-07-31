@@ -25,7 +25,7 @@ from app.schemas.customer_portal import (
     CustomerPortalPaymentResponse,
     CustomerPortalPreferencesResponse,
     CustomerPortalPreferencesUpdate,
-    CustomerPortalServiceRequest,
+    CustomerPortalServiceRequestBase,
     CustomerPortalServiceRequestCreate,
     CustomerPortalServiceRequestResponse,
     CustomerPortalSessionResponse,

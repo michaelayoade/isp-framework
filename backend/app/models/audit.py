@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional
 
 from sqlalchemy import JSON, Boolean, Column, DateTime, Integer, String, Text
 
-from app.core.database import Base
+from app.models.base import Base
 
 
 class AuditQueue(Base):

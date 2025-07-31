@@ -10,7 +10,7 @@ import structlog
 
 from app.core.celery import celery_app
 from app.core.database import get_db
-from app.services.billing import BillingService
+from app.services.billing import BillingManagementService
 
 logger = structlog.get_logger("isp.tasks.billing")
 
@@ -22,7 +22,7 @@ def generate_invoices_task(self, billing_cycle_id: int = None):
         logger.info("Starting invoice generation", billing_cycle_id=billing_cycle_id)
 
         db = next(get_db())
-        billing_service = BillingService(db)
+        billing_service = BillingManagementService(db)
 
         if billing_cycle_id:
             # Generate invoices for specific billing cycle
@@ -56,7 +56,7 @@ def process_payments_task(self, payment_batch_id: str = None):
         logger.info("Starting payment processing", batch_id=payment_batch_id)
 
         db = next(get_db())
-        billing_service = BillingService(db)
+        billing_service = BillingManagementService(db)
 
         result = billing_service.process_pending_payments(payment_batch_id)
 
@@ -85,7 +85,7 @@ def send_overdue_notices_task(self, days_overdue: int = 30):
         logger.info("Starting overdue notice generation", days_overdue=days_overdue)
 
         db = next(get_db())
-        billing_service = BillingService(db)
+        billing_service = BillingManagementService(db)
 
         result = billing_service.send_overdue_notices(days_overdue)
 
@@ -115,7 +115,7 @@ def calculate_usage_charges_task(
         )
 
         db = next(get_db())
-        billing_service = BillingService(db)
+        billing_service = BillingManagementService(db)
 
         if customer_id:
             result = billing_service.calculate_customer_usage_charges(
@@ -152,7 +152,7 @@ def reconcile_accounts_task(self, account_ids: List[int] = None):
         )
 
         db = next(get_db())
-        billing_service = BillingService(db)
+        billing_service = BillingManagementService(db)
 
         result = billing_service.reconcile_accounts(account_ids)
 

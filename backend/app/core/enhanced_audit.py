@@ -25,7 +25,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import relationship
 
-from app.core.database import Base
+from app.models.base import Base
 from app.core.observability import log_audit_event
 
 
