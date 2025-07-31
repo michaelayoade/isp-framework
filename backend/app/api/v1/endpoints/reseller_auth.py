@@ -3,7 +3,6 @@ Reseller Authentication API Endpoints
 
 Authentication endpoints for reseller login and management in single-tenant ISP Framework.
 """
-from datetime import datetime
 from typing import Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -69,7 +68,7 @@ async def reseller_login(
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"}
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Authentication service error"
@@ -92,7 +91,7 @@ async def refresh_reseller_token(
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"}
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Token refresh service error"
@@ -120,7 +119,7 @@ async def set_reseller_password(
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Password service error"
@@ -158,7 +157,7 @@ async def change_reseller_password(
         }
     except ValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Password change service error"
@@ -202,7 +201,7 @@ async def get_current_reseller_info(
             },
             "permissions": permissions
         }
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Reseller info service error"
@@ -229,7 +228,7 @@ async def get_reseller_permissions(
         
         permissions = auth_service.get_reseller_permissions(current_reseller.id)
         return permissions
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Permissions service error"
@@ -262,7 +261,7 @@ async def reseller_logout(
             "success": True,
             "message": "Logged out successfully. Please remove token from client."
         }
-    except Exception as e:
+    except Exception:
         # Even if there's an error, we can still return success for logout
         return {
             "success": True,

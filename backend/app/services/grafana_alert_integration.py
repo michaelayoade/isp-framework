@@ -5,13 +5,10 @@ Provides comprehensive alert integration with Grafana for error handling,
 dead-letter queue monitoring, and operational alerts.
 """
 from datetime import datetime, timezone, timedelta
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 import structlog
-import json
 
-from app.core.database import get_db
-from app.models.foundation import DeadLetterQueue, TaskExecutionLog
 from app.core.error_handling import ISPException, ErrorSeverity, ErrorCategory, ErrorImpact
 from app.services.operational_dashboard import OperationalDashboardService
 from app.core.alerting import grafana_alert_manager

@@ -2,11 +2,8 @@ import secrets
 import hashlib
 import base64
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
-import jwt
-from app.core.config import settings
 from app.core.security import verify_password, get_password_hash
 from app.models import Administrator, OAuthClient, OAuthToken, OAuthAuthorizationCode
 from app.repositories.base import BaseRepository
@@ -394,7 +391,7 @@ class OAuthService:
         if not oauth_token:
             return {"active": False}
             
-        client = self.client_repo.get_by_field("client_id", oauth_token.client_id)
+        self.client_repo.get_by_field("client_id", oauth_token.client_id)
         user = None
         if oauth_token.user_id:
             user = self.admin_repo.get(oauth_token.user_id)

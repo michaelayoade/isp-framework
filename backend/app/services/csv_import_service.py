@@ -8,18 +8,16 @@ progress tracking, and error handling.
 import csv
 import io
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from celery import current_task
 
-from app.models.file_storage import ImportJob, ImportStatus, FileStatus
+from app.models.file_storage import ImportStatus, FileStatus
 from app.models.customer import Customer
 from app.repositories.file_storage_repository import ImportJobRepository, FileMetadataRepository
 from app.repositories.customer import CustomerRepository
 from app.services.file_storage_service import MinIOService
 from app.core.database import SessionLocal
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 

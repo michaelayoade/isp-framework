@@ -1,0 +1,50 @@
+[tool.ruff]
+# Enable core rule sets
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort (import sorting)
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "C4",   # flake8-comprehensions
+]
+
+# Temporarily ignore rules we'll fix in phases
+ignore = [
+    "F541",  # f-string without placeholders (will fix manually)
+    "E402",  # module level import not at top (will fix manually)
+    "E712",  # comparison to True/False (will fix manually)
+]
+
+# Per-file ignores for common patterns
+per-file-ignores = {
+    # Tests often have unused imports for fixtures/mocks
+    "tests/**/*" = ["F401", "E402", "S101"],
+    # Alembic migrations may have unused imports and missing __init__.py
+    "alembic/**/*" = ["F401", "INP001"],
+    # Migration backup directories should be excluded entirely
+    "alembic/migrations_backup_*/**/*" = ["F401", "E402", "INP001"],
+    # Conftest files often have unused imports for pytest fixtures
+    "**/conftest.py" = ["F401"],
+}
+
+# Exclude directories that shouldn't be linted
+exclude = [
+    "node_modules",
+    ".venv",
+    "frontend",
+    "alembic/migrations_backup_*",
+    "__pycache__",
+    ".git",
+]
+
+# Match project standards
+line-length = 88
+target-version = "py311"
+
+# Import sorting configuration
+[tool.ruff.isort]
+known-first-party = ["app"]
+force-single-line = false
+combine-as-imports = true

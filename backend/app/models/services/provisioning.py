@@ -4,7 +4,7 @@ ISP Service Management System - Service Provisioning
 Service provisioning workflow and status tracking for automated service deployment.
 """
 
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, JSON, ForeignKey, Index, Enum
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Index, Enum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -269,7 +269,7 @@ class ProvisioningQueue(Base):
 
 
 # Performance indexes
-from sqlalchemy import Index
+# Index already imported at the top of the file
 
 # Service provisioning indexes
 Index('idx_provisioning_status', ServiceProvisioning.status)

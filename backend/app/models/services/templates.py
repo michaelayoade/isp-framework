@@ -9,13 +9,11 @@ from sqlalchemy import Column, Integer, String, DECIMAL, Boolean, DateTime, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
 
 from app.core.database import Base
 from app.models.services.enums import (
     ServiceType, ServiceCategory, ServiceSubcategory, QualityProfile,
-    SupportLevel, TrafficPriority, ContentFilterLevel, VoiceCodec
+    SupportLevel, TrafficPriority, ContentFilterLevel
 )
 
 

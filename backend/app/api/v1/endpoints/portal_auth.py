@@ -5,9 +5,8 @@ Provides API endpoints for customer authentication using portal IDs
 for both customer portal login and PPPoE/RADIUS authentication.
 """
 
-from typing import Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 

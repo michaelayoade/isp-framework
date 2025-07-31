@@ -10,7 +10,6 @@ and service integration API endpoints.
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from pydantic import  Field, field_validator
-from decimal import Decimal
 
 
 class RadiusAuthRequest(BaseModel):

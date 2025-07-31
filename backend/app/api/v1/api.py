@@ -9,7 +9,7 @@ from app.api.v1.endpoints import (
     # Platform services
     api_management, files, communications, dead_letter_queue,
     # Additional endpoints (maintained for compatibility)
-    portal_auth, two_factor, service_plans, customer_services, oauth,
+    portal_auth, two_factor, oauth,
     reseller, reseller_auth, service_instances, service_provisioning,
     service_templates, customer_portal,
     # Lookup tables

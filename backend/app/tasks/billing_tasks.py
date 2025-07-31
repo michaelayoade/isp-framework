@@ -3,15 +3,11 @@ Billing and Financial Task Processing
 Background tasks for billing operations, invoice generation, and payment processing
 """
 
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-from celery import current_app
-from sqlalchemy.orm import Session
+from datetime import datetime
+from typing import List
 
 from app.core.celery import celery_app
 from app.core.database import get_db
-from app.models.billing import Invoice, Payment, BillingCycle
-from app.models.customers import Customer
 from app.services.billing import BillingService
 import structlog
 

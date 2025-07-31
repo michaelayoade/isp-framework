@@ -8,7 +8,6 @@ including model configuration, processor startup, and health monitoring.
 import asyncio
 import logging
 from typing import Dict, Any
-from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.audit_config import configure_audit_tracking, get_audit_configuration_status
 from app.services.audit_processor import audit_processor_manager, start_default_audit_processor

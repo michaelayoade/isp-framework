@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone, timedelta
 from app.repositories.customer_service import CustomerServiceRepository

@@ -4,7 +4,7 @@ Settings and configuration models for ISP Framework.
 Provides runtime editable settings, feature flags, and configuration management.
 """
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Any
 from enum import Enum
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, JSON, Index, ForeignKey
 from sqlalchemy.orm import relationship

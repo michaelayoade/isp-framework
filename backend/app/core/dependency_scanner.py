@@ -6,7 +6,7 @@ Provides automated security scanning of Python dependencies.
 import subprocess
 import json
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from datetime import datetime, timezone
 import structlog
 

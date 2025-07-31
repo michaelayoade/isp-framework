@@ -16,11 +16,10 @@ from ....models.auth import Administrator
 from ....services.radius import RadiusSessionService, CustomerOnlineService, CustomerStatisticsService
 from ....schemas.radius import (
     RadiusSession, RadiusSessionCreate, RadiusSessionUpdate, RadiusSessionList,
-    CustomerOnline, CustomerOnlineCreate, CustomerOnlineUpdate, CustomerOnlineList,
-    CustomerStatistics, CustomerStatisticsCreate, CustomerStatisticsUpdate, CustomerStatisticsList,
-    SessionAnalytics, CustomerUsageSummary, NetworkUtilization, TopCustomersByUsage
+    CustomerOnline, CustomerOnlineList,
+    CustomerStatistics, CustomerStatisticsList,
+    SessionAnalytics, NetworkUtilization
 )
-from ....core.exceptions import ValidationError, NotFoundError
 
 router = APIRouter()
 

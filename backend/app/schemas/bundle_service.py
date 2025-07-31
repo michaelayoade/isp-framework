@@ -1,10 +1,9 @@
 """Stub Pydantic schemas for Bundle Service used during testing.
 Replace with full schema definitions when implementing Bundle Service.
 """
-from pydantic import BaseModel, Field, field_validator, ConfigDict
-from typing import Optional, List
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional
 from uuid import UUID
-from decimal import Decimal
 from datetime import datetime
 
 

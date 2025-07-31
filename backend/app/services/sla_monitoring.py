@@ -8,10 +8,10 @@ Service layer for ticket SLA monitoring and escalation including:
 - Integration with communications for notifications
 """
 
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, Any
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone, timedelta
-from app.core.exceptions import NotFoundError, ValidationError
+from app.core.exceptions import ValidationError
 from app.services.webhook_integration_service import WebhookTriggers
 import logging
 

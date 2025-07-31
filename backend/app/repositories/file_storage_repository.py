@@ -6,7 +6,7 @@ and file permission management.
 """
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, asc
+from sqlalchemy import and_, or_, desc
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 

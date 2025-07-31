@@ -7,7 +7,6 @@ Models for double-entry bookkeeping and financial accounting.
 from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime, timezone
 from decimal import Decimal
 
 from app.core.database import Base

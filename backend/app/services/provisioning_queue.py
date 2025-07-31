@@ -12,8 +12,8 @@ from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone, timedelta
 from app.schemas.provisioning_queue import (
-    ProvisioningJobCreate, ProvisioningJobUpdate, ProvisioningJob,
-    ProvisioningJobList, ProvisioningWorkerStatus
+    ProvisioningJobCreate, ProvisioningJob,
+    ProvisioningJobList
 )
 from app.core.exceptions import NotFoundError, ValidationError
 from app.services.webhook_integration_service import WebhookTriggers

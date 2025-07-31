@@ -13,14 +13,12 @@ It provides:
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
 from app.core.database import get_db
-from app.models.audit import AuditQueue, AuditProcessingStatus, CDCLog
+from app.models.audit import AuditQueue, AuditProcessingStatus
 from app.core.audit import AuditLog
 from app.core.audit_mixins import ChangeDataCapture
-import json
 
 logger = logging.getLogger(__name__)
 

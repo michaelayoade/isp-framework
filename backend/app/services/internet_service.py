@@ -17,7 +17,7 @@ from app.schemas.internet_service import (
     InternetServiceCreate, InternetServiceUpdate, InternetServiceList,
     InternetServiceProvisioningRequest, InternetService, InternetServiceSummary
 )
-from app.core.exceptions import NotFoundError, ValidationError, DuplicateError
+from app.core.exceptions import NotFoundError
 from app.services.webhook_integration_service import WebhookTriggers
 from app.services.portal_id import PortalIDService
 import logging
@@ -242,7 +242,7 @@ class InternetServiceService:
         
         try:
             # Create provisioning job
-            job_data = {
+            {
                 "service_id": service_id,
                 "service_type": "internet",
                 "customer_id": service.customer_id,
@@ -279,7 +279,7 @@ class InternetServiceService:
         
         try:
             # Create suspension record
-            suspension_data = {
+            {
                 "service_id": service_id,
                 "reason": reason,
                 "suspended_by": admin_id,

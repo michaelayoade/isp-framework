@@ -12,26 +12,25 @@ and configuration management for the entire service management system.
 """
 
 from typing import Dict, Any, Optional
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 # Import all service modules
 from .service_templates_service import (
     ServiceTemplateService, InternetServiceTemplateService,
-    VoiceServiceTemplateService, BundleServiceTemplateService,
-    ServiceTemplateServiceFactory
+    VoiceServiceTemplateService, BundleServiceTemplateService
 )
 from .service_instances_service import (
     CustomerServiceService, CustomerInternetServiceService,
-    CustomerVoiceServiceService, ServiceInstanceServiceFactory
+    CustomerVoiceServiceService
 )
 from .service_provisioning_service import (
-    ServiceProvisioningService, ProvisioningTemplateService,
-    ServiceProvisioningServiceFactory
+    ServiceProvisioningService, ProvisioningTemplateService
 )
 from .service_management_service import (
     ServiceIPAssignmentService, ServiceStatusHistoryService,
     ServiceSuspensionService, ServiceUsageTrackingService,
-    ServiceAlertService, ServiceManagementServiceFactory
+    ServiceAlertService
 )
 
 
@@ -378,7 +377,7 @@ class ServiceBusinessIntelligence:
         dashboard_data['template_stats'] = await template_service.get_template_statistics()
         
         # Suspension statistics
-        suspension_service = self.factory.get_suspension_service()
+        self.factory.get_suspension_service()
         dashboard_data['suspension_stats'] = {'active_suspensions': 0}  # Placeholder
         
         # Usage statistics
@@ -386,7 +385,7 @@ class ServiceBusinessIntelligence:
         dashboard_data['usage_stats'] = await usage_service.get_network_usage_statistics()
         
         # Alert statistics
-        alert_service = self.factory.get_alert_service()
+        self.factory.get_alert_service()
         dashboard_data['alert_stats'] = {'active_alerts': 0}  # Placeholder
         
         return dashboard_data

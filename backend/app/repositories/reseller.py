@@ -5,7 +5,7 @@ Database operations for reseller management in single-tenant ISP Framework.
 """
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, func, desc
+from sqlalchemy import and_, func
 from decimal import Decimal
 
 from app.models.foundation import Reseller
@@ -30,14 +30,14 @@ class ResellerRepository(BaseRepository[Reseller]):
     
     def get_active_resellers(self) -> List[Reseller]:
         """Get all active resellers"""
-        return self.db.query(Reseller).filter(Reseller.is_active == True).all()
+        return self.db.query(Reseller).filter(Reseller.is_active is True).all()
     
     def get_resellers_by_territory(self, territory: str) -> List[Reseller]:
         """Get resellers by territory"""
         return self.db.query(Reseller).filter(
             and_(
                 Reseller.territory == territory,
-                Reseller.is_active == True
+                Reseller.is_active is True
             )
         ).all()
     
@@ -135,7 +135,7 @@ class ResellerRepository(BaseRepository[Reseller]):
         search_filter = f"%{query}%"
         return self.db.query(Reseller).filter(
             and_(
-                Reseller.is_active == True,
+                Reseller.is_active is True,
                 (
                     Reseller.name.ilike(search_filter) |
                     Reseller.code.ilike(search_filter) |

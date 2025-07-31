@@ -3,7 +3,6 @@
 import logging
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
 
 from app.models.services.instances import CustomerVoiceService as VoiceService
 from app.schemas.voice_services import (

@@ -16,7 +16,7 @@ import logging
 
 from sqlalchemy.orm import Session
 from app.core.config import settings
-from app.models.file_storage import FileMetadata, FileCategory, FileStatus
+from app.models.file_storage import FileCategory
 from app.repositories.file_storage_repository import FileMetadataRepository
 
 logger = logging.getLogger(__name__)

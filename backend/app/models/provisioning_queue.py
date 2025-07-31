@@ -9,7 +9,6 @@ Database models for async service provisioning including:
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, JSON, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
 from datetime import datetime, timezone
 import uuid

@@ -5,7 +5,7 @@ Comprehensive Pydantic schemas for billing module including invoices, payments,
 credit notes, and accounting for ISP Framework.
 """
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 from typing import Optional, List
 from datetime import datetime, date
 from decimal import Decimal
@@ -349,8 +349,8 @@ class BillingCycleBase(BaseModel):
     additional_data: Optional[dict] = None
 
     @field_validator('end_date')
-    def end_date_must_be_after_start_date(cls, v, values):
-        if (info and hasattr(info, 'data') and 'start_date' in info.data) and v <= (info.data.get('start_date') if info and hasattr(info, 'data') else None):
+    def end_date_must_be_after_start_date(cls, v, info: ValidationInfo):
+        if info.data and 'start_date' in info.data and v <= info.data.get('start_date'):
             raise ValueError('End date must be after start date')
         return v
 
@@ -403,8 +403,8 @@ class AccountingEntryBase(BaseModel):
     additional_data: Optional[dict] = None
 
     @field_validator('credit_amount')
-    def debit_or_credit_must_be_positive(cls, v, values):
-        if (info and hasattr(info, 'data') and 'debit_amount' in info.data) and (info.data.get('debit_amount') if info and hasattr(info, 'data') else None) == 0 and v == 0:
+    def debit_or_credit_must_be_positive(cls, v, info: ValidationInfo):
+        if info.data and 'debit_amount' in info.data and info.data.get('debit_amount') == 0 and v == 0:
             raise ValueError('Either debit_amount or credit_amount must be greater than 0')
         return v
 
@@ -451,8 +451,8 @@ class TaxRateBase(BaseModel):
     description: Optional[str] = None
 
     @field_validator('expiry_date')
-    def expiry_date_must_be_after_effective_date(cls, v, values):
-        if v and (info and hasattr(info, 'data') and 'effective_date' in info.data) and v <= (info.data.get('effective_date') if info and hasattr(info, 'data') else None):
+    def expiry_date_must_be_after_effective_date(cls, v, info: ValidationInfo):
+        if v and info.data and 'effective_date' in info.data and v <= info.data.get('effective_date'):
             raise ValueError('Expiry date must be after effective date')
         return v
 

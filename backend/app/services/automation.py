@@ -1,19 +1,17 @@
 """Ansible automation service for device provisioning and configuration management."""
 import asyncio
 import json
-import subprocess
 import tempfile
 import os
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, or_, func, desc, asc
-from datetime import datetime, timedelta
+from sqlalchemy import desc
+from datetime import datetime
 import logging
 
 from app.models.automation.infrastructure import (
-    Site, AutomationDevice, DeviceCredential, ProvisioningTask, AnsiblePlaybook
+    Site, AutomationDevice, ProvisioningTask
 )
-from app.models.customer.base import Customer
 from app.models.services.instances import CustomerService
 
 logger = logging.getLogger(__name__)
@@ -50,7 +48,7 @@ class AnsibleInventoryService:
             query = self.db.query(AutomationDevice).options(
                 joinedload(AutomationDevice.site),
                 joinedload(AutomationDevice.credentials)
-            ).filter(AutomationDevice.is_managed == True)
+            ).filter(AutomationDevice.is_managed is True)
             
             if site_id:
                 query = query.filter(AutomationDevice.site_id == site_id)
@@ -410,11 +408,11 @@ class AutomationService:
             # Device statistics
             total_devices = self.db.query(AutomationDevice).count()
             active_devices = self.db.query(AutomationDevice).filter(AutomationDevice.status == "active").count()
-            managed_devices = self.db.query(AutomationDevice).filter(AutomationDevice.is_managed == True).count()
+            managed_devices = self.db.query(AutomationDevice).filter(AutomationDevice.is_managed is True).count()
             
             # Site statistics
             total_sites = self.db.query(Site).count()
-            active_sites = self.db.query(Site).filter(Site.is_active == True).count()
+            active_sites = self.db.query(Site).filter(Site.is_active is True).count()
             
             # Task statistics
             total_tasks = self.db.query(ProvisioningTask).count()

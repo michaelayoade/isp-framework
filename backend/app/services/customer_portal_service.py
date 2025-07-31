@@ -3,23 +3,18 @@ Customer Portal Service Layer
 Comprehensive business logic for customer self-service portal operations
 """
 
-from typing import List, Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
-from decimal import Decimal
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, asc, func
+from sqlalchemy import desc
 
 from app.core.database import SessionLocal
 from app.models.customer.portal_complete import (
-    CustomerPortalSession, CustomerPortalPreferences, CustomerPortalPayment,
-    CustomerPortalAutoPayment, CustomerPortalServiceRequest, CustomerPortalInvoiceView,
-    CustomerPortalUsageView, CustomerPortalNotification, CustomerPortalFAQ,
-    CustomerPortalActivity
+    CustomerPortalSession, CustomerPortalPayment,
+    CustomerPortalServiceRequest, CustomerPortalNotification
 )
 from app.models.customer.base import Customer
 from app.models.services.instances import CustomerService
-from app.models.foundation.tariff import Tariff
-from app.models.billing.invoices import Invoice
 import secrets
 import logging
 
@@ -66,7 +61,7 @@ class CustomerPortalSessionService:
             session = self.db.query(CustomerPortalSession)\
                 .filter(
                     CustomerPortalSession.session_token == session_token,
-                    CustomerPortalSession.is_active == True,
+                    CustomerPortalSession.is_active is True,
                     CustomerPortalSession.expires_at > datetime.now()
                 ).first()
             

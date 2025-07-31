@@ -10,18 +10,19 @@ REST API endpoints for network device management including:
 """
 
 from typing import List, Optional, Dict, Any
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, func
+from sqlalchemy import and_, desc, func
 
 from app.core.database import get_db
 from app.models.devices.device_management import (
     ManagedDevice, DeviceInterface, DeviceMonitoring, DeviceAlert,
-    DeviceConfigBackup, DeviceTemplate, DeviceType, DeviceStatus,
-    AlertSeverity, BackupStatus
+    DeviceConfigBackup, DeviceType, DeviceStatus,
+    AlertSeverity, MonitoringProtocol
 )
 from app.services.device_management_service import DeviceManagementFactory
-from app.services.snmp_monitoring_service import SNMPMonitoringFactory, SNMPCredentials
+from app.services.snmp_monitoring_service import SNMPMonitoringFactory
 from app.api.v1.dependencies import get_current_admin
 
 router = APIRouter(tags=["device-management"])
@@ -110,7 +111,7 @@ async def get_device(
     active_alerts = db.query(DeviceAlert).filter(
         and_(
             DeviceAlert.device_id == device_id,
-            DeviceAlert.is_active == True
+            DeviceAlert.is_active is True
         )
     ).all()
     
@@ -570,7 +571,7 @@ async def get_snmp_monitoring_dashboard(
     
     # Get SNMP-related alerts
     snmp_alerts = db.query(DeviceAlert).filter(
-        DeviceAlert.is_active == True,
+        DeviceAlert.is_active is True,
         DeviceAlert.alert_type.in_(['snmp_timeout', 'snmp_error', 'performance_threshold'])
     ).count()
     
@@ -604,9 +605,9 @@ async def get_dashboard_summary(
     total_devices = db.query(ManagedDevice).count()
     online_devices = db.query(ManagedDevice).filter(ManagedDevice.status == DeviceStatus.UP).count()
     offline_devices = db.query(ManagedDevice).filter(ManagedDevice.status == DeviceStatus.DOWN).count()
-    active_alerts = db.query(DeviceAlert).filter(DeviceAlert.is_active == True).count()
+    active_alerts = db.query(DeviceAlert).filter(DeviceAlert.is_active is True).count()
     critical_alerts = db.query(DeviceAlert).filter(
-        and_(DeviceAlert.is_active == True, DeviceAlert.severity == AlertSeverity.CRITICAL)
+        and_(DeviceAlert.is_active is True, DeviceAlert.severity == AlertSeverity.CRITICAL)
     ).count()
     
     # Device type breakdown

@@ -4,14 +4,13 @@ Security middleware and hardening utilities for ISP Framework.
 Provides rate limiting, security headers, input validation, and threat protection.
 """
 import time
-import hashlib
 import ipaddress
-from typing import Dict, List, Optional, Set
+from typing import Dict, List
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
 import re
 
-from fastapi import FastAPI, Request, Response, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -187,7 +186,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request: Request, call_next):
         """Main security middleware logic."""
-        start_time = time.time()
+        time.time()
         client_ip = self._get_client_ip(request)
         user_agent = request.headers.get('User-Agent', '')
         

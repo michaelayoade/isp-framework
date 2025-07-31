@@ -5,7 +5,7 @@ Core foundational models that support the entire ISP Framework including
 locations, file storage, and reseller management.
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON, Text, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON, Text, Float
 from sqlalchemy.types import DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

@@ -11,11 +11,9 @@ Service layer for file storage management including:
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone, timedelta
-from app.core.exceptions import NotFoundError, ValidationError, StorageQuotaExceededError
+from app.core.exceptions import NotFoundError
 from app.services.webhook_integration_service import WebhookTriggers
 import logging
-import os
-import shutil
 from pathlib import Path
 from enum import Enum
 

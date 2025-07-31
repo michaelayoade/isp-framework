@@ -8,7 +8,6 @@ from typing import Optional, Any, Dict
 from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, ForeignKey
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
-from sqlalchemy.event import listens_for
 from sqlalchemy.inspection import inspect
 
 from app.core.database import Base

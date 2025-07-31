@@ -9,15 +9,13 @@ from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, timezone
 from decimal import Decimal
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, or_, func, desc, asc, text
+from sqlalchemy import and_, or_, func, desc, asc
 
 from app.models.billing import (
-    CustomerBillingAccount, BillingTransaction, BalanceHistory,
-    Invoice, InvoiceItem, PaymentMethod,
+    CustomerBillingAccount, BillingTransaction, Invoice, PaymentMethod,
     Payment, CreditNote, PaymentPlan,
-    PaymentPlanInstallment, DunningCase,
-    BillingType, AccountStatus, TransactionType, TransactionCategory,
-    InvoiceStatus, PaymentStatus, PaymentMethodType
+    DunningCase,
+    BillingType, AccountStatus, TransactionType, InvoiceStatus, PaymentStatus, PaymentMethodType
 )
 from app.repositories.base import BaseRepository
 
@@ -351,7 +349,7 @@ class PaymentMethodRepository(BaseRepository[PaymentMethod]):
         return self.db.query(self.model).filter(
             and_(
                 self.model.billing_account_id == account_id,
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).order_by(desc(self.model.created_at)).all()
     
@@ -407,7 +405,7 @@ class PaymentPlanRepository(BaseRepository[PaymentPlan]):
     
     def get_active_plans(self, account_id: Optional[int] = None) -> List[PaymentPlan]:
         """Get active payment plans"""
-        query = self.db.query(self.model).filter(self.model.is_active == True)
+        query = self.db.query(self.model).filter(self.model.is_active is True)
         
         if account_id:
             query = query.filter(self.model.billing_account_id == account_id)
@@ -435,7 +433,7 @@ class DunningCaseRepository(BaseRepository[DunningCase]):
     
     def get_active_cases(self, account_id: Optional[int] = None) -> List[DunningCase]:
         """Get active dunning cases"""
-        query = self.db.query(self.model).filter(self.model.is_active == True)
+        query = self.db.query(self.model).filter(self.model.is_active is True)
         
         if account_id:
             query = query.filter(self.model.billing_account_id == account_id)

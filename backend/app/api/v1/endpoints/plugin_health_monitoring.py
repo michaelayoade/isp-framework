@@ -8,15 +8,15 @@ Provides REST API endpoints for plugin health monitoring including:
 - Plugin performance metrics and alerts
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.api.v1.dependencies import get_current_admin
 from app.models.auth import Administrator
 from app.services.plugin_health_monitoring import PluginHealthMonitoringService
-from app.core.exceptions import NotFoundError, ValidationError
+from app.core.exceptions import NotFoundError
 import logging
 
 logger = logging.getLogger(__name__)

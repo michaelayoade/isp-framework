@@ -3,7 +3,7 @@ Settings management endpoints for ISP Framework.
 
 Provides REST API for managing application settings and feature flags.
 """
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel, Field
 
@@ -93,7 +93,7 @@ async def get_all_settings(
                 settings = service.get_settings_by_category(category)
             else:
                 settings = service.db.query(service.db.query(service.db.query.__class__.__bases__[0]).model).filter(
-                    service.db.query.__class__.__bases__[0].model.is_active == True
+                    service.db.query.__class__.__bases__[0].model.is_active is True
                 ).all()
                 # Simplified - get all active settings
                 settings = []

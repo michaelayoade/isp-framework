@@ -8,15 +8,15 @@ Provides REST API endpoints for API quota management including:
 - Quota configuration and monitoring
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.api.v1.dependencies import get_current_admin
 from app.models.auth import Administrator
 from app.services.api_quota_management import APIQuotaManagementService
-from app.core.exceptions import NotFoundError, ValidationError, QuotaExceededError
+from app.core.exceptions import NotFoundError, ValidationError
 import logging
 from datetime import datetime, date
 
@@ -148,7 +148,7 @@ async def get_quota_dashboard(
     db: Session = Depends(get_db)
 ):
     """Get comprehensive quota management dashboard data."""
-    quota_service = APIQuotaManagementService(db)
+    APIQuotaManagementService(db)
     
     try:
         # Get overview data for all API keys
@@ -186,7 +186,7 @@ async def get_reseller_usage_summary(
     db: Session = Depends(get_db)
 ):
     """Get usage summary for all API keys belonging to a reseller."""
-    quota_service = APIQuotaManagementService(db)
+    APIQuotaManagementService(db)
     
     try:
         # This would aggregate usage across all API keys for the reseller

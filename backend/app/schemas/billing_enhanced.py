@@ -6,11 +6,10 @@ Comprehensive Pydantic schemas for the modular billing system with validation
 and serialization for all billing entities and API operations.
 """
 
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 from decimal import Decimal
 from pydantic import  Field, field_validator
-from enum import Enum
 
 from app.models.billing import (
     BillingType, AccountStatus, TransactionType, TransactionCategory,

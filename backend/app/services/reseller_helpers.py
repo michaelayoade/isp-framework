@@ -21,7 +21,7 @@ def get_customer_services_count(db: Session, customer_id: int) -> int:
     try:
         count = db.query(CustomerService).filter(
             CustomerService.customer_id == customer_id,
-            CustomerService.is_active == True
+            CustomerService.is_active is True
         ).count()
         return count
     except Exception as e:
@@ -43,7 +43,7 @@ def get_customer_monthly_revenue(db: Session, customer_id: int) -> float:
         # Calculate monthly revenue from active services
         monthly_revenue = db.query(func.sum(CustomerService.monthly_fee)).filter(
             CustomerService.customer_id == customer_id,
-            CustomerService.is_active == True
+            CustomerService.is_active is True
         ).scalar()
         
         return float(monthly_revenue or 0.0)

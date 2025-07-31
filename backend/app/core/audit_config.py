@@ -6,7 +6,7 @@ It enables comprehensive audit trails for business-critical data changes.
 """
 
 import logging
-from app.core.audit_mixins import enable_audit_for_model, disable_audit_for_model
+from app.core.audit_mixins import enable_audit_for_model
 from app.models import (
     # Customer Management Models
     Customer, CustomerExtended,
@@ -160,7 +160,7 @@ def configure_audit_tracking():
         total_enabled = critical_enabled + standard_enabled
         total_failed = critical_failed + standard_failed
         
-        logger.info(f"Audit tracking configuration summary:")
+        logger.info("Audit tracking configuration summary:")
         logger.info(f"  - Critical models enabled: {critical_enabled}")
         logger.info(f"  - Standard models enabled: {standard_enabled}")
         logger.info(f"  - Models excluded: {excluded_disabled}")

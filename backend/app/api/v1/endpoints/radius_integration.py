@@ -7,10 +7,10 @@ session management, and service integration.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from ....core.database import get_db
 from ..dependencies import get_current_admin
@@ -322,7 +322,7 @@ async def get_active_sessions(
     Returns all currently active RADIUS sessions.
     """
     try:
-        radius_service = RadiusServiceIntegration(db)
+        RadiusServiceIntegration(db)
         
         # Get all active sessions across all customers
         active_sessions = []

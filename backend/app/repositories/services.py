@@ -11,8 +11,6 @@ from sqlalchemy import and_, or_, desc, asc
 
 from .base import BaseRepository
 from app.models.services import (
-    CustomerService as RecurringService,
-    CustomerService as BundleService,
     CustomerInternetService as InternetService,
     CustomerVoiceService as VoiceService,
     CustomerService
@@ -31,7 +29,7 @@ class InternetServiceRepository(BaseRepository[InternetService]):
             and_(
                 self.model.download_speed >= min_speed,
                 self.model.download_speed <= max_speed,
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).all()
     
@@ -41,7 +39,7 @@ class InternetServiceRepository(BaseRepository[InternetService]):
             and_(
                 self.model.monthly_price >= min_price,
                 self.model.monthly_price <= max_price,
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).all()
     
@@ -49,8 +47,8 @@ class InternetServiceRepository(BaseRepository[InternetService]):
         """Get all public internet services"""
         return self.db.query(self.model).filter(
             and_(
-                self.model.is_public == True,
-                self.model.is_active == True
+                self.model.is_public is True,
+                self.model.is_active is True
             )
         ).order_by(asc(self.model.priority), asc(self.model.monthly_price)).all()
     
@@ -59,7 +57,7 @@ class InternetServiceRepository(BaseRepository[InternetService]):
         return self.db.query(self.model).filter(
             and_(
                 self.model.router_id == router_id,
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).all()
     
@@ -71,7 +69,7 @@ class InternetServiceRepository(BaseRepository[InternetService]):
                     self.model.name.ilike(f"%{search_term}%"),
                     self.model.description.ilike(f"%{search_term}%")
                 ),
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).all()
 
@@ -88,7 +86,7 @@ class VoiceServiceRepository(BaseRepository[VoiceService]):
             and_(
                 self.model.per_minute_rate >= min_rate,
                 self.model.per_minute_rate <= max_rate,
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).all()
     
@@ -97,7 +95,7 @@ class VoiceServiceRepository(BaseRepository[VoiceService]):
         return self.db.query(self.model).filter(
             and_(
                 self.model.included_minutes > 0,
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).all()
     
@@ -105,8 +103,8 @@ class VoiceServiceRepository(BaseRepository[VoiceService]):
         """Get all public voice services"""
         return self.db.query(self.model).filter(
             and_(
-                self.model.is_public == True,
-                self.model.is_active == True
+                self.model.is_public is True,
+                self.model.is_active is True
             )
         ).order_by(asc(self.model.priority), asc(self.model.monthly_price)).all()
 
@@ -129,15 +127,15 @@ class BundleServiceRepository(BaseRepository[CustomerService]):
     def get_best_savings(self, limit: int = 10) -> List[CustomerService]:
         """Get bundles with best savings percentage"""
         return self.db.query(self.model).filter(
-            self.model.is_active == True
+            self.model.is_active is True
         ).order_by(desc(self.model.discount_percentage)).limit(limit).all()
     
     def get_public_services(self) -> List[CustomerService]:
         """Get all public bundle services"""
         return self.db.query(self.model).filter(
             and_(
-                self.model.is_public == True,
-                self.model.is_active == True
+                self.model.is_public is True,
+                self.model.is_active is True
             )
         ).order_by(asc(self.model.priority), asc(self.model.bundle_price)).all()
 
@@ -153,7 +151,7 @@ class RecurringServiceRepository(BaseRepository[CustomerService]):
         return self.db.query(self.model).filter(
             and_(
                 self.model.service_type == service_type,
-                self.model.is_active == True
+                self.model.is_active is True
             )
         ).all()
     
@@ -161,8 +159,8 @@ class RecurringServiceRepository(BaseRepository[CustomerService]):
         """Get services that can be added as addons"""
         return self.db.query(self.model).filter(
             and_(
-                self.model.is_addon == True,
-                self.model.is_active == True
+                self.model.is_addon is True,
+                self.model.is_active is True
             )
         ).all()
     
@@ -170,8 +168,8 @@ class RecurringServiceRepository(BaseRepository[CustomerService]):
         """Get services with auto-provisioning enabled"""
         return self.db.query(self.model).filter(
             and_(
-                self.model.auto_provision == True,
-                self.model.is_active == True
+                self.model.auto_provision is True,
+                self.model.is_active is True
             )
         ).all()
     
@@ -179,8 +177,8 @@ class RecurringServiceRepository(BaseRepository[CustomerService]):
         """Get all public recurring services"""
         return self.db.query(self.model).filter(
             and_(
-                self.model.is_public == True,
-                self.model.is_active == True
+                self.model.is_public is True,
+                self.model.is_active is True
             )
         ).order_by(asc(self.model.service_type), asc(self.model.price)).all()
 

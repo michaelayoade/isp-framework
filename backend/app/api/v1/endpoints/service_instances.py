@@ -19,18 +19,14 @@ from app.models.auth import Administrator
 from app.schemas.service_management import (
     # Customer Service Schemas
     CustomerService, CustomerServiceCreate, CustomerServiceUpdate,
-    CustomerServiceSearchFilters, CustomerServiceListResponse,
+    CustomerServiceListResponse,
     
     # Internet Service Schemas
     CustomerInternetService, CustomerInternetServiceCreate, CustomerInternetServiceUpdate,
     
     # Voice Service Schemas
-    CustomerVoiceService, CustomerVoiceServiceCreate, CustomerVoiceServiceUpdate,
-    
-    # Statistics and Operations
-    ServiceStatistics, BulkServiceOperation, BulkOperationResult,
-    ServiceBillingIntegration, ServiceNetworkIntegration,
-    PaginationParams
+    CustomerVoiceService, CustomerVoiceServiceCreate, ServiceStatistics, BulkServiceOperation, BulkOperationResult,
+    ServiceBillingIntegration, ServiceNetworkIntegration
 )
 from app.services.service_layer_factory import get_service_layer_factory
 from app.models.services.enums import ServiceStatus, ServiceType

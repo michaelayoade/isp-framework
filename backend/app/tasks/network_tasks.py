@@ -3,15 +3,10 @@ Network Operations and Monitoring Tasks
 Background tasks for network device management, monitoring, and automation
 """
 
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-from celery import current_app
-from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app.core.celery import celery_app
 from app.core.database import get_db
-from app.models.networking.networks import NetworkDevice, Site
-from app.models.networking.radius import RadiusSession
 from app.services.networking import NetworkService
 import structlog
 

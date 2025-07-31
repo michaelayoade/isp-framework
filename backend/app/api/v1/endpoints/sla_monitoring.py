@@ -8,17 +8,12 @@ Provides REST API endpoints for SLA monitoring and escalation including:
 - Escalation rule configuration
 """
 
-from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.api.v1.dependencies import get_current_admin
 from app.models.auth import Administrator
-from app.schemas.sla_monitoring import (
-    SLABreachReport, SLAPerformanceMetrics, EscalationQueueEntry,
-    EscalationRule, EscalationRuleCreate, EscalationRuleUpdate
-)
 from app.services.sla_monitoring import SLAMonitoringService
 from app.core.exceptions import NotFoundError, ValidationError
 import logging
@@ -178,7 +173,7 @@ async def get_ticket_sla_status(
     db: Session = Depends(get_db)
 ):
     """Get SLA status for a specific ticket."""
-    sla_service = SLAMonitoringService(db)
+    SLAMonitoringService(db)
     
     try:
         # This would need to be implemented in the service layer
@@ -209,7 +204,7 @@ async def manual_escalate_ticket(
     db: Session = Depends(get_db)
 ):
     """Manually escalate a ticket."""
-    sla_service = SLAMonitoringService(db)
+    SLAMonitoringService(db)
     
     try:
         # This would need to be implemented in the service layer

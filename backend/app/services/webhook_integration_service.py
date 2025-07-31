@@ -6,14 +6,12 @@ Provides easy-to-use methods for triggering events from any part of the system.
 """
 
 import asyncio
-import json
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from sqlalchemy.orm import Session
 from fastapi import BackgroundTasks
 
 from app.models.webhooks.models import WebhookEvent, WebhookEventType
-from app.models.webhooks.enums import EventCategory
 from app.services.webhook_service import WebhookEventService, WebhookDeliveryEngine
 from app.core.database import SessionLocal, get_db
 

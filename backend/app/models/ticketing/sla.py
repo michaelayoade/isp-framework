@@ -7,7 +7,6 @@ from sqlalchemy import Column, Integer, String, Text, Boolean, ARRAY, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from datetime import datetime
 
 
 class SLAPolicy(Base):

@@ -8,16 +8,12 @@ hook execution, and integration with the ISP Framework core systems.
 import logging
 import importlib
 import importlib.util
-import sys
-import os
-import json
 import traceback
 import time
 from typing import List, Optional, Dict, Any, Tuple, Type
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc
-from pathlib import Path
+from sqlalchemy import and_, or_, func
 import threading
 from abc import ABC, abstractmethod
 
@@ -25,21 +21,13 @@ from app.models.plugins import (
     Plugin,
     PluginConfiguration,
     PluginHook,
-    PluginDependency,
     PluginLog,
-    PluginRegistry,
-    PluginTemplate,
     PluginStatus,
-    PluginType,
-    PluginPriority
+    PluginType
 )
 from app.schemas.plugins import (
     PluginCreate,
     PluginUpdate,
-    PluginConfigurationCreate,
-    PluginConfigurationUpdate,
-    PluginHookCreate,
-    PluginHookUpdate,
     PluginInstallRequest,
     PluginExecuteRequest
 )
@@ -337,7 +325,7 @@ class PluginManager:
         hooks = self.db.query(PluginHook).filter(
             and_(
                 PluginHook.plugin_id == plugin_id,
-                PluginHook.is_active == True
+                PluginHook.is_active is True
             )
         ).all()
         

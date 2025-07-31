@@ -20,7 +20,7 @@ class ContactTypeService:
         query = self.db.query(ContactType)
         
         if active_only:
-            query = query.filter(ContactType.is_active == True)
+            query = query.filter(ContactType.is_active is True)
         
         contact_types = query.order_by(ContactType.sort_order, ContactType.name).all()
         return contact_types
@@ -105,7 +105,7 @@ class ContactTypeService:
         if not default_type:
             # Fallback to first active contact type
             default_type = self.db.query(ContactType).filter(
-                ContactType.is_active == True
+                ContactType.is_active is True
             ).order_by(ContactType.sort_order).first()
             
             if not default_type:

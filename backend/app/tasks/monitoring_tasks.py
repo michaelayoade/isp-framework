@@ -3,15 +3,10 @@ System Monitoring and Alerting Tasks
 Background tasks for system health monitoring, alerting, and performance tracking
 """
 
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-from celery import current_app
-from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app.core.celery import celery_app
 from app.core.database import get_db
-from app.models.customers import Customer
-from app.models.services.service_management import Service
 from app.services.monitoring import MonitoringService
 import structlog
 

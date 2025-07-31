@@ -3,10 +3,10 @@ Customer Portal API Endpoints
 Complete self-service portal for ISP customers
 """
 
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from app.core.database import get_db
 from app.core.security import get_current_customer
@@ -18,7 +18,16 @@ from app.services.customer_portal_service import (
     CustomerPortalDashboardService,
     CustomerPortalNotificationService
 )
-from app.schemas.customer_portal import *
+from app.schemas.customer_portal import (
+    CustomerPortalSessionResponse, CustomerPortalDashboardResponse,
+    CustomerPortalPaymentResponse, CustomerPortalInvoiceResponse,
+    CustomerPortalServiceRequestResponse, CustomerPortalUsageResponse,
+    CustomerPortalNotificationResponse, CustomerPortalPreferencesResponse,
+    CustomerPortalFAQResponse, CustomerPortalActivityResponse,
+    CustomerPortalLoginRequest, CustomerPortalPaymentRequest,
+    CustomerPortalServiceRequest, CustomerPortalPreferencesUpdate,
+    CustomerPortalLogoutRequest, CustomerPortalServiceRequestCreate
+)
 import logging
 
 logger = logging.getLogger(__name__)

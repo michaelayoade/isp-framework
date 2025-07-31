@@ -11,17 +11,16 @@ Pydantic schemas for all modular service management operations including:
 Provides comprehensive validation and serialization for all service operations.
 """
 
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
 from pydantic import  Field, field_validator
-from enum import Enum
 
 # Import service enums
 from app.models.services.enums import (
     ServiceType, ServiceStatus, ProvisioningStatus, SuspensionReason,
     AlertSeverity, AlertStatus, UsageMetricType, IPAssignmentType,
-    ProvisioningTaskStatus, ServiceQualityLevel
+    ServiceQualityLevel
 )
 
 

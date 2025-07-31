@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
 import enum
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class TicketType(enum.Enum):

@@ -6,16 +6,14 @@ for ISP Framework operations including error handling, dead-letter queue monitor
 and system health metrics.
 """
 from datetime import datetime, timezone, timedelta
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func
 import structlog
 
-from app.core.database import get_db
 from app.models.foundation import DeadLetterQueue, TaskExecutionLog
-from app.models.customer.base import Customer
 from app.models.services.instances import CustomerService
-from app.core.celery import get_active_tasks, get_task_status
+from app.core.celery import get_active_tasks
 
 logger = structlog.get_logger("isp.services.operational_dashboard")
 

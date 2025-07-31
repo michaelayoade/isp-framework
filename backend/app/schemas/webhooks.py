@@ -5,9 +5,8 @@ Pydantic schemas for webhook API validation and serialization.
 """
 
 from pydantic import BaseModel, Field, HttpUrl, field_validator
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from datetime import datetime
-from decimal import Decimal
 from app.models.webhooks.enums import (
     WebhookStatus, DeliveryStatus, EventCategory, FilterOperator,
     RetryStrategy, SignatureAlgorithm, HttpMethod, ContentType

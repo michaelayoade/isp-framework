@@ -142,22 +142,22 @@ class PortalIDService:
         config = self.db.query(PortalConfig).filter(
             PortalConfig.partner_id == partner_id,
             PortalConfig.service_type == service_type,
-            PortalConfig.is_active == True
+            PortalConfig.is_active is True
         ).first()
         
         # If not found, try to get default config for partner
         if not config:
             config = self.db.query(PortalConfig).filter(
                 PortalConfig.partner_id == partner_id,
-                PortalConfig.is_default == True,
-                PortalConfig.is_active == True
+                PortalConfig.is_default is True,
+                PortalConfig.is_active is True
             ).first()
         
         # If still not found, get any default config
         if not config:
             config = self.db.query(PortalConfig).filter(
-                PortalConfig.is_default == True,
-                PortalConfig.is_active == True
+                PortalConfig.is_default is True,
+                PortalConfig.is_active is True
             ).first()
         
         # Fallback to hardcoded default if no config in database
@@ -287,7 +287,7 @@ class PortalIDService:
         """Get all portal configurations"""
         from app.models.portal_config import PortalConfig
         
-        configs = self.db.query(PortalConfig).filter(PortalConfig.is_active == True).all()
+        configs = self.db.query(PortalConfig).filter(PortalConfig.is_active is True).all()
         
         return [{
             "id": config.id,
@@ -314,7 +314,7 @@ class PortalIDService:
         existing = self.db.query(PortalConfig).filter(
             PortalConfig.partner_id == config_data.get("partner_id", 1),
             PortalConfig.prefix == prefix,
-            PortalConfig.is_active == True
+            PortalConfig.is_active is True
         ).first()
         
         if existing:
@@ -324,7 +324,7 @@ class PortalIDService:
         if config_data.get("is_default", False):
             self.db.query(PortalConfig).filter(
                 PortalConfig.partner_id == config_data.get("partner_id", 1),
-                PortalConfig.is_default == True
+                PortalConfig.is_default is True
             ).update({"is_default": False})
         
         config = PortalConfig(**config_data)
@@ -362,7 +362,7 @@ class PortalIDService:
             self.db.query(PortalConfig).filter(
                 PortalConfig.partner_id == config.partner_id,
                 PortalConfig.id != config_id,
-                PortalConfig.is_default == True
+                PortalConfig.is_default is True
             ).update({"is_default": False})
         
         # Update config

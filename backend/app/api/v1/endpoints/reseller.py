@@ -3,7 +3,7 @@ Reseller Management API Endpoints
 
 REST API endpoints for reseller management in single-tenant ISP Framework.
 """
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
@@ -12,8 +12,7 @@ from app.core.database import get_db
 from app.api.v1.dependencies import get_current_admin
 from app.services.reseller import ResellerService
 from app.schemas.reseller import (
-    ResellerCreate, ResellerUpdate, ResellerResponse, ResellerListResponse,
-    ResellerStats, ResellerCommissionReport, ResellerCustomerSummary,
+    ResellerCreate, ResellerUpdate, ResellerResponse, ResellerStats, ResellerCommissionReport, ResellerCustomerSummary,
     ResellerDashboard
 )
 from app.core.exceptions import ValidationError, NotFoundError, DuplicateError

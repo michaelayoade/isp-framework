@@ -20,7 +20,7 @@ class TicketStatusService:
         query = self.db.query(TicketStatus)
         
         if active_only:
-            query = query.filter(TicketStatus.is_active == True)
+            query = query.filter(TicketStatus.is_active is True)
         
         statuses = query.order_by(TicketStatus.sort_order, TicketStatus.name).all()
         return statuses
@@ -106,8 +106,8 @@ class TicketStatusService:
     def get_initial_ticket_status(self) -> TicketStatus:
         """Get the initial ticket status for new tickets."""
         initial_status = self.db.query(TicketStatus).filter(
-            TicketStatus.is_initial == True,
-            TicketStatus.is_active == True
+            TicketStatus.is_initial is True,
+            TicketStatus.is_active is True
         ).first()
         
         if not initial_status:
@@ -122,15 +122,15 @@ class TicketStatusService:
     def get_final_ticket_statuses(self) -> List[TicketStatus]:
         """Get all final ticket statuses."""
         return self.db.query(TicketStatus).filter(
-            TicketStatus.is_final == True,
-            TicketStatus.is_active == True
+            TicketStatus.is_final is True,
+            TicketStatus.is_active is True
         ).order_by(TicketStatus.sort_order).all()
     
     def get_customer_visible_statuses(self) -> List[TicketStatus]:
         """Get all customer-visible ticket statuses."""
         return self.db.query(TicketStatus).filter(
-            TicketStatus.is_customer_visible == True,
-            TicketStatus.is_active == True
+            TicketStatus.is_customer_visible is True,
+            TicketStatus.is_active is True
         ).order_by(TicketStatus.sort_order).all()
     
     def is_final_status(self, status_id: int) -> bool:

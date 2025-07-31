@@ -13,7 +13,7 @@ Core Principles:
 """
 
 import enum
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum, Float
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import INET, JSONB, ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

@@ -8,7 +8,7 @@ Provides REST API endpoints for managing Bundle services including:
 - Bundle usage monitoring and analytics
 """
 
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -193,7 +193,7 @@ async def reactivate_bundle_service(
     bundle_service = BundleServiceService(db)
     
     try:
-        result = bundle_service.reactivate_service(service_id, current_admin.id)
+        bundle_service.reactivate_service(service_id, current_admin.id)
         logger.info(f"Admin {current_admin.username} reactivated Bundle service {service_id}")
         return {"message": "Service reactivated successfully"}
     except NotFoundError as e:

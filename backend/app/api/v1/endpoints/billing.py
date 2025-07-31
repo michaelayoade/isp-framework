@@ -19,14 +19,11 @@ from ....services.billing import (
 from ....schemas.billing import (
     # Invoice schemas
     InvoiceCreate, InvoiceUpdate, InvoiceResponse, InvoiceSearch,
-    InvoiceItemCreate, InvoiceItemUpdate, InvoiceItemResponse,
+    InvoiceItemCreate, InvoiceItemResponse,
     
     # Payment schemas
-    PaymentCreate, PaymentUpdate, PaymentResponse, PaymentSearch,
-    PaymentRefundCreate, PaymentRefundUpdate, PaymentRefundResponse,
-    
-    # Credit note schemas
-    CreditNoteCreate, CreditNoteUpdate, CreditNoteResponse, CreditNoteSearch,
+    PaymentCreate, PaymentResponse, PaymentSearch,
+    CreditNoteCreate, CreditNoteResponse, CreditNoteSearch,
     
     # Summary schemas
     BillingOverview, CustomerBillingSummary
@@ -49,7 +46,7 @@ async def create_invoice(
         return invoice
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create invoice")
 
 
@@ -87,7 +84,7 @@ async def search_invoices(
         # Apply pagination
         return invoices[offset:offset + limit]
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to search invoices")
 
 
@@ -109,7 +106,7 @@ async def get_invoice(
         
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get invoice")
 
 
@@ -134,7 +131,7 @@ async def update_invoice(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update invoice")
 
 
@@ -158,7 +155,7 @@ async def send_invoice(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to send invoice")
 
 
@@ -183,7 +180,7 @@ async def cancel_invoice(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to cancel invoice")
 
 
@@ -208,7 +205,7 @@ async def add_invoice_item(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to add invoice item")
 
 
@@ -223,7 +220,7 @@ async def get_overdue_invoices(
         invoices = invoice_service.get_overdue_invoices()
         return invoices
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get overdue invoices")
 
 
@@ -241,7 +238,7 @@ async def get_customer_invoices(
         invoices = invoice_service.get_customer_invoices(customer_id, limit, offset)
         return invoices
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get customer invoices")
 
 
@@ -260,7 +257,7 @@ async def create_payment(
         
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create payment")
 
 
@@ -298,7 +295,7 @@ async def search_payments(
         # Apply pagination
         return payments[offset:offset + limit]
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to search payments")
 
 
@@ -320,7 +317,7 @@ async def get_payment(
         
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get payment")
 
 
@@ -336,7 +333,7 @@ async def get_invoice_payments(
         payments = payment_service.payment_repo.get_invoice_payments(invoice_id)
         return payments
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get invoice payments")
 
 
@@ -354,7 +351,7 @@ async def get_customer_payments(
         payments = payment_service.payment_repo.get_customer_payments(customer_id, limit, offset)
         return payments
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get customer payments")
 
 
@@ -373,7 +370,7 @@ async def create_credit_note(
         
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create credit note")
 
 
@@ -409,7 +406,7 @@ async def search_credit_notes(
         # Apply pagination
         return credit_notes[offset:offset + limit]
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to search credit notes")
 
 
@@ -431,7 +428,7 @@ async def get_credit_note(
         
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get credit note")
 
 
@@ -447,7 +444,7 @@ async def get_invoice_credit_notes(
         credit_notes = credit_note_service.credit_note_repo.get_invoice_credit_notes(invoice_id)
         return credit_notes
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get invoice credit notes")
 
 
@@ -465,7 +462,7 @@ async def get_customer_credit_notes(
         credit_notes = credit_note_service.credit_note_repo.get_customer_credit_notes(customer_id, limit, offset)
         return credit_notes
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get customer credit notes")
 
 
@@ -483,7 +480,7 @@ async def get_billing_overview(
         overview = billing_service.get_billing_overview(start_date, end_date)
         return overview
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get billing overview")
 
 
@@ -499,7 +496,7 @@ async def get_customer_billing_summary(
         summary = billing_service.get_customer_billing_summary(customer_id)
         return summary
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get customer billing summary")
 
 
@@ -516,5 +513,5 @@ async def get_billing_statistics(
         statistics = invoice_service.get_billing_statistics(start_date, end_date)
         return statistics
         
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get billing statistics")

@@ -302,7 +302,7 @@ class NetworkMigrationManager:
                         if len(coords) == 2:
                             latitude = coords[0].strip()
                             longitude = coords[1].strip()
-                    except:
+                    except (ValueError, IndexError):
                         pass
                 
                 # Generate site code from name

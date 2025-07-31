@@ -49,9 +49,9 @@ class TwoFactorService:
         }
         
         if existing_2fa:
-            tfa = self.tfa_repo.update(existing_2fa.id, tfa_data)
+            self.tfa_repo.update(existing_2fa.id, tfa_data)
         else:
-            tfa = self.tfa_repo.create(tfa_data)
+            self.tfa_repo.create(tfa_data)
         
         # Generate QR code
         totp = pyotp.TOTP(secret_key)
@@ -247,7 +247,7 @@ class TwoFactorService:
             try:
                 codes = json.loads(tfa.backup_codes)
                 backup_codes_remaining = len(codes)
-            except:
+            except (json.JSONDecodeError, TypeError):
                 backup_codes_remaining = 0
         
         return {
@@ -378,7 +378,7 @@ class ApiKeyService:
                 if client_ip and client_ip not in allowed_ips:
                     logger.warning(f"API key access denied from IP: {client_ip}")
                     return None
-            except:
+            except Exception:
                 pass
         
         # Update usage statistics

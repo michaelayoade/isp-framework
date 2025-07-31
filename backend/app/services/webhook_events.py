@@ -5,7 +5,7 @@ Predefined ISP events for webhook system with comprehensive event definitions,
 payload schemas, and automatic event registration.
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any
 from app.models.webhooks.enums import EventCategory
 
 # ISP Event Catalog

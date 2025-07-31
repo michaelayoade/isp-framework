@@ -11,10 +11,9 @@ Service layer for API key quota enforcement and usage tracking including:
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone, timedelta
-from app.core.exceptions import NotFoundError, ValidationError, QuotaExceededError
+from app.core.exceptions import NotFoundError, ValidationError
 from app.services.webhook_integration_service import WebhookTriggers
 import logging
-import json
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ class APIQuotaManagementService:
             # Get API key configuration
             api_key_config = self._get_api_key_config(api_key)
             if not api_key_config:
-                raise NotFoundError(f"API key not found")
+                raise NotFoundError("API key not found")
             
             if not api_key_config['is_active']:
                 raise ValidationError("API key is inactive")
@@ -72,7 +71,7 @@ class APIQuotaManagementService:
             # Get API key configuration
             api_key_config = self._get_api_key_config(api_key)
             if not api_key_config:
-                raise NotFoundError(f"API key not found")
+                raise NotFoundError("API key not found")
             
             # Get current usage
             daily_usage = self._get_daily_usage(api_key)
@@ -169,7 +168,7 @@ class APIQuotaManagementService:
             # Get API key configuration
             api_key_config = self._get_api_key_config(api_key)
             if not api_key_config:
-                raise NotFoundError(f"API key not found")
+                raise NotFoundError("API key not found")
             
             period_start = datetime.now(timezone.utc) - timedelta(days=period_days)
             
@@ -198,7 +197,7 @@ class APIQuotaManagementService:
             # Get existing API key configuration
             api_key_config = self._get_api_key_config(api_key)
             if not api_key_config:
-                raise NotFoundError(f"API key not found")
+                raise NotFoundError("API key not found")
             
             # Generate new API key
             new_api_key = self._generate_new_api_key()

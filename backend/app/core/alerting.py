@@ -3,8 +3,6 @@ Alerting Integration System for ISP Framework.
 
 Provides Grafana-based alerting with communications module integration.
 """
-import asyncio
-import json
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from enum import Enum
@@ -316,14 +314,14 @@ class GrafanaAlertManager:
     def _create_alert_message(self, error_detail: ErrorDetail) -> str:
         """Create formatted alert message."""
         message_parts = [
-            f"**Error Details:**",
+            "**Error Details:**",
             f"• **Severity:** {error_detail.severity.value.upper()}",
             f"• **Category:** {error_detail.category.value.title()}",
             f"• **Impact:** {error_detail.impact.value.replace('_', ' ').title()}",
             f"• **Error ID:** {error_detail.error_id}",
             f"• **Timestamp:** {error_detail.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}",
-            f"",
-            f"**Description:**",
+            "",
+            "**Description:**",
             f"{error_detail.detail}",
         ]
         
@@ -332,8 +330,8 @@ class GrafanaAlertManager:
         
         if error_detail.context:
             message_parts.extend([
-                f"",
-                f"**Additional Context:**"
+                "",
+                "**Additional Context:**"
             ])
             for key, value in error_detail.context.items():
                 message_parts.append(f"• **{key.replace('_', ' ').title()}:** {value}")

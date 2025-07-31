@@ -6,10 +6,9 @@ with advanced querying and filtering capabilities
 """
 
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc, asc
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import and_, or_, func, desc
 
 from app.models.api_management import APIKey, APIUsage, APIRateLimit, APIVersion, APIEndpoint, APIQuota
 from app.repositories.base import BaseRepository
@@ -42,7 +41,7 @@ class APIKeyRepository(BaseRepository[APIKey]):
         offset: int = 0
     ) -> List[APIKey]:
         """List active API keys with filtering"""
-        query = self.db.query(APIKey).filter(APIKey.is_active == True)
+        query = self.db.query(APIKey).filter(APIKey.is_active is True)
         
         if partner_id:
             query = query.filter(APIKey.partner_id == partner_id)
@@ -66,7 +65,7 @@ class APIKeyRepository(BaseRepository[APIKey]):
         now = datetime.now(timezone.utc)
         return self.db.query(APIKey).filter(
             and_(
-                APIKey.is_active == True,
+                APIKey.is_active is True,
                 APIKey.expires_at < now
             )
         ).all()
@@ -335,7 +334,7 @@ class APIVersionRepository(BaseRepository[APIVersion]):
     
     def get_default_version(self) -> Optional[APIVersion]:
         """Get the default API version"""
-        return self.db.query(APIVersion).filter(APIVersion.is_default == True).first()
+        return self.db.query(APIVersion).filter(APIVersion.is_default is True).first()
     
     def get_by_version(self, version: str) -> Optional[APIVersion]:
         """Get API version by version string"""

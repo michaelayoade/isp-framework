@@ -430,6 +430,17 @@ class QuotaStatus(BaseModel):
     period_end: datetime
 
 
+class APIQuotaStatus(BaseModel):
+    """API quota status with daily and monthly usage tracking"""
+    key_id: int
+    daily_used: int
+    daily_limit: int
+    daily_remaining: int
+    monthly_used: int
+    monthly_limit: int
+    monthly_remaining: int
+
+
 class APIKeyUsageStats(BaseModel):
     api_key_id: int
     key_name: str

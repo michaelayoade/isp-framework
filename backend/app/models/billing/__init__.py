@@ -80,13 +80,11 @@ from .dunning import (
 
 # Import accounting models
 from .accounting import (
-    AccountingEntry
+    AccountingEntry,
+    ChartOfAccounts
 )
 
 # Import tax models
-from .tax_rates import (
-    TaxRate
-)
 
 # Import billing cycle models
 from .billing_cycles import (
@@ -94,12 +92,6 @@ from .billing_cycles import (
     BillingCycleCustomer,
     BillingCycleTemplate,
     BillingCycleJob
-)
-
-# Import accounting models
-from .accounting import (
-    AccountingEntry,
-    ChartOfAccounts
 )
 
 # Export all models for easy importing
@@ -167,12 +159,8 @@ __all__ = [
     "ChartOfAccounts",
 ]
 
-# Convenience imports for common use cases
-from .accounts import CustomerBillingAccount as BillingAccount
-from .invoices import Invoice
-from .invoices import InvoiceItem
-from .payments import Payment
-from .credit_notes import CreditNote
+# Convenience imports removed to avoid F811 redefinition errors
+# All models are already imported above in their respective sections
 
 # Module metadata
 __version__ = "1.0.0"
@@ -230,12 +218,6 @@ def validate_billing_configuration():
     warnings = []
     
     # Check for required models
-    from .enhanced_billing import (
-        CustomerBillingAccount, BillingTransaction, BalanceHistory,
-        Invoice, InvoiceItem, PaymentMethod,
-        Payment, CreditNote, PaymentPlan,
-        DunningCase
-    )
     required_models = [
         "CustomerBillingAccount", "BillingTransaction", "BalanceHistory", 
         "Invoice", "InvoiceItem", "PaymentMethod", "Payment", 

@@ -9,9 +9,8 @@ assignment, and service provisioning capabilities.
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func
 
 from ..models.customer.base import Customer
 from ..models.services.instances import CustomerService
@@ -20,7 +19,6 @@ from ..models.services.legacy import ServicePlan
 from ..models.networking.networks import NetworkSite, NetworkDevice
 from ..models.networking.ipam import IPPool, IPAllocation
 from ..models.networking.nas_radius import NASDevice
-from ..models.services.instances import InternetService, VoiceService
 from ..repositories.base import BaseRepository
 from ..core.exceptions import NotFoundError, ValidationError
 

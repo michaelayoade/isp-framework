@@ -5,7 +5,7 @@ Simple service layer for tariff operations aligned with ISP Framework vision.
 """
 
 import logging
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Any
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 

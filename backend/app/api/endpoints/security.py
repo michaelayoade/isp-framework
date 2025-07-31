@@ -3,7 +3,6 @@ Security management endpoints for ISP Framework.
 
 Provides endpoints for JWT key rotation, security scanning, and security monitoring.
 """
-from typing import Dict, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 

@@ -6,7 +6,7 @@ Provides global exception handling, error categorization, and alerting integrati
 import traceback
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 from uuid import uuid4
 
 from fastapi import HTTPException, Request, status
@@ -234,7 +234,7 @@ class ErrorHandler:
             category = self._determine_category_from_status(exception.status_code)
             
             return ErrorDetail(
-                type=f"https://ispframework.com/errors/http",
+                type="https://ispframework.com/errors/http",
                 title="HTTP Error",
                 status=exception.status_code,
                 detail=str(exception.detail),
@@ -251,7 +251,7 @@ class ErrorHandler:
         # Handle generic exceptions
         else:
             return ErrorDetail(
-                type=f"https://ispframework.com/errors/system",
+                type="https://ispframework.com/errors/system",
                 title="Internal Server Error",
                 status=status_code,
                 detail=str(exception),

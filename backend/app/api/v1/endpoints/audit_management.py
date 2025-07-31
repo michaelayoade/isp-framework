@@ -13,15 +13,14 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, func
+from sqlalchemy import desc, func
 
 from app.core.database import get_db
 from app.api.dependencies import get_current_admin
 from app.models.auth.base import Administrator
 from app.models.audit import AuditQueue, ConfigurationSnapshot, CDCLog, AuditProcessingStatus
-from app.core.audit import AuditLog
 from app.services.audit_processor import audit_processor_manager, get_audit_processing_health
-from app.core.audit_mixins import ConfigurationVersioning, ChangeDataCapture
+from app.core.audit_mixins import ConfigurationVersioning
 from pydantic import BaseModel, Field
 import logging
 

@@ -7,15 +7,14 @@ for ISP Framework.
 
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc, asc
+from sqlalchemy import and_, func, desc
 from datetime import datetime, date
 from decimal import Decimal
 
 from .base import BaseRepository
 from ..models.billing import (
     Invoice, InvoiceItem, Payment, PaymentRefund, CreditNote,
-    BillingCycle, CustomerBillingAccount, BillingTransaction,
-    InvoiceStatus, PaymentStatus, CreditNoteReason, AccountingEntry, TaxRate
+    BillingCycle, InvoiceStatus, AccountingEntry, TaxRate
 )
 
 

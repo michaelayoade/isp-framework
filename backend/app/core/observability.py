@@ -3,10 +3,9 @@ Observability infrastructure for ISP Framework.
 
 Provides structured logging, metrics, tracing, and health checks.
 """
-import json
 import time
 import uuid
-from typing import Callable, Optional
+from typing import Callable
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request, Response

@@ -1,9 +1,9 @@
 from typing import Generic, TypeVar, Type, Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import and_, or_, desc, asc
+from sqlalchemy import desc, asc
 from app.core.database import Base
-from app.core.exceptions import NotFoundError, DuplicateError
+from app.core.exceptions import NotFoundError
 import logging
 
 logger = logging.getLogger(__name__)

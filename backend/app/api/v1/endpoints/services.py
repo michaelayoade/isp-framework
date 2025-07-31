@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 import logging
 
 from app.core.database import get_db
-from app.core.exceptions import NotFoundError, DuplicateError, ValidationError
+from app.core.exceptions import NotFoundError, DuplicateError
 from app.api.dependencies import get_current_admin
 from app.models import Administrator
 from app.services.services import ServiceManagementService
@@ -23,9 +23,6 @@ from app.schemas.services import (
     # Bundle Service schemas
     BundleService, BundleServiceCreate, BundleServiceUpdate,
     # Recurring Service schemas
-    RecurringService, RecurringServiceCreate, RecurringServiceUpdate,
-    # Service Tariff schemas moved to dedicated tariff module
-    # Search and filter schemas
     ServiceSearchFilters
 )
 

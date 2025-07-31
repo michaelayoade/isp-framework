@@ -8,7 +8,7 @@ network-related operations.
 """
 
 from pydantic import  Field, field_validator
-from typing import List, Optional, Dict, Any, Union, Generic, TypeVar
+from typing import List, Optional, Dict, Any, Generic, TypeVar
 from datetime import datetime
 from enum import Enum
 import ipaddress

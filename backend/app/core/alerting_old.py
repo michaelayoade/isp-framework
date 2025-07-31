@@ -3,11 +3,11 @@
 Provides Grafana-based alerting with communications module integration.
 """
 import asyncio
-import json
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 from enum import Enum
 
+import aiohttp
 import structlog
 from pydantic import BaseModel
 from prometheus_client import Counter, Histogram, Gauge

@@ -11,20 +11,18 @@ automation, rollback capabilities, and comprehensive progress tracking.
 """
 
 import logging
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 import asyncio
 import json
 
 from app.repositories.service_repository_factory import ServiceRepositoryFactory
 from app.models.services import (
     ServiceProvisioning, ProvisioningTemplate, ProvisioningQueue,
-    ProvisioningStatus, ServiceType, ChangeMethod
+    ProvisioningStatus, ServiceType
 )
 from app.models.services.instances import CustomerService
-from app.models.auth import Administrator
 from app.core.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.services.webhook_integration_service import WebhookTriggers
 

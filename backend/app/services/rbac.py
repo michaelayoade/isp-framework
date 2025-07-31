@@ -7,7 +7,7 @@ from app.models.rbac.role_permission import RolePermission
 from app.models.rbac.user_role import UserRole
 from app.schemas.rbac import (
     PermissionCreate, PermissionUpdate, RoleCreate, RoleUpdate,
-    UserRoleCreate, UserRoleUpdate, PermissionCheck, PermissionCheckResult
+    UserRoleCreate, PermissionCheckResult
 )
 from app.core.exceptions import NotFoundError, DuplicateError, ValidationError
 import logging
@@ -30,7 +30,7 @@ class RBACService:
         query = self.db.query(Permission)
         
         if active_only:
-            query = query.filter(Permission.is_active == True)
+            query = query.filter(Permission.is_active is True)
         
         if category:
             query = query.filter(Permission.category == category)
@@ -120,7 +120,7 @@ class RBACService:
         query = self.db.query(Role)
         
         if active_only:
-            query = query.filter(Role.is_active == True)
+            query = query.filter(Role.is_active is True)
         
         if include_permissions:
             query = query.options(
@@ -208,7 +208,7 @@ class RBACService:
         # Check if it's assigned to users
         users_with_role = self.db.query(UserRole).filter(
             UserRole.role_id == role_id,
-            UserRole.is_active == True
+            UserRole.is_active is True
         ).count()
         
         if users_with_role > 0:
@@ -227,14 +227,14 @@ class RBACService:
         # Add new permissions
         for permission_id in permission_ids:
             # Verify permission exists
-            permission = self.get_permission(permission_id)
+            self.get_permission(permission_id)
             
             role_permission = RolePermission(role_id=role_id, permission_id=permission_id)
             self.db.add(role_permission)
     
     def assign_permissions_to_role(self, role_id: int, permission_ids: List[int]) -> Role:
         """Assign permissions to a role."""
-        role = self.get_role(role_id)
+        self.get_role(role_id)
         self._assign_permissions_to_role(role_id, permission_ids)
         self.db.commit()
         
@@ -245,7 +245,7 @@ class RBACService:
         """Get all permissions for a role."""
         permissions = self.db.query(Permission).join(RolePermission).filter(
             RolePermission.role_id == role_id,
-            Permission.is_active == True
+            Permission.is_active is True
         ).order_by(Permission.category, Permission.sort_order).all()
         
         return permissions
@@ -292,7 +292,7 @@ class RBACService:
         user_role = self.db.query(UserRole).filter(
             UserRole.user_id == user_id,
             UserRole.role_id == role_id,
-            UserRole.is_active == True
+            UserRole.is_active is True
         ).first()
         
         if not user_role:
@@ -311,7 +311,7 @@ class RBACService:
         )
         
         if active_only:
-            query = query.filter(UserRole.is_active == True)
+            query = query.filter(UserRole.is_active is True)
         
         # Check for expired roles
         now = datetime.now(timezone.utc)
@@ -325,9 +325,9 @@ class RBACService:
         """Get all permissions for a user (through their roles)."""
         permissions = self.db.query(Permission).join(RolePermission).join(Role).join(UserRole).filter(
             UserRole.user_id == user_id,
-            UserRole.is_active == True,
-            Role.is_active == True,
-            Permission.is_active == True,
+            UserRole.is_active is True,
+            Role.is_active is True,
+            Permission.is_active is True,
             (UserRole.expires_at.is_(None)) | (UserRole.expires_at > datetime.now(timezone.utc))
         ).distinct().order_by(Permission.category, Permission.sort_order).all()
         
@@ -375,20 +375,20 @@ class RBACService:
     def get_permission_categories(self) -> List[str]:
         """Get all permission categories."""
         categories = self.db.query(Permission.category).filter(
-            Permission.is_active == True
+            Permission.is_active is True
         ).distinct().order_by(Permission.category).all()
         
         return [cat[0] for cat in categories]
     
     def get_role_summary(self) -> List[Dict[str, Any]]:
         """Get summary information for all roles."""
-        roles = self.db.query(Role).filter(Role.is_active == True).all()
+        roles = self.db.query(Role).filter(Role.is_active is True).all()
         summary = []
         
         for role in roles:
             user_count = self.db.query(UserRole).filter(
                 UserRole.role_id == role.id,
-                UserRole.is_active == True
+                UserRole.is_active is True
             ).count()
             
             permission_count = self.db.query(RolePermission).filter(

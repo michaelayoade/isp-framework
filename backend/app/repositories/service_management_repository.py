@@ -13,21 +13,18 @@ with advanced querying, filtering, and analytics capabilities.
 """
 
 from typing import List, Optional, Dict, Any, Tuple
-from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlalchemy import and_, or_, desc, asc, func, text, case
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_, func, case
 from datetime import datetime, timezone, timedelta
 
 from app.repositories.base import BaseRepository
 from app.models.services import (
     ServiceIPAssignment, ServiceStatusHistory, ServiceSuspension,
     ServiceUsageTracking, ServiceAlert, ServiceStatus, SuspensionReason,
-    SuspensionType, IPAssignmentType
+    IPAssignmentType
 )
 from app.models.services.instances import CustomerService
 from app.models.customer import Customer
-from app.models.auth import Administrator
-from app.models.networking.ipam import IPPool as IPv4Network
-from app.models.networking.ipam import IPPool as IPv6Network
 
 
 class ServiceIPAssignmentRepository(BaseRepository[ServiceIPAssignment]):
@@ -57,7 +54,7 @@ class ServiceIPAssignmentRepository(BaseRepository[ServiceIPAssignment]):
     ) -> List[ServiceIPAssignment]:
         """Get all active IP assignments with optional filtering"""
         query = self.db.query(ServiceIPAssignment).filter(
-            ServiceIPAssignment.is_active == True
+            ServiceIPAssignment.is_active is True
         )
         
         if network_id:
@@ -83,7 +80,7 @@ class ServiceIPAssignmentRepository(BaseRepository[ServiceIPAssignment]):
         expiry_date = datetime.now(timezone.utc) + timedelta(days=days_ahead)
         
         return self.db.query(ServiceIPAssignment).filter(
-            ServiceIPAssignment.is_active == True,
+            ServiceIPAssignment.is_active is True,
             ServiceIPAssignment.expires_at.isnot(None),
             ServiceIPAssignment.expires_at <= expiry_date
         ).options(
@@ -102,7 +99,7 @@ class ServiceIPAssignmentRepository(BaseRepository[ServiceIPAssignment]):
         # Active assignments
         active_assignments = self.db.query(ServiceIPAssignment).filter(
             ServiceIPAssignment.network_id == network_id,
-            ServiceIPAssignment.is_active == True
+            ServiceIPAssignment.is_active is True
         ).count()
         
         # Assignments by type
@@ -111,7 +108,7 @@ class ServiceIPAssignmentRepository(BaseRepository[ServiceIPAssignment]):
             func.count(ServiceIPAssignment.id).label('count')
         ).filter(
             ServiceIPAssignment.network_id == network_id,
-            ServiceIPAssignment.is_active == True
+            ServiceIPAssignment.is_active is True
         ).group_by(ServiceIPAssignment.assignment_type).all()
         
         stats.update({
@@ -245,7 +242,7 @@ class ServiceStatusHistoryRepository(BaseRepository[ServiceStatusHistory]):
         
         return self.db.query(ServiceStatusHistory).filter(
             ServiceStatusHistory.changed_at >= cutoff_time,
-            ServiceStatusHistory.is_automated == True
+            ServiceStatusHistory.is_automated is True
         ).options(
             joinedload(ServiceStatusHistory.service).joinedload(CustomerService.customer)
         ).order_by(ServiceStatusHistory.changed_at.desc()).all()
@@ -274,7 +271,7 @@ class ServiceStatusHistoryRepository(BaseRepository[ServiceStatusHistory]):
         # Automated vs manual changes
         automated_changes = self.db.query(ServiceStatusHistory).filter(
             ServiceStatusHistory.changed_at >= cutoff_date,
-            ServiceStatusHistory.is_automated == True
+            ServiceStatusHistory.is_automated is True
         ).count()
         
         stats['automated_changes'] = automated_changes
@@ -296,7 +293,7 @@ class ServiceSuspensionRepository(BaseRepository[ServiceSuspension]):
     ) -> List[ServiceSuspension]:
         """Get all active suspensions with optional filtering"""
         query = self.db.query(ServiceSuspension).filter(
-            ServiceSuspension.is_active == True
+            ServiceSuspension.is_active is True
         )
         
         if service_id:
@@ -315,7 +312,7 @@ class ServiceSuspensionRepository(BaseRepository[ServiceSuspension]):
         now = datetime.now(timezone.utc)
         
         return self.db.query(ServiceSuspension).filter(
-            ServiceSuspension.is_active == True,
+            ServiceSuspension.is_active is True,
             ServiceSuspension.grace_period_until.isnot(None),
             ServiceSuspension.grace_period_until > now
         ).options(
@@ -327,10 +324,10 @@ class ServiceSuspensionRepository(BaseRepository[ServiceSuspension]):
         now = datetime.now(timezone.utc)
         
         return self.db.query(ServiceSuspension).filter(
-            ServiceSuspension.is_active == True,
+            ServiceSuspension.is_active is True,
             ServiceSuspension.escalation_at.isnot(None),
             ServiceSuspension.escalation_at <= now,
-            ServiceSuspension.escalated == False
+            ServiceSuspension.escalated is False
         ).options(
             joinedload(ServiceSuspension.service).joinedload(CustomerService.customer)
         ).order_by(ServiceSuspension.escalation_at).all()
@@ -340,7 +337,7 @@ class ServiceSuspensionRepository(BaseRepository[ServiceSuspension]):
         now = datetime.now(timezone.utc)
         
         return self.db.query(ServiceSuspension).filter(
-            ServiceSuspension.is_active == True,
+            ServiceSuspension.is_active is True,
             ServiceSuspension.auto_restore_at.isnot(None),
             ServiceSuspension.auto_restore_at <= now
         ).options(
@@ -373,7 +370,7 @@ class ServiceSuspensionRepository(BaseRepository[ServiceSuspension]):
         
         # Active suspensions
         stats['active_suspensions'] = self.db.query(ServiceSuspension).filter(
-            ServiceSuspension.is_active == True
+            ServiceSuspension.is_active is True
         ).count()
         
         # Suspensions by reason
@@ -537,7 +534,7 @@ class ServiceAlertRepository(BaseRepository[ServiceAlert]):
     ) -> List[ServiceAlert]:
         """Get all active alerts with optional filtering"""
         query = self.db.query(ServiceAlert).filter(
-            ServiceAlert.is_active == True
+            ServiceAlert.is_active is True
         )
         
         if service_id:
@@ -562,7 +559,7 @@ class ServiceAlertRepository(BaseRepository[ServiceAlert]):
     def get_unacknowledged_alerts(self) -> List[ServiceAlert]:
         """Get all unacknowledged alerts"""
         return self.db.query(ServiceAlert).filter(
-            ServiceAlert.is_active == True,
+            ServiceAlert.is_active is True,
             ServiceAlert.acknowledged_at.is_(None)
         ).options(
             joinedload(ServiceAlert.service).joinedload(CustomerService.customer)
@@ -601,7 +598,7 @@ class ServiceAlertRepository(BaseRepository[ServiceAlert]):
         
         # Active alerts
         stats['active_alerts'] = self.db.query(ServiceAlert).filter(
-            ServiceAlert.is_active == True
+            ServiceAlert.is_active is True
         ).count()
         
         # Alerts by severity
@@ -616,7 +613,7 @@ class ServiceAlertRepository(BaseRepository[ServiceAlert]):
         
         # Unacknowledged alerts
         stats['unacknowledged_alerts'] = self.db.query(ServiceAlert).filter(
-            ServiceAlert.is_active == True,
+            ServiceAlert.is_active is True,
             ServiceAlert.acknowledged_at.is_(None)
         ).count()
         

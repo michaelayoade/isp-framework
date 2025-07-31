@@ -5,15 +5,15 @@ FastAPI endpoints for plugin management, configuration, hooks, registry,
 and comprehensive plugin lifecycle operations.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 import logging
 
 from app.core.database import get_db
 from app.api.dependencies import get_current_admin
 from app.models.auth.base import Administrator
-from app.models.plugins import PluginStatus, PluginType, PluginPriority
+from app.models.plugins import PluginStatus, PluginType
 from app.schemas.plugins import (
     Plugin,
     PluginCreate,
@@ -23,26 +23,14 @@ from app.schemas.plugins import (
     PluginConfigurationUpdate,
     PluginHook,
     PluginHookCreate,
-    PluginHookUpdate,
-    PluginDependency,
-    PluginDependencyCreate,
-    PluginDependencyUpdate,
-    PluginLog,
-    PluginRegistry,
-    PluginRegistryCreate,
-    PluginRegistryUpdate,
     PluginTemplate,
     PluginTemplateCreate,
-    PluginTemplateUpdate,
     PluginInstallRequest,
     PluginInstallResponse,
     PluginExecuteRequest,
     PluginExecuteResponse,
     PluginStatsResponse,
     PluginHealthResponse,
-    PluginSearchFilters,
-    PluginRegistrySearchFilters,
-    PluginLogSearchFilters,
     PaginatedPlugins,
     PaginatedPluginRegistry,
     PaginatedPluginLogs,
@@ -52,10 +40,8 @@ from app.schemas.plugins import (
 )
 from app.services.plugin_service import get_plugin_service
 from app.repositories.plugin_repository import (
-    PluginRepository,
     PluginConfigurationRepository,
     PluginHookRepository,
-    PluginDependencyRepository,
     PluginLogRepository,
     PluginRegistryRepository,
     PluginTemplateRepository
@@ -390,7 +376,7 @@ async def get_plugin_health(
             health_status=health_check.get("status", "unknown"),
             checks=health_check.get("checks", []),
             last_check=plugin.updated_at or plugin.created_at,
-            uptime=self._calculate_plugin_uptime(plugin)
+            uptime=_calculate_plugin_uptime(plugin)
         )
         
     except HTTPException:

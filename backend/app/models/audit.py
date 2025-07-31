@@ -8,10 +8,9 @@ This module defines the database models for the enhanced audit system:
 - AuditProcessingStatus: Audit processor status tracking
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any
 from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Boolean
-from sqlalchemy.ext.declarative import declarative_base
 from app.core.database import Base
 
 

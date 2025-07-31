@@ -1,6 +1,5 @@
 from typing import Optional, Dict, Any
 from sqlalchemy.orm import Session
-from datetime import timedelta
 from app.repositories.admin import AdminRepository
 from app.core.security import (
     verify_password, 
@@ -10,7 +9,7 @@ from app.core.security import (
     verify_token,
     create_credentials_exception
 )
-from app.core.exceptions import NotFoundError, ValidationError, DuplicateError
+from app.core.exceptions import ValidationError, DuplicateError
 from app.schemas.auth import TokenResponse, AdminCreate
 import logging
 

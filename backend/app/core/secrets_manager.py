@@ -7,8 +7,8 @@ various backends (environment variables, Vault, AWS Secrets Manager).
 import os
 import json
 import base64
-from typing import Dict, Any, Optional, Union
-from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
+from datetime import datetime
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -145,7 +145,7 @@ class SecretsManager:
             return secrets.get(key, default)
             
         except Exception as e:
-            logger.warning(f"Failed to read encrypted secrets file", error=str(e))
+            logger.warning("Failed to read encrypted secrets file", error=str(e))
             return default
     
     def _set_to_encrypted_file(self, key: str, value: Any) -> bool:
@@ -188,7 +188,7 @@ class SecretsManager:
             return True
             
         except Exception as e:
-            logger.error(f"Failed to write encrypted secrets file", error=str(e))
+            logger.error("Failed to write encrypted secrets file", error=str(e))
             return False
     
     def rotate_encryption_key(self) -> bool:

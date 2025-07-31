@@ -3,7 +3,6 @@ from pydantic import  Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 from app.schemas.service_plan import ServicePlan
-from app.schemas.customer_extended import CustomerExtendedResponse
 
 # Basic customer response schema for customer service responses
 class BasicCustomerResponse(BaseModel):

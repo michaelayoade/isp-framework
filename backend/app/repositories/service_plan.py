@@ -50,7 +50,7 @@ class ServicePlanRepository(BaseRepository[ServiceTemplate]):
     
     def name_exists(self, name: str, exclude_id: Optional[int] = None) -> bool:
         """Check if service plan name already exists."""
-        query = self.db.query(ServicePlan).filter(ServicePlan.name == name)
+        query = self.db.query(ServiceTemplate).filter(ServiceTemplate.name == name)
         if exclude_id:
-            query = query.filter(ServicePlan.id != exclude_id)
+            query = query.filter(ServiceTemplate.id != exclude_id)
         return query.first() is not None

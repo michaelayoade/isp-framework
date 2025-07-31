@@ -3,8 +3,8 @@ Comprehensive Ticketing System API Endpoints
 Support, Technical, Incident, Field Work, SLA, Escalation, Knowledge Base
 """
 
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
@@ -13,24 +13,19 @@ from app.core.security import get_current_admin_user
 from app.models.auth.base import Administrator
 from app.schemas.ticketing import (
     TicketCreate, TicketUpdate, TicketResponse, TicketStatusUpdate, 
-    TicketAssignment, TicketSearchFilters, TicketStatisticsResponse,
+    TicketAssignment, TicketStatisticsResponse,
     PaginatedTicketResponse, TicketMessageCreate, TicketMessageResponse, 
-    PaginatedMessageResponse, TicketEscalationCreate, TicketEscalationResponse,
-    FieldWorkOrderCreate, FieldWorkOrderUpdate, FieldWorkOrderResponse,
-    TicketTimeEntryCreate, TicketTimeEntryResponse, SLAPolicyCreate, 
-    SLAPolicyResponse, KnowledgeBaseArticleCreate, KnowledgeBaseArticleResponse,
-    NetworkIncidentCreate, NetworkIncidentResponse, TicketTemplateCreate, 
-    TicketTemplateResponse, TicketTypeEnum, TicketPriorityEnum, TicketStatusEnum, 
-    TicketSourceEnum, EscalationReasonEnum, FieldWorkStatusEnum
+    PaginatedMessageResponse, FieldWorkOrderCreate, FieldWorkOrderResponse,
+    KnowledgeBaseArticleCreate, KnowledgeBaseArticleResponse,
+    TicketTypeEnum, TicketPriorityEnum, TicketStatusEnum, 
+    FieldWorkStatusEnum
 )
 from app.services.ticketing_service import (
-    TicketService, TicketMessageService, TicketEscalationService,
-    FieldWorkService, KnowledgeBaseService
+    TicketService, TicketMessageService, FieldWorkService, KnowledgeBaseService
 )
 from app.models.ticketing import (
-    Ticket, TicketMessage, TicketEscalation, FieldWorkOrder,
-    TicketTimeEntry, SLAPolicy, KnowledgeBaseArticle,
-    NetworkIncident, TicketTemplate
+    Ticket, FieldWorkOrder,
+    KnowledgeBaseArticle
 )
 
 router = APIRouter()

@@ -13,18 +13,14 @@ This service provides vendor-agnostic network management capabilities including:
 import logging
 from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from fastapi import Depends
 
 from ..repositories.base import BaseRepository
-from ..models.networking.networks import NetworkSite, NetworkDevice, DeviceConnection, Cable
+from ..models.networking.networks import NetworkSite, NetworkDevice, DeviceConnection
 from ..models.networking.ipam import IPPool, IPAllocation, DHCPReservation
-from ..models.networking.nas_radius import NASDevice, RADIUSSession
-from ..models.devices.device_management import ManagedDevice, DeviceInterface
 from ..core.database import get_db
-from ..core.exceptions import NotFoundError, ValidationError, BusinessLogicError
+from ..core.exceptions import NotFoundError, ValidationError
 from app.services.webhook_integration_service import WebhookTriggers
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -6,13 +6,13 @@ Provides centralized settings management with caching, validation, and secrets h
 import os
 import json
 import re
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from app.core.database import SessionLocal
-from app.models.settings import Setting, SettingHistory, FeatureFlag, ConfigurationTemplate, DEFAULT_SETTINGS
+from app.models.settings import Setting, SettingHistory, FeatureFlag, DEFAULT_SETTINGS
 from app.models.settings import SettingType, SettingCategory
 from app.core.observability import log_audit_event
 import structlog
@@ -83,7 +83,7 @@ class SettingsService:
         
         # Query database
         setting = self.db.query(Setting).filter(
-            and_(Setting.key == key, Setting.is_active == True)
+            and_(Setting.key == key, Setting.is_active is True)
         ).first()
         
         if setting:
@@ -210,12 +210,12 @@ class SettingsService:
     def get_settings_by_category(self, category: SettingCategory) -> List[Setting]:
         """Get all settings in a category."""
         return self.db.query(Setting).filter(
-            and_(Setting.category == category, Setting.is_active == True)
+            and_(Setting.category == category, Setting.is_active is True)
         ).order_by(Setting.display_order, Setting.key).all()
     
     def get_all_settings(self) -> Dict[str, Any]:
         """Get all settings as a dictionary."""
-        settings = self.db.query(Setting).filter(Setting.is_active == True).all()
+        settings = self.db.query(Setting).filter(Setting.is_active is True).all()
         return {setting.key: setting.get_typed_value() for setting in settings}
     
     def create_setting(self, key: str, value: Any, setting_type: SettingType,
@@ -329,7 +329,7 @@ class FeatureFlagService:
                   ip_address: Optional[str] = None, environment: Optional[str] = None) -> bool:
         """Check if a feature flag is enabled for the given context."""
         flag = self.db.query(FeatureFlag).filter(
-            and_(FeatureFlag.name == flag_name, FeatureFlag.is_enabled == True)
+            and_(FeatureFlag.name == flag_name, FeatureFlag.is_enabled is True)
         ).first()
         
         if not flag:

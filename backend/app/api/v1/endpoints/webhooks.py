@@ -5,12 +5,16 @@ Complete REST API for webhook system management including endpoints, events,
 deliveries, and testing functionality.
 """
 
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 from typing import List, Optional
 from datetime import datetime
 
 from app.core.database import get_db
+
+logger = logging.getLogger(__name__)
 from app.core.security import get_current_admin_user
 from app.services.webhook_service import (
     WebhookEventTypeService, WebhookEndpointService, WebhookEventService,
@@ -34,7 +38,7 @@ from app.schemas.webhooks import (
     WebhookDeliveryAttemptResponse,
     
     # Filters
-    WebhookFilterCreate, WebhookFilterUpdate, WebhookFilterResponse,
+    WebhookFilterCreate, WebhookFilterResponse,
     
     # Testing
     WebhookTestRequest, WebhookTestResponse,
@@ -488,7 +492,7 @@ async def get_webhook_system_stats(
     # Basic counts
     total_endpoints = db.query(func.count(WebhookEndpoint.id)).scalar()
     active_endpoints = db.query(func.count(WebhookEndpoint.id)).filter(
-        and_(WebhookEndpoint.is_active == True, WebhookEndpoint.status == WebhookStatus.ACTIVE)
+        and_(WebhookEndpoint.is_active is True, WebhookEndpoint.status == WebhookStatus.ACTIVE)
     ).scalar()
     total_event_types = db.query(func.count(WebhookEventType.id)).scalar()
     
@@ -584,7 +588,7 @@ async def get_endpoint_stats(
         )
     
     # Calculate average response time
-    from sqlalchemy import func
+    from sqlalchemy import func, and_
     from app.models.webhooks.models import WebhookDelivery
     
     avg_response_time = db.query(func.avg(WebhookDelivery.response_time_ms)).filter(

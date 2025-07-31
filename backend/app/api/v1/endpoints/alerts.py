@@ -4,7 +4,7 @@ Consolidated Alert Management API Endpoints.
 Unified alerting system combining Grafana webhooks, alert rule management,
 dashboard creation, and alert processing into a single cohesive API.
 """
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session

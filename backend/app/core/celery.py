@@ -3,9 +3,8 @@ Celery Configuration and Dead-Letter Queue for ISP Framework.
 
 Provides background task processing with comprehensive error handling and retry logic.
 """
-import os
 from datetime import datetime, timezone, timedelta
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from celery import Celery, Task
 from celery.signals import task_failure, task_retry, task_success
 import structlog

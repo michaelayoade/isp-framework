@@ -8,7 +8,7 @@ Pydantic schemas for Voice service management including:
 - Service status and monitoring
 """
 
-from pydantic import BaseModel, Field, validator, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum

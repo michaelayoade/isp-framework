@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, Tuple
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func
+from sqlalchemy import and_
 
 from ..models.customer.base import Customer
 from ..models.services.instances import CustomerService
@@ -18,10 +18,15 @@ from ..models.services.legacy import ServicePlan
 # Using new modular network architecture
 from ..models.networking.networks import NetworkSite, NetworkDevice
 from ..models.networking.ipam import IPPool, IPAllocation
+from ..models.networking.routers import Router, RouterSector
 from ..models.networking.nas_radius import NASDevice
-from ..models.services.instances import InternetService, VoiceService
+from ..models.services.instances import InternetService
 from ..repositories.base import BaseRepository
 from ..core.exceptions import NotFoundError, ValidationError
+
+# Create aliases for backward compatibility
+IPv4IP = IPAllocation
+IPv6IP = IPAllocation
 
 logger = logging.getLogger(__name__)
 

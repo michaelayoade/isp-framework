@@ -6,7 +6,7 @@ Simple repository for tariff operations aligned with ISP Framework vision.
 
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc
+from sqlalchemy import and_, or_, func
 from datetime import datetime, timezone
 
 from .base import BaseRepository
@@ -21,7 +21,7 @@ class InternetTariffRepository(BaseRepository):
     
     def get_active_tariffs(self, partner_id: int = None) -> List[InternetTariff]:
         """Get all active tariffs, optionally filtered by partner"""
-        query = self.db.query(InternetTariff).filter(InternetTariff.is_active == True)
+        query = self.db.query(InternetTariff).filter(InternetTariff.is_active is True)
         
         if partner_id:
             query = query.filter(InternetTariff.partners_ids.contains([partner_id]))
@@ -32,8 +32,8 @@ class InternetTariffRepository(BaseRepository):
         """Get all public tariffs visible to customers"""
         query = self.db.query(InternetTariff).filter(
             and_(
-                InternetTariff.is_active == True,
-                InternetTariff.is_public == True
+                InternetTariff.is_active is True,
+                InternetTariff.is_public is True
             )
         )
         
@@ -136,12 +136,12 @@ class InternetTariffRepository(BaseRepository):
         """Get tariff statistics"""
         total_tariffs = self.db.query(func.count(InternetTariff.id)).scalar()
         active_tariffs = self.db.query(func.count(InternetTariff.id)).filter(
-            InternetTariff.is_active == True
+            InternetTariff.is_active is True
         ).scalar()
         public_tariffs = self.db.query(func.count(InternetTariff.id)).filter(
             and_(
-                InternetTariff.is_active == True,
-                InternetTariff.is_public == True
+                InternetTariff.is_active is True,
+                InternetTariff.is_public is True
             )
         ).scalar()
         
@@ -150,7 +150,7 @@ class InternetTariffRepository(BaseRepository):
             func.avg(InternetTariff.price),
             func.min(InternetTariff.price),
             func.max(InternetTariff.price)
-        ).filter(InternetTariff.is_active == True).first()
+        ).filter(InternetTariff.is_active is True).first()
         
         # Speed statistics
         speed_stats = self.db.query(
@@ -158,13 +158,13 @@ class InternetTariffRepository(BaseRepository):
             func.max(InternetTariff.speed_download),
             func.min(InternetTariff.speed_upload),
             func.max(InternetTariff.speed_upload)
-        ).filter(InternetTariff.is_active == True).first()
+        ).filter(InternetTariff.is_active is True).first()
         
         # Billing types count
         billing_types_count = {}
         tariffs_with_billing = self.db.query(InternetTariff).filter(
             and_(
-                InternetTariff.is_active == True,
+                InternetTariff.is_active is True,
                 InternetTariff.billing_types.isnot(None)
             )
         ).all()

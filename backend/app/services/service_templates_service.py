@@ -13,7 +13,7 @@ with tariff, location, and customer management systems.
 
 import logging
 from typing import List, Optional, Dict, Any, Tuple
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -22,8 +22,11 @@ from app.models.services import (
     ServiceTemplate, InternetServiceTemplate, VoiceServiceTemplate,
     BundleServiceTemplate, ServiceType, ServiceStatus, ServiceCategory
 )
-from app.models.foundation import InternetTariffConfig
 from app.models.foundation import Location
+from app.models.foundation.tariff import Tariff
+
+# Create alias for backward compatibility
+InternetTariff = Tariff
 from app.core.exceptions import ValidationError, NotFoundError, BusinessLogicError
 
 logger = logging.getLogger(__name__)
@@ -391,7 +394,7 @@ class InternetServiceTemplateService:
         max_upload: Optional[int] = None
     ) -> List[InternetServiceTemplate]:
         """Get internet templates by speed range"""
-        logger.info(f"Getting internet templates by speed range")
+        logger.info("Getting internet templates by speed range")
         
         try:
             templates = self.internet_template_repo.get_by_speed_range(

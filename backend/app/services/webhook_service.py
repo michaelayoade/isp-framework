@@ -5,7 +5,6 @@ Business logic for webhook system including event processing, delivery managemen
 and endpoint configuration.
 """
 
-import asyncio
 import hashlib
 import hmac
 import json
@@ -13,13 +12,12 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, asc, func
+from sqlalchemy import and_, or_, desc
 import httpx
-import uuid
 
 from app.models.webhooks.models import (
     WebhookEndpoint, WebhookEvent, WebhookDelivery, WebhookEventType,
-    WebhookFilter, WebhookSecret, WebhookDeliveryAttempt
+    WebhookFilter, WebhookDeliveryAttempt
 )
 from app.models.webhooks.enums import (
     WebhookStatus, DeliveryStatus, FilterOperator, RetryStrategy,
@@ -28,7 +26,7 @@ from app.models.webhooks.enums import (
 from app.schemas.webhooks import (
     WebhookEndpointCreate, WebhookEndpointUpdate, WebhookEndpointSearch,
     WebhookEventCreate, WebhookEventSearch, WebhookDeliverySearch,
-    WebhookFilterCreate, WebhookFilterUpdate, WebhookTestRequest
+    WebhookFilterCreate, WebhookTestRequest
 )
 
 logger = logging.getLogger(__name__)
@@ -193,8 +191,8 @@ class WebhookEndpointService:
         ).filter(
             and_(
                 WebhookEndpointEvent.event_type_id == event_type_id,
-                WebhookEndpointEvent.is_active == True,
-                WebhookEndpoint.is_active == True,
+                WebhookEndpointEvent.is_active is True,
+                WebhookEndpoint.is_active is True,
                 WebhookEndpoint.status == WebhookStatus.ACTIVE
             )
         ).all()
@@ -393,7 +391,7 @@ class WebhookFilterService:
         return self.db.query(WebhookFilter).filter(
             and_(
                 WebhookFilter.endpoint_id == endpoint_id,
-                WebhookFilter.is_active == True
+                WebhookFilter.is_active is True
             )
         ).all()
     

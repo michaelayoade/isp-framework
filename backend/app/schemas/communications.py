@@ -6,9 +6,8 @@ with comprehensive validation and type safety.
 """
 
 from pydantic import BaseModel, Field, EmailStr, field_validator
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from datetime import datetime
-from enum import Enum
 
 from app.models.communications import (
     CommunicationType,

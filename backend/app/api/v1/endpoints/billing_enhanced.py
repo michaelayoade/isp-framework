@@ -12,9 +12,8 @@ Comprehensive REST API endpoints for the modular billing system with advanced IS
 - Billing reports and analytics
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from datetime import datetime, timezone
-from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 
@@ -23,7 +22,7 @@ from app.api.dependencies import get_current_admin
 from app.models import Administrator
 from app.models.billing import (
     BillingType, AccountStatus, TransactionType, InvoiceStatus,
-    PaymentStatus, PaymentMethodType
+    PaymentStatus
 )
 from app.services.billing_service import (
     get_billing_account_service, get_invoice_service,
@@ -31,10 +30,8 @@ from app.services.billing_service import (
     BillingAccountService, InvoiceService, PaymentService, BillingReportService
 )
 from app.schemas.billing_enhanced import (
-    BillingAccountCreate, BillingAccountResponse, BillingAccountUpdate,
-    BalanceUpdateRequest, BalanceResponse, TransactionResponse,
-    InvoiceCreate, InvoiceResponse, InvoiceUpdate, InvoiceItemCreate,
-    PaymentCreate, PaymentResponse, PaymentMethodCreate, PaymentMethodResponse,
+    BillingAccountCreate, BillingAccountResponse, BalanceUpdateRequest, BalanceResponse, TransactionResponse,
+    InvoiceCreate, InvoiceResponse, PaymentCreate, PaymentResponse, PaymentMethodCreate, PaymentMethodResponse,
     CreditNoteCreate, CreditNoteResponse, PaymentPlanCreate, PaymentPlanResponse,
     BillingReportResponse, AccountSummaryResponse
 )

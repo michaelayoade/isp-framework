@@ -5,9 +5,9 @@ Repository classes for plugin management with comprehensive CRUD operations,
 filtering, and database interactions for all plugin-related entities.
 """
 
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc, asc
+from sqlalchemy import and_, or_
 from datetime import datetime
 
 from app.repositories.base import BaseRepository
@@ -45,11 +45,11 @@ class PluginRepository(BaseRepository[Plugin]):
     
     def get_enabled_plugins(self) -> List[Plugin]:
         """Get all enabled plugins"""
-        return self.db.query(Plugin).filter(Plugin.is_enabled == True).all()
+        return self.db.query(Plugin).filter(Plugin.is_enabled is True).all()
     
     def get_system_plugins(self) -> List[Plugin]:
         """Get all system plugins"""
-        return self.db.query(Plugin).filter(Plugin.is_system == True).all()
+        return self.db.query(Plugin).filter(Plugin.is_system is True).all()
     
     def search_plugins(
         self,
@@ -146,7 +146,7 @@ class PluginConfigurationRepository(BaseRepository[PluginConfiguration]):
         return self.db.query(PluginConfiguration).filter(
             and_(
                 PluginConfiguration.plugin_id == plugin_id,
-                PluginConfiguration.is_required == True
+                PluginConfiguration.is_required is True
             )
         ).all()
     
@@ -155,7 +155,7 @@ class PluginConfigurationRepository(BaseRepository[PluginConfiguration]):
         return self.db.query(PluginConfiguration).filter(
             and_(
                 PluginConfiguration.plugin_id == plugin_id,
-                PluginConfiguration.is_encrypted == True
+                PluginConfiguration.is_encrypted is True
             )
         ).all()
     
@@ -192,7 +192,7 @@ class PluginHookRepository(BaseRepository[PluginHook]):
         return self.db.query(PluginHook).filter(
             and_(
                 PluginHook.hook_name == hook_name,
-                PluginHook.is_active == True
+                PluginHook.is_active is True
             )
         ).order_by(PluginHook.priority.asc()).all()
     
@@ -241,7 +241,7 @@ class PluginDependencyRepository(BaseRepository[PluginDependency]):
         return self.db.query(PluginDependency).filter(
             and_(
                 PluginDependency.plugin_id == plugin_id,
-                PluginDependency.is_optional == False
+                PluginDependency.is_optional is False
             )
         ).all()
     
@@ -250,7 +250,7 @@ class PluginDependencyRepository(BaseRepository[PluginDependency]):
         return self.db.query(PluginDependency).filter(
             and_(
                 PluginDependency.plugin_id == plugin_id,
-                PluginDependency.is_optional == True
+                PluginDependency.is_optional is True
             )
         ).all()
     
@@ -259,7 +259,7 @@ class PluginDependencyRepository(BaseRepository[PluginDependency]):
         return self.db.query(PluginDependency).filter(
             and_(
                 PluginDependency.plugin_id == plugin_id,
-                PluginDependency.is_satisfied == False
+                PluginDependency.is_satisfied is False
             )
         ).all()
     
@@ -422,13 +422,13 @@ class PluginRegistryRepository(BaseRepository[PluginRegistry]):
     def get_verified_plugins(self) -> List[PluginRegistry]:
         """Get verified plugins from registry"""
         return self.db.query(PluginRegistry).filter(
-            PluginRegistry.is_verified == True
+            PluginRegistry.is_verified is True
         ).all()
     
     def get_featured_plugins(self) -> List[PluginRegistry]:
         """Get featured plugins from registry"""
         return self.db.query(PluginRegistry).filter(
-            PluginRegistry.is_featured == True
+            PluginRegistry.is_featured is True
         ).all()
     
     def get_popular_plugins(self, limit: int = 10) -> List[PluginRegistry]:
@@ -511,13 +511,13 @@ class PluginTemplateRepository(BaseRepository[PluginTemplate]):
     def get_active_templates(self) -> List[PluginTemplate]:
         """Get active templates"""
         return self.db.query(PluginTemplate).filter(
-            PluginTemplate.is_active == True
+            PluginTemplate.is_active is True
         ).all()
     
     def get_system_templates(self) -> List[PluginTemplate]:
         """Get system templates"""
         return self.db.query(PluginTemplate).filter(
-            PluginTemplate.is_system == True
+            PluginTemplate.is_system is True
         ).all()
     
     def get_most_used_templates(self, limit: int = 10) -> List[PluginTemplate]:

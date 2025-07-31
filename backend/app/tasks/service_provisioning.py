@@ -11,9 +11,7 @@ import structlog
 
 from app.core.celery import celery_app, ISPFrameworkTask
 from app.core.database import get_db
-from app.models.customer.base import Customer
 from app.models.services.instances import CustomerService, CustomerInternetService
-from app.models.services.templates import ServiceTemplate
 from app.models.networking.ipam import IPPool, IPAllocation
 from app.core.error_handling import ISPException, ErrorSeverity, ErrorCategory, ErrorImpact
 
@@ -115,7 +113,7 @@ def provision_internet_service(self, customer_service_id: int, provisioning_data
                 customer_service.status = 'provisioning_failed'
                 customer_service.notes = f"Provisioning failed: {str(e)}"
                 db.commit()
-        except:
+        except Exception:
             pass
         
         raise
@@ -316,7 +314,7 @@ def _allocate_customer_ip(db, customer_service, provisioning_data) -> Optional[I
     try:
         # Find available IP pool
         ip_pool = db.query(IPPool).filter(
-            IPPool.is_active == True,
+            IPPool.is_active is True,
             IPPool.pool_type == 'customer'
         ).first()
         

@@ -9,7 +9,7 @@ Provides REST API endpoints for managing Voice services including:
 - Call usage monitoring and analytics
 """
 
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -194,7 +194,7 @@ async def reactivate_voice_service(
     voice_service = VoiceServiceService(db)
     
     try:
-        result = voice_service.reactivate_service(service_id, current_admin.id)
+        voice_service.reactivate_service(service_id, current_admin.id)
         logger.info(f"Admin {current_admin.username} reactivated Voice service {service_id}")
         return {"message": "Service reactivated successfully"}
     except NotFoundError as e:

@@ -1,17 +1,15 @@
 """Device management service for MAC authentication and IoT device handling."""
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, or_, func, desc, asc
+from sqlalchemy import desc, asc
 from datetime import datetime, timedelta
 import logging
 
-from app.models.networking.device import Device, DeviceGroup, DeviceGroupMember
+from app.models.networking.device import Device
 from app.models.services.instances import CustomerService
 from app.models.customer.base import Customer
 from app.schemas.device import (
-    DeviceCreate, DeviceUpdate, DeviceApproval, DeviceResponse,
-    DeviceGroupCreate, DeviceGroupUpdate, DeviceGroupResponse,
-    RadiusDeviceRequest, RadiusDeviceResponse,
+    DeviceCreate, DeviceUpdate, DeviceApproval, RadiusDeviceRequest, RadiusDeviceResponse,
     DeviceBulkApproval, DeviceBulkUpdate, DeviceBulkResponse,
     DeviceFilters, DeviceSort, DeviceStats
 )
@@ -214,7 +212,7 @@ class DeviceService:
         active = query.filter(Device.status == "active").count()
         pending = query.filter(Device.status == "pending").count()
         blocked = query.filter(Device.status == "blocked").count()
-        auto_registered = query.filter(Device.is_auto_registered == True).count()
+        auto_registered = query.filter(Device.is_auto_registered is True).count()
         
         # Devices in last 24 hours and 7 days
         now = datetime.utcnow()
@@ -246,7 +244,7 @@ class DeviceService:
                 if request.service_id:
                     service = self.db.query(CustomerService).filter(
                         CustomerService.id == request.service_id,
-                        CustomerService.auto_register_mac == True
+                        CustomerService.auto_register_mac is True
                     ).first()
                     
                     if service:
@@ -295,7 +293,7 @@ class DeviceService:
             # Find service with MAC auth enabled
             service = self.db.query(CustomerService).filter(
                 CustomerService.customer_id == device.customer_id,
-                CustomerService.mac_auth_enabled == True
+                CustomerService.mac_auth_enabled is True
             ).first()
             
             if not service:

@@ -20,7 +20,7 @@ class ServiceTypeService:
         query = self.db.query(ServiceType)
         
         if active_only:
-            query = query.filter(ServiceType.is_active == True)
+            query = query.filter(ServiceType.is_active is True)
         
         service_types = query.order_by(ServiceType.sort_order, ServiceType.name).all()
         return service_types
@@ -118,7 +118,7 @@ class ServiceTypeService:
         if not default_type:
             # Fallback to first active service type
             default_type = self.db.query(ServiceType).filter(
-                ServiceType.is_active == True
+                ServiceType.is_active is True
             ).order_by(ServiceType.sort_order).first()
             
             if not default_type:
@@ -129,15 +129,15 @@ class ServiceTypeService:
     def get_recurring_service_types(self) -> List[ServiceType]:
         """Get all recurring service types."""
         return self.db.query(ServiceType).filter(
-            ServiceType.is_active == True,
-            ServiceType.is_recurring == True
+            ServiceType.is_active is True,
+            ServiceType.is_recurring is True
         ).order_by(ServiceType.sort_order).all()
     
     def get_one_time_service_types(self) -> List[ServiceType]:
         """Get all one-time service types."""
         return self.db.query(ServiceType).filter(
-            ServiceType.is_active == True,
-            ServiceType.is_recurring == False
+            ServiceType.is_active is True,
+            ServiceType.is_recurring is False
         ).order_by(ServiceType.sort_order).all()
     
     def supports_bandwidth_limits(self, service_type_id: int) -> bool:

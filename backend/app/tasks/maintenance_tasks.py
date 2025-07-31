@@ -5,16 +5,13 @@ Handles dead-letter queue processing, cleanup, and system maintenance tasks.
 """
 import json
 from datetime import datetime, timezone, timedelta
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from celery import current_app
-from sqlalchemy.orm import Session
 import structlog
 
 from app.core.celery import celery_app, ISPFrameworkTask
 from app.core.database import get_db
 from app.models.foundation import DeadLetterQueue, TaskExecutionLog
-from app.core.error_handling import ISPException, ErrorSeverity, ErrorCategory, ErrorImpact
-from app.core.alerting import grafana_alert_manager
 
 logger = structlog.get_logger("isp.tasks.maintenance")
 

@@ -20,7 +20,7 @@ class BillingTypeService:
         query = self.db.query(BillingType)
         
         if active_only:
-            query = query.filter(BillingType.is_active == True)
+            query = query.filter(BillingType.is_active is True)
         
         billing_types = query.order_by(BillingType.sort_order, BillingType.name).all()
         return billing_types
@@ -122,7 +122,7 @@ class BillingTypeService:
         if not default_type:
             # Fallback to first active billing type
             default_type = self.db.query(BillingType).filter(
-                BillingType.is_active == True
+                BillingType.is_active is True
             ).order_by(BillingType.sort_order).first()
             
             if not default_type:
@@ -133,15 +133,15 @@ class BillingTypeService:
     def get_recurring_billing_types(self) -> List[BillingType]:
         """Get all recurring billing types."""
         return self.db.query(BillingType).filter(
-            BillingType.is_active == True,
-            BillingType.is_recurring == True
+            BillingType.is_active is True,
+            BillingType.is_recurring is True
         ).order_by(BillingType.sort_order).all()
     
     def get_prepaid_billing_types(self) -> List[BillingType]:
         """Get all prepaid billing types."""
         return self.db.query(BillingType).filter(
-            BillingType.is_active == True,
-            BillingType.requires_prepayment == True
+            BillingType.is_active is True,
+            BillingType.requires_prepayment is True
         ).order_by(BillingType.sort_order).all()
     
     def requires_prepayment(self, billing_type_id: int) -> bool:

@@ -6,14 +6,14 @@ These are the "subscriptions" - services that customers are actively using.
 """
 
 from sqlalchemy import Column, Integer, String, DECIMAL, Boolean, DateTime, Text, ForeignKey, ARRAY, Enum
-from sqlalchemy.dialects.postgresql import INET, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
 from app.models.services.enums import (
-    ServiceStatus, ConnectionType, IPAssignmentType, BillingModel
+    ServiceStatus, ConnectionType, BillingModel
 )
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class CustomerService(Base):

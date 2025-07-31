@@ -2,7 +2,7 @@
 
 This will be replaced by full implementation later.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter
 
 router = APIRouter()
 

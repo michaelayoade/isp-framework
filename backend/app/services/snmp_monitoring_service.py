@@ -13,11 +13,15 @@ Provides comprehensive SNMP-based monitoring for network devices including:
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
-from pysnmp.hlapi.asyncio import *
+from pysnmp.hlapi.asyncio import (
+    getCmd, CommunityData, UdpTransportTarget, ContextData,
+    ObjectType, ObjectIdentity, UsmUserData, usmHMACMD5AuthProtocol,
+    usmDESPrivProtocol, usmAesCfb128Protocol, SnmpEngine
+)
 from pysnmp.proto.rfc1902 import Counter32, Counter64, Gauge32, Integer32
 from sqlalchemy.orm import Session
 
@@ -25,7 +29,6 @@ from app.models.devices.device_management import (
     ManagedDevice, DeviceInterface, DeviceMonitoring, DeviceAlert,
     DeviceType, DeviceStatus, AlertSeverity, MonitoringProtocol
 )
-from app.core.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -324,7 +327,7 @@ class SNMPMonitoringService:
             if value:
                 return await self.discover_device_info(ip_address, credentials)
             return {}
-        except:
+        except Exception:
             return {}
     
     async def _snmp_get(
@@ -544,7 +547,7 @@ class SNMPMonitoringService:
             
             # Analyze metrics (simplified)
             cpu_metrics = [m for m in recent_metrics if 'cpu' in m.metric_name.lower()]
-            memory_metrics = [m for m in recent_metrics if 'memory' in m.metric_name.lower()]
+            [m for m in recent_metrics if 'memory' in m.metric_name.lower()]
             
             alerts = []
             if cpu_metrics:

@@ -5,12 +5,12 @@ REST API endpoints for file uploads/downloads, CSV imports, ticket attachments,
 and MinIO S3 integration.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
 import logging
 
-from app.core.database import get_db
+from app.core.database import get_db, SessionLocal
 from app.api.dependencies import get_current_admin
 from app.models.auth.base import Administrator
 from app.models.file_storage import FileCategory, FileStatus, ImportStatus

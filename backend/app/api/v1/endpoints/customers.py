@@ -8,7 +8,7 @@ from app.schemas.customer import (
     CustomerContact, CustomerContactCreate, CustomerContactUpdate,
     CustomerExtended, CustomerExtendedCreate, CustomerExtendedUpdate
 )
-from app.api.dependencies import get_current_active_admin, validate_pagination
+from app.api.dependencies import get_current_active_admin
 from app.models import Administrator
 import logging
 

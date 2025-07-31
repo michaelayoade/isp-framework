@@ -8,15 +8,14 @@ Service layer for plugin health monitoring and management including:
 - Plugin performance metrics and alerting
 """
 
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone, timedelta
-from app.core.exceptions import NotFoundError, ValidationError
+from datetime import datetime, timezone
+from app.core.exceptions import NotFoundError
 from app.services.webhook_integration_service import WebhookTriggers
 from app.services.plugin_system import PluginSystemService
 import logging
 import asyncio
-import psutil
 import traceback
 from enum import Enum
 

@@ -12,16 +12,15 @@ and comprehensive service lifecycle management.
 
 import logging
 from typing import List, Optional, Dict, Any, Tuple
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from app.repositories.service_repository_factory import ServiceRepositoryFactory
 from app.models.services import (
     CustomerService, CustomerInternetService, CustomerVoiceService,
-    ServiceStatus, ServiceType, ConnectionType, IPAssignmentType
+    ServiceStatus, ServiceType, IPAssignmentType
 )
-from app.models.services.templates import ServiceTemplate
 from app.models.customer import Customer
 from app.core.exceptions import ValidationError, NotFoundError, BusinessLogicError
 
@@ -333,7 +332,7 @@ class CustomerServiceService:
     
     async def _record_status_change(self, service: CustomerService, new_status: ServiceStatus, admin_id: int):
         """Record service status change in history"""
-        status_history_repo = self.repo_factory.get_status_history_repo()
+        self.repo_factory.get_status_history_repo()
         # Implementation would create status history record
         logger.info(f"Recording status change for service {service.id}: {new_status}")
     
@@ -344,7 +343,7 @@ class CustomerServiceService:
     
     async def _create_suspension_record(self, service: CustomerService, suspension_data: Dict[str, Any], admin_id: int):
         """Create suspension record"""
-        suspension_repo = self.repo_factory.get_suspension_repo()
+        self.repo_factory.get_suspension_repo()
         # Implementation would create suspension record
         logger.info(f"Creating suspension record for service: {service.id}")
     
@@ -566,25 +565,25 @@ class CustomerInternetServiceService:
         admin_id: int
     ):
         """Create IP assignment record"""
-        ip_assignment_repo = self.repo_factory.get_ip_assignment_repo()
+        self.repo_factory.get_ip_assignment_repo()
         # Implementation would create IP assignment record
         logger.info(f"Creating IP assignment record: {ip_address}")
     
     async def _apply_speed_changes(self, internet_service: CustomerInternetService, download_speed: int, upload_speed: int):
         """Apply speed changes to network equipment"""
         # This would integrate with network management systems
-        logger.info(f"Applying speed changes to network equipment")
+        logger.info("Applying speed changes to network equipment")
     
     async def _apply_fup_restrictions(self, internet_service: CustomerInternetService):
         """Apply FUP speed restrictions"""
         # This would reduce speed to FUP limit
-        logger.info(f"Applying FUP restrictions")
+        logger.info("Applying FUP restrictions")
     
     async def _create_fup_alert(self, internet_service: CustomerInternetService):
         """Create FUP exceeded alert"""
-        alert_repo = self.repo_factory.get_alert_repo()
+        self.repo_factory.get_alert_repo()
         # Implementation would create alert
-        logger.info(f"Creating FUP exceeded alert")
+        logger.info("Creating FUP exceeded alert")
 
 
 class CustomerVoiceServiceService:

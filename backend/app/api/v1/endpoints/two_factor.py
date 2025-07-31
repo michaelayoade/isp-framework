@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from typing import Dict, Any
 from app.core.database import get_db
 from app.services.two_factor import TwoFactorService, ApiKeyService
 from app.api.dependencies import get_current_admin

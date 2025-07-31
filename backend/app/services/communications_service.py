@@ -9,10 +9,8 @@ import logging
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc
+from sqlalchemy import and_, or_, func
 from jinja2 import Environment, BaseLoader, select_autoescape, TemplateError
-import json
-import asyncio
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
@@ -25,10 +23,8 @@ from app.models.communications import (
     CommunicationLog,
     CommunicationQueue,
     CommunicationPreference,
-    CommunicationRule,
     CommunicationType,
     CommunicationStatus,
-    CommunicationPriority,
     TemplateCategory
 )
 from app.schemas.communications import (
@@ -36,14 +32,9 @@ from app.schemas.communications import (
     CommunicationTemplateUpdate,
     CommunicationProviderCreate,
     CommunicationProviderUpdate,
-    CommunicationLogCreate,
-    CommunicationLogUpdate,
     SendCommunicationRequest,
     BulkCommunicationRequest,
-    CommunicationPreferenceCreate,
-    CommunicationPreferenceUpdate,
-    CommunicationRuleCreate,
-    CommunicationRuleUpdate
+    CommunicationPreferenceUpdate
 )
 
 logger = logging.getLogger(__name__)
@@ -224,7 +215,7 @@ class ProviderService:
             self.db.query(CommunicationProvider).filter(
                 and_(
                     CommunicationProvider.provider_type == provider_data.provider_type,
-                    CommunicationProvider.is_default == True
+                    CommunicationProvider.is_default is True
                 )
             ).update({"is_default": False})
         
@@ -276,8 +267,8 @@ class ProviderService:
         return self.db.query(CommunicationProvider).filter(
             and_(
                 CommunicationProvider.provider_type == provider_type,
-                CommunicationProvider.is_default == True,
-                CommunicationProvider.is_active == True
+                CommunicationProvider.is_default is True,
+                CommunicationProvider.is_active is True
             )
         ).first()
     
@@ -295,7 +286,7 @@ class ProviderService:
                 and_(
                     CommunicationProvider.provider_type == provider.provider_type,
                     CommunicationProvider.id != provider_id,
-                    CommunicationProvider.is_default == True
+                    CommunicationProvider.is_default is True
                 )
             ).update({"is_default": False})
         

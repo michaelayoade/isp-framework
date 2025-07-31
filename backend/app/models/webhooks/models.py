@@ -4,7 +4,7 @@ Webhook System Models
 Complete webhook infrastructure models for event-driven integrations.
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, DECIMAL, JSON
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB, INET
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -14,7 +14,6 @@ from .enums import (
     WebhookStatus, DeliveryStatus, EventCategory, FilterOperator,
     RetryStrategy, SignatureAlgorithm, HttpMethod, ContentType
 )
-from datetime import datetime, timedelta
 import uuid
 
 

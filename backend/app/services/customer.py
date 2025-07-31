@@ -8,7 +8,6 @@ from app.core.exceptions import NotFoundError, DuplicateError, ValidationError
 from app.core.config import settings
 from app.services.portal_id import PortalIDService
 from app.services.webhook_integration_service import WebhookTriggers
-from app.services.customer_status import CustomerStatusService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -165,7 +164,7 @@ class CustomerService:
             try:
                 count = self.customer_repo.count()
                 return count + 1
-            except:
+            except Exception:
                 return 999999
     
     def update_customer(self, customer_id: int, customer_data: CustomerUpdate) -> Any:
@@ -438,7 +437,7 @@ class CustomerService:
         from app.models.customer.base import CustomerExtended
         
         # Verify customer exists
-        customer = self.get_customer(customer_id)
+        self.get_customer(customer_id)
         
         # Check if extended info already exists
         existing = self.db.query(CustomerExtended).filter(
@@ -465,7 +464,7 @@ class CustomerService:
         from app.models.customer.base import CustomerExtended
         
         # Verify customer exists
-        customer = self.get_customer(customer_id)
+        self.get_customer(customer_id)
         
         # Get existing extended info
         extended_info = self.db.query(CustomerExtended).filter(
@@ -494,7 +493,7 @@ class CustomerService:
         from sqlalchemy.orm import joinedload
         
         # Verify customer exists
-        customer = self.get_customer(customer_id)
+        self.get_customer(customer_id)
         
         contacts = self.db.query(CustomerContact).options(
             joinedload(CustomerContact.contact_type_ref)
@@ -509,12 +508,12 @@ class CustomerService:
         from app.models.customer.base import CustomerContact, ContactType
         
         # Verify customer exists
-        customer = self.get_customer(customer_id)
+        self.get_customer(customer_id)
         
         # Verify contact type exists
         contact_type = self.db.query(ContactType).filter(
             ContactType.id == contact_data.contact_type_id,
-            ContactType.is_active == True
+            ContactType.is_active is True
         ).first()
         if not contact_type:
             raise ValidationError(f"Contact type with ID {contact_data.contact_type_id} not found or inactive")
@@ -536,7 +535,7 @@ class CustomerService:
         from app.models.customer.base import CustomerContact
         
         # Verify customer exists
-        customer = self.get_customer(customer_id)
+        self.get_customer(customer_id)
         
         # Get contact
         contact = self.db.query(CustomerContact).filter(
@@ -564,7 +563,7 @@ class CustomerService:
         from app.models.customer.base import CustomerContact
         
         # Verify customer exists
-        customer = self.get_customer(customer_id)
+        self.get_customer(customer_id)
         
         # Get contact
         contact = self.db.query(CustomerContact).filter(

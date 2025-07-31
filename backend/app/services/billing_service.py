@@ -15,14 +15,11 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
 from decimal import Decimal
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func
 
 from app.models.billing import (
     CustomerBillingAccount, BillingTransaction, BalanceHistory,
     Invoice, InvoiceItem, PaymentMethod,
-    Payment, CreditNote, PaymentPlan,
-    PaymentPlanInstallment, DunningCase, BillingCycle,
-    BillingType, AccountStatus, TransactionType, TransactionCategory,
+    Payment, BillingType, AccountStatus, TransactionType, TransactionCategory,
     InvoiceStatus, PaymentStatus, PaymentMethodType
 )
 from app.core.exceptions import ValidationError, NotFoundError, BusinessLogicError
@@ -193,7 +190,7 @@ class InvoiceService:
             subtotal = sum(Decimal(str(item.get('line_total', 0))) for item in invoice_items)
             tax_amount = sum(Decimal(str(item.get('tax_amount', 0))) for item in invoice_items)
             discount_amount = sum(Decimal(str(item.get('discount_amount', 0))) for item in invoice_items)
-            total_amount = subtotal + tax_amount - discount_amount
+            subtotal + tax_amount - discount_amount
             
             # Create invoice
             invoice = Invoice(

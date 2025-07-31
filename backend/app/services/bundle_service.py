@@ -5,11 +5,10 @@ Service layer for managing bundle services (Internet + Voice combinations).
 """
 
 from typing import List, Optional, Dict, Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 from decimal import Decimal
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
 
 from app.core.database import get_db
 from app.models.services import BundleService

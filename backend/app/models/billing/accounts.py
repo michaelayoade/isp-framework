@@ -9,7 +9,6 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, DECIMAL, Fore
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime, timezone
 from ..base import Base
 from .enums import BillingType, AccountStatus, BillingCycleType
 
@@ -107,7 +106,6 @@ class CustomerBillingAccount(Base):
 
     def update_balance(self, amount, description="Balance update"):
         """Update account balance and create history record"""
-        old_balance = self.current_balance
         self.current_balance += amount
         self.available_balance = self.calculate_available_balance()
         

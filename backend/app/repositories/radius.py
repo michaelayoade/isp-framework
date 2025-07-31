@@ -7,7 +7,7 @@ customer online status, and network usage statistics.
 
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func, desc, asc
+from sqlalchemy import and_, or_, desc
 from datetime import datetime, timezone, timedelta
 from .base import BaseRepository
 from ..models.networking.radius import RadiusSession, CustomerOnline, CustomerStatistics

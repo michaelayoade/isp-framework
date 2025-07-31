@@ -23,26 +23,22 @@ from app.core.database import get_db
 from app.api.v1.dependencies import get_current_admin
 from app.models.auth import Administrator
 from app.services.network_service import (
-    NetworkSiteService, NetworkDeviceService, IPAMService,
-    NetworkTopologyService, NetworkMonitoringService,
     get_network_services
 )
 from app.schemas.network_modular import (
     # Site schemas
     NetworkSiteResponse, NetworkSiteCreate, NetworkSiteUpdate,
     # Device schemas  
-    NetworkDeviceResponse, NetworkDeviceCreate, NetworkDeviceUpdate,
-    VendorConfigurationCreate,
+    NetworkDeviceResponse, NetworkDeviceCreate, VendorConfigurationCreate,
     # IPAM schemas
-    IPPoolResponse, IPPoolCreate, IPPoolUpdate,
-    IPAllocationResponse, IPAllocationCreate,
+    IPPoolResponse, IPPoolCreate, IPAllocationResponse, IPAllocationCreate,
     IPUtilizationResponse,
     # Topology schemas
     NetworkTopologyResponse, DeviceConnectionCreate,
     # Monitoring schemas
     DeviceMetricCreate, NetworkAlertResponse,
     # General schemas
-    PaginatedResponse, FilterParams
+    PaginatedResponse
 )
 
 router = APIRouter(tags=["network"])

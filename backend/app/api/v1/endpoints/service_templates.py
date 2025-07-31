@@ -20,19 +20,13 @@ from app.models.auth import Administrator
 from app.schemas.service_management import (
     # Service Template Schemas
     ServiceTemplate, ServiceTemplateCreate, ServiceTemplateUpdate,
-    ServiceTemplateSearchFilters, ServiceTemplateListResponse,
+    ServiceTemplateListResponse,
     
     # Internet Service Template Schemas
     InternetServiceTemplate, InternetServiceTemplateCreate, InternetServiceTemplateUpdate,
     
     # Voice Service Template Schemas
-    VoiceServiceTemplate, VoiceServiceTemplateCreate, VoiceServiceTemplateUpdate,
-    
-    # Bundle Service Template Schemas
-    BundleServiceTemplate, BundleServiceTemplateCreate, BundleServiceTemplateUpdate,
-    
-    # Statistics and Dashboard
-    ServiceStatistics, PaginationParams
+    VoiceServiceTemplate, VoiceServiceTemplateCreate, BundleServiceTemplate, BundleServiceTemplateCreate
 )
 from app.services.service_layer_factory import get_service_layer_factory
 from app.models.services.enums import ServiceType

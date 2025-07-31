@@ -104,7 +104,7 @@ class CreditNote(Base):
         
         # Create transaction record
         from .transactions import BillingTransaction, TransactionType, TransactionCategory
-        transaction = BillingTransaction(
+        BillingTransaction(
             billing_account_id=self.billing_account_id,
             transaction_type=TransactionType.CREDIT,
             category=TransactionCategory.ADJUSTMENT,

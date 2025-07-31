@@ -8,7 +8,6 @@ and MinIO S3 operations.
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from enum import Enum
 
 from app.models.file_storage import FileCategory, FileStatus, ImportStatus
 

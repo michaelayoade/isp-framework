@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Union, List
+from typing import Optional, List
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends, Security
@@ -258,7 +258,6 @@ def get_current_admin_user(
 from app.models.customer.base import Customer
 from app.models.customer.portal_complete import CustomerPortalSession
 from app.models.foundation.base import Reseller
-from app.services.reseller_auth import ResellerAuthService
 
 
 def get_current_customer(
@@ -277,7 +276,7 @@ def get_current_customer(
         session = db.query(CustomerPortalSession)\
             .filter(
                 CustomerPortalSession.session_token == token,
-                CustomerPortalSession.is_active == True,
+                CustomerPortalSession.is_active is True,
                 CustomerPortalSession.expires_at > datetime.now()
             ).first()
         
@@ -336,7 +335,7 @@ def get_current_reseller(
         # Get reseller from database
         reseller = db.query(Reseller).filter(
             Reseller.id == reseller_id,
-            Reseller.is_active == True
+            Reseller.is_active is True
         ).first()
         
         if reseller is None:

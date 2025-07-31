@@ -6,10 +6,8 @@ from app.services.rbac import RBACService
 from app.schemas.rbac import (
     Permission, PermissionCreate, PermissionUpdate,
     Role, RoleCreate, RoleUpdate, RoleWithPermissions,
-    UserRole, UserRoleCreate, UserRoleUpdate,
-    PermissionCheck, PermissionCheckResult,
-    BulkRolePermissionUpdate, BulkUserRoleUpdate,
-    RoleSummary, PermissionSummary
+    UserRole, UserRoleCreate, PermissionCheck, PermissionCheckResult,
+    BulkRolePermissionUpdate, RoleSummary
 )
 from app.api.dependencies import get_current_active_admin
 from app.models import Administrator

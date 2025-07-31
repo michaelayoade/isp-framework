@@ -15,7 +15,7 @@ Core Principles:
 
 import enum
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum, Float
-from sqlalchemy.dialects.postgresql import INET, JSONB, ARRAY
+from sqlalchemy.dialects.postgresql import INET, ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base

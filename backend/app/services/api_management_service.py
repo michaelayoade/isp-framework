@@ -11,16 +11,16 @@ Comprehensive service layer for API management including:
 
 import secrets
 import hashlib
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func, desc
 from sqlalchemy.exc import IntegrityError
 
-from app.models.api_management import APIKey, APIUsage, APIRateLimit, APIVersion, APIEndpoint, APIQuota
+from app.models.api_management import APIKey, APIUsage, APIRateLimit, APIVersion, APIEndpoint
 from app.schemas.api_management import (
     APIKeyCreate, APIKeyUpdate, APIUsageCreate, APIVersionCreate, 
-    APIVersionUpdate, APIEndpointCreate, APIEndpointUpdate, APIUsageAnalytics
+    APIEndpointCreate, APIUsageAnalytics
 )
 from app.core.exceptions import NotFoundError, ValidationError, RateLimitError, QuotaExceededError
 import logging

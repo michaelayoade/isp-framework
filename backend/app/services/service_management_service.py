@@ -13,7 +13,7 @@ monitoring, and comprehensive lifecycle control.
 """
 
 import logging
-from typing import List, Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
 
@@ -23,7 +23,6 @@ from app.models.services import (
     ServiceUsageTracking, ServiceAlert, ServiceStatus, SuspensionReason,
     SuspensionType, IPAssignmentType
 )
-from app.models.services.instances import CustomerService
 from app.models.networking.ipam import IPPool as IPv4Network
 from app.core.exceptions import ValidationError, NotFoundError, BusinessLogicError
 

@@ -5,13 +5,10 @@ Business logic for reseller management in single-tenant ISP Framework.
 """
 import logging
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
-from decimal import Decimal
+from typing import List
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from sqlalchemy import func
 
-from app.models.foundation import Reseller
 from app.models.customer import Customer
 from app.repositories.reseller import ResellerRepository
 from app.schemas.reseller import (
@@ -19,9 +16,6 @@ from app.schemas.reseller import (
     ResellerCommissionReport, ResellerCustomerSummary, ResellerDashboard
 )
 from app.core.exceptions import ValidationError, NotFoundError, DuplicateError
-from app.services.billing_service import get_billing_account_service, get_billing_report_service
-from app.models.billing import CustomerBillingAccount, Payment
-from app.models.services import CustomerService
 from app.services.reseller_helpers import (
     get_customer_services_count, get_customer_monthly_revenue, get_customer_last_payment_date
 )
@@ -289,72 +283,5 @@ class ResellerService:
         logger.info(f"Customer {customer_id} unassigned from reseller successfully")
         return True
 
-    def get_resellers(self, limit: int = 50, offset: int = 0, active_only: bool = True) -> List[ResellerResponse]:
-        """Get list of resellers with customer counts"""
-        logger.info(f"Retrieving resellers: limit={limit}, offset={offset}, active_only={active_only}")
-        
-        filters = {"is_active": True} if active_only else {}
-        resellers = self.repository.get_all(filters=filters, limit=limit, skip=offset)
-        
-        results = []
-        for reseller in resellers:
-            customer_count = self.repository.get_reseller_customer_count(reseller.id)
-            reseller_data = reseller.__dict__.copy()
-            reseller_data['customer_count'] = customer_count
-            results.append(ResellerResponse.model_validate(reseller_data))
-        
-        return results
-
-    def search_resellers(self, query: str, limit: int = 50, offset: int = 0) -> List[ResellerResponse]:
-        """Search resellers by name, code, or email"""
-        logger.info(f"Searching resellers: query='{query}'")
-        
-        resellers = self.repository.search_resellers(query, limit, offset)
-        
-        results = []
-        for reseller in resellers:
-            customer_count = self.repository.get_reseller_customer_count(reseller.id)
-            reseller_data = reseller.__dict__.copy()
-            reseller_data['customer_count'] = customer_count
-            results.append(ResellerResponse.model_validate(reseller_data))
-        
-        return results
-
-    def get_reseller_stats(self, reseller_id: int) -> ResellerStats:
-        """Get comprehensive reseller statistics"""
-        logger.info(f"Retrieving reseller stats: {reseller_id}")
-        
-        reseller = self.repository.get_by_id(reseller_id)
-        if not reseller:
-            raise NotFoundError(f"Reseller with ID {reseller_id} not found")
-        
-        stats_data = self.repository.get_reseller_stats(reseller_id)
-        return ResellerStats.model_validate(stats_data)
-
-    def get_reseller_customers(self, reseller_id: int, limit: int = 50, offset: int = 0) -> List[ResellerCustomerSummary]:
-        """Get customers assigned to a reseller"""
-        logger.info(f"Retrieving reseller customers: reseller_id={reseller_id}")
-        
-        reseller = self.repository.get_by_id(reseller_id)
-        if not reseller:
-            raise NotFoundError(f"Reseller with ID {reseller_id} not found")
-        
-        customers = self.repository.get_reseller_customers(reseller_id, limit, offset)
-        
-        results = []
-        for customer in customers:
-            # Get customer service count and revenue (simplified for now)
-            customer_data = {
-                'customer_id': customer.id,
-                'portal_id': customer.portal_id,
-                'name': customer.name,
-                'email': customer.email,
-                'status': customer.status,
-                'services_count': get_customer_services_count(self.db, customer.id),
-                'monthly_revenue': get_customer_monthly_revenue(self.db, customer.id),
-                'last_payment': get_customer_last_payment_date(self.db, customer.id),
-                'created_at': customer.created_at
-            }
-            results.append(ResellerCustomerSummary.model_validate(customer_data))
-        
-        return results
+# Duplicate function implementations removed to fix F811 redefinition errors
+# All functions are already implemented above in the ResellerService class

@@ -10,19 +10,15 @@ Provides database operations with advanced querying, filtering, and relationship
 """
 
 from typing import List, Optional, Dict, Any, Tuple
-from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlalchemy import and_, or_, desc, asc, func, text, case
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_, func
 from datetime import datetime, timezone, timedelta
 
 from app.models.services import (
-    ServiceTemplate, InternetServiceTemplate, VoiceServiceTemplate, BundleServiceTemplate,
     CustomerService, CustomerInternetService, CustomerVoiceService,
-    ServiceProvisioning, ServiceStatusHistory, ServiceSuspension, ServiceUsageTracking,
     ServiceStatus, ServiceType
 )
 from app.models.customer import Customer
-from app.models.devices import DeviceTemplate
-from app.models.networking.networks import NetworkDevice, NetworkSite
 from .base import BaseRepository
 
 
@@ -244,7 +240,7 @@ class CustomerInternetServiceRepository(BaseRepository[CustomerInternetService])
         """Get internet services that have exceeded FUP limits"""
         return self.db.query(CustomerInternetService).join(CustomerService).filter(
             CustomerService.status == ServiceStatus.ACTIVE,
-            CustomerInternetService.fup_exceeded == True
+            CustomerInternetService.fup_exceeded is True
         ).options(
             joinedload(CustomerInternetService.customer_service).joinedload(CustomerService.customer)
         ).all()
@@ -287,7 +283,7 @@ class CustomerInternetServiceRepository(BaseRepository[CustomerInternetService])
         
         # Services with FUP exceeded
         stats['fup_exceeded_services'] = self.db.query(CustomerInternetService).filter(
-            CustomerInternetService.fup_exceeded == True
+            CustomerInternetService.fup_exceeded is True
         ).count()
         
         # Average speeds

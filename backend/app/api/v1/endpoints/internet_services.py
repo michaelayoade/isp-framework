@@ -9,7 +9,7 @@ Provides REST API endpoints for managing Internet services including:
 - Usage monitoring and analytics
 """
 
-from typing import List, Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -195,7 +195,7 @@ async def reactivate_internet_service(
     internet_service = InternetServiceService(db)
     
     try:
-        result = internet_service.reactivate_service(service_id, current_admin.id)
+        internet_service.reactivate_service(service_id, current_admin.id)
         logger.info(f"Admin {current_admin.username} reactivated Internet service {service_id}")
         return {"message": "Service reactivated successfully"}
     except NotFoundError as e:

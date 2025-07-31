@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from pydantic import EmailStr, Field, validator
+from pydantic import EmailStr, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from .customer_status import CustomerStatus  # Import CustomerStatus schema

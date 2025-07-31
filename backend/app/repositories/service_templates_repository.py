@@ -12,16 +12,14 @@ Provides database operations with advanced querying and filtering capabilities.
 
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, or_, desc, asc, func, text
+from sqlalchemy import or_, desc, func
 from datetime import datetime, timezone
 
 from app.repositories.base import BaseRepository
 from app.models.services import (
     ServiceTemplate, InternetServiceTemplate, VoiceServiceTemplate,
-    BundleServiceTemplate, ServiceType, ServiceStatus, ServiceCategory
+    BundleServiceTemplate, ServiceType, ServiceCategory
 )
-from app.models.foundation import InternetTariffConfig
-from app.models.foundation import Location
 
 
 class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
@@ -39,7 +37,7 @@ class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
     def get_active_templates(self, service_type: Optional[ServiceType] = None) -> List[ServiceTemplate]:
         """Get all active service templates, optionally filtered by type"""
         query = self.db.query(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True
+            ServiceTemplate.is_active is True
         )
         
         if service_type:
@@ -55,8 +53,8 @@ class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
     ) -> List[ServiceTemplate]:
         """Get templates available for a specific location and criteria"""
         query = self.db.query(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True,
-            ServiceTemplate.is_public == True
+            ServiceTemplate.is_active is True,
+            ServiceTemplate.is_public is True
         )
         
         # Filter by service type
@@ -71,7 +69,7 @@ class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
         if location_id:
             query = query.filter(
                 or_(
-                    ServiceTemplate.available_locations == None,
+                    ServiceTemplate.available_locations is None,
                     ServiceTemplate.available_locations.contains([location_id])
                 )
             )
@@ -80,11 +78,11 @@ class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
         now = datetime.now(timezone.utc)
         query = query.filter(
             or_(
-                ServiceTemplate.available_from == None,
+                ServiceTemplate.available_from is None,
                 ServiceTemplate.available_from <= now
             ),
             or_(
-                ServiceTemplate.available_until == None,
+                ServiceTemplate.available_until is None,
                 ServiceTemplate.available_until >= now
             )
         )
@@ -144,7 +142,7 @@ class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
         """Get templates with their associated tariffs loaded"""
         return self.db.query(ServiceTemplate).filter(
             ServiceTemplate.service_type == service_type,
-            ServiceTemplate.is_active == True
+            ServiceTemplate.is_active is True
         ).options(
             joinedload(ServiceTemplate.tariff)
         ).order_by(ServiceTemplate.display_order).all()
@@ -158,7 +156,7 @@ class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
         
         # Active templates
         stats['active_templates'] = self.db.query(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True
+            ServiceTemplate.is_active is True
         ).count()
         
         # Templates by type
@@ -179,11 +177,11 @@ class ServiceTemplateRepository(BaseRepository[ServiceTemplate]):
         
         # Public vs private
         stats['public_templates'] = self.db.query(ServiceTemplate).filter(
-            ServiceTemplate.is_public == True
+            ServiceTemplate.is_public is True
         ).count()
         
         stats['private_templates'] = self.db.query(ServiceTemplate).filter(
-            ServiceTemplate.is_public == False
+            ServiceTemplate.is_public is False
         ).count()
         
         return stats
@@ -204,7 +202,7 @@ class InternetServiceTemplateRepository(BaseRepository[InternetServiceTemplate])
     ) -> List[InternetServiceTemplate]:
         """Get internet templates by speed range"""
         query = self.db.query(InternetServiceTemplate).join(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True
+            ServiceTemplate.is_active is True
         )
         
         if min_download:
@@ -224,7 +222,7 @@ class InternetServiceTemplateRepository(BaseRepository[InternetServiceTemplate])
     def get_with_fup(self, has_fup: bool = True) -> List[InternetServiceTemplate]:
         """Get internet templates with or without FUP"""
         query = self.db.query(InternetServiceTemplate).join(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True
+            ServiceTemplate.is_active is True
         )
         
         if has_fup:
@@ -248,7 +246,7 @@ class VoiceServiceTemplateRepository(BaseRepository[VoiceServiceTemplate]):
     ) -> List[VoiceServiceTemplate]:
         """Get voice templates by included minutes range"""
         query = self.db.query(VoiceServiceTemplate).join(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True
+            ServiceTemplate.is_active is True
         )
         
         if min_minutes:
@@ -262,8 +260,8 @@ class VoiceServiceTemplateRepository(BaseRepository[VoiceServiceTemplate]):
     def get_unlimited_plans(self) -> List[VoiceServiceTemplate]:
         """Get voice templates with unlimited minutes"""
         return self.db.query(VoiceServiceTemplate).join(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True,
-            VoiceServiceTemplate.unlimited_minutes == True
+            ServiceTemplate.is_active is True,
+            VoiceServiceTemplate.unlimited_minutes is True
         ).order_by(ServiceTemplate.name).all()
 
 
@@ -276,7 +274,7 @@ class BundleServiceTemplateRepository(BaseRepository[BundleServiceTemplate]):
     def get_by_service_types(self, service_types: List[ServiceType]) -> List[BundleServiceTemplate]:
         """Get bundle templates that include specific service types"""
         query = self.db.query(BundleServiceTemplate).join(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True
+            ServiceTemplate.is_active is True
         )
         
         for service_type in service_types:
@@ -289,7 +287,7 @@ class BundleServiceTemplateRepository(BaseRepository[BundleServiceTemplate]):
     def get_with_discounts(self, min_discount: Optional[float] = None) -> List[BundleServiceTemplate]:
         """Get bundle templates with discounts"""
         query = self.db.query(BundleServiceTemplate).join(ServiceTemplate).filter(
-            ServiceTemplate.is_active == True,
+            ServiceTemplate.is_active is True,
             BundleServiceTemplate.discount_percentage > 0
         )
         

@@ -6,7 +6,7 @@ service requests, dashboard data, and notifications.
 """
 
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum

@@ -7,25 +7,25 @@ service plan enforcement, and ISP operational workflows.
 """
 
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Optional, Dict, Any, List, Tuple
-from decimal import Decimal
+from datetime import datetime, timezone
+from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, func
+from sqlalchemy import and_
 
-from ..models.auth import Administrator
 from ..models.customer import Customer
 from app.models.services import ServiceTemplate as ServicePlan, CustomerService
 from app.models.services import CustomerInternetService as InternetService, CustomerVoiceService as VoiceService
 from ..models.networking.radius import RadiusSession, CustomerOnline, CustomerStatistics
-from ..models.networking.ipam import IPPool, IPAllocation
-from ..models.networking.networks import NetworkSite, NetworkDevice
-from ..models.customer import PortalConfig
+from ..models.networking.ipam import IPAllocation
+from ..models.networking.routers import Router
+
+# Create aliases for backward compatibility
+IPv4IP = IPAllocation
+IPv6IP = IPAllocation
+
 from ..repositories.base import BaseRepository
-from ..repositories.customer import CustomerRepository
 from ..repositories.service_plan import ServicePlanRepository
 from ..services.customer import CustomerService as CustomerServiceClass
-from ..core.exceptions import NotFoundError, ValidationError
 
 logger = logging.getLogger(__name__)
 

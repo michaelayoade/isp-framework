@@ -7,23 +7,17 @@ import logging
 import secrets
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, timedelta
-from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, asc, func
 
 from app.core.database import SessionLocal
 from app.models.ticketing import (
     Ticket, TicketType, TicketPriority, TicketStatus, TicketSource,
-    TicketMessage, TicketAttachment, SLAPolicy, TicketEscalation,
-    EscalationReason, TicketStatusHistory, TicketTimeEntry,
-    FieldWorkOrder, FieldWorkStatus, NetworkIncident,
-    KnowledgeBaseArticle, TicketTemplate
+    TicketMessage, SLAPolicy, TicketEscalation,
+    EscalationReason, TicketStatusHistory, FieldWorkOrder, FieldWorkStatus, KnowledgeBaseArticle
 )
 from app.models.auth.base import Administrator
-from app.models.customer.base import Customer
-from app.core.exceptions import ValidationError, NotFoundError, BusinessLogicError
 from app.services.webhook_integration_service import WebhookTriggers
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -303,8 +297,8 @@ class TicketService:
             # SLA performance
             sla_met_count = base_query.filter(
                 and_(
-                    Ticket.first_response_sla_met == True,
-                    Ticket.resolution_sla_met == True
+                    Ticket.first_response_sla_met is True,
+                    Ticket.resolution_sla_met is True
                 )
             ).count()
             
@@ -363,8 +357,8 @@ class TicketService:
         """Get applicable SLA policy for ticket"""
         # Simple implementation - get default policy
         return self.db.query(SLAPolicy).filter(
-            SLAPolicy.is_default == True,
-            SLAPolicy.is_active == True
+            SLAPolicy.is_default is True,
+            SLAPolicy.is_active is True
         ).first()
     
     def _calculate_sla_due_date(self, minutes: int) -> datetime:
@@ -672,36 +666,6 @@ class KnowledgeBaseService:
         except Exception as e:
             logger.error(f"Error searching knowledge base: {str(e)}")
             raise
-            
-            # Create initial status history
-            self._create_status_history(
-                ticket.id,
-                None,
-                ticket.status,
-                "Ticket created",
-                created_by,
-                "system"
-            )
-            
-            # Add automation event
-            ticket.add_automation_event(
-                'ticket_created',
-                f'Ticket created via {ticket.source.value}',
-                created_by
-            )
-            
-            self.db.commit()
-            
-            # Send notifications
-            self._send_ticket_created_notifications(ticket)
-            
-            logger.info(f"Created ticket {ticket.ticket_number} for customer {ticket.customer_id}")
-            return ticket
-            
-        except Exception as e:
-            self.db.rollback()
-            logger.error(f"Error creating ticket: {e}")
-            raise
     
     def update_ticket_status(self, ticket_id: int, new_status: str, 
                            changed_by: int, reason: str = None) -> bool:
@@ -865,7 +829,6 @@ class KnowledgeBaseService:
                 
                 # Increase priority if not already at max
                 if ticket.priority != TicketPriority.CRITICAL:
-                    old_priority = ticket.priority
                     if ticket.priority == TicketPriority.LOW:
                         ticket.priority = TicketPriority.NORMAL
                     elif ticket.priority == TicketPriority.NORMAL:
@@ -961,7 +924,7 @@ class KnowledgeBaseService:
             
             # SLA performance
             sla_met_count = base_query.filter(
-                Ticket.resolution_sla_met == True
+                Ticket.resolution_sla_met is True
             ).count()
             
             resolved_tickets = base_query.filter(
@@ -1016,13 +979,13 @@ class KnowledgeBaseService:
         try:
             # Get default SLA policy for now
             sla_policy = self.db.query(SLAPolicy)\
-                .filter(SLAPolicy.is_default == True, SLAPolicy.is_active == True)\
+                .filter(SLAPolicy.is_default is True, SLAPolicy.is_active is True)\
                 .first()
             
             if not sla_policy:
                 # Get any active SLA policy
                 sla_policy = self.db.query(SLAPolicy)\
-                    .filter(SLAPolicy.is_active == True)\
+                    .filter(SLAPolicy.is_active is True)\
                     .first()
             
             return sla_policy
@@ -1093,7 +1056,7 @@ class KnowledgeBaseService:
         try:
             agent = self.db.query(Administrator).filter_by(id=agent_id).first()
             return agent.username if agent else f"Agent {agent_id}"
-        except:
+        except Exception:
             return f"Agent {agent_id}"
     
     def _check_first_response_sla(self, ticket: Ticket) -> bool:
@@ -1127,87 +1090,5 @@ class KnowledgeBaseService:
         # Implement notification logic
         pass
 
-
-class FieldWorkService:
-    """Field work order management service"""
-    
-    def __init__(self, db: Session = None):
-        self.db = db or SessionLocal()
-    
-    def create_field_work_order(self, ticket_id: int, work_data: Dict[str, Any]) -> FieldWorkOrder:
-        """Create field work order for ticket"""
-        try:
-            work_order_number = self._generate_work_order_number()
-            
-            field_work = FieldWorkOrder(
-                ticket_id=ticket_id,
-                work_order_number=work_order_number,
-                work_type=work_data['work_type'],
-                work_description=work_data['work_description'],
-                special_instructions=work_data.get('special_instructions'),
-                work_address=work_data['work_address'],
-                gps_latitude=work_data.get('gps_latitude'),
-                gps_longitude=work_data.get('gps_longitude'),
-                location_contact_name=work_data.get('location_contact_name'),
-                location_contact_phone=work_data.get('location_contact_phone'),
-                priority=work_data.get('priority', 'normal'),
-                scheduled_date=work_data.get('scheduled_date'),
-                estimated_duration_hours=work_data.get('estimated_duration_hours'),
-                assigned_technician=work_data.get('assigned_technician'),
-                technician_team=work_data.get('technician_team'),
-                required_equipment=work_data.get('required_equipment', []),
-                required_materials=work_data.get('required_materials', []),
-                customer_availability=work_data.get('customer_availability'),
-                access_requirements=work_data.get('access_requirements'),
-                safety_requirements=work_data.get('safety_requirements')
-            )
-            
-            self.db.add(field_work)
-            self.db.commit()
-            
-            logger.info(f"Created field work order {work_order_number} for ticket {ticket_id}")
-            return field_work
-            
-        except Exception as e:
-            self.db.rollback()
-            logger.error(f"Error creating field work order: {e}")
-            raise
-    
-    def _generate_work_order_number(self) -> str:
-        """Generate unique work order number"""
-        prefix = "WO"
-        timestamp = datetime.now().strftime("%Y%m%d")
-        random_suffix = secrets.token_hex(3).upper()
-        return f"{prefix}-{timestamp}-{random_suffix}"
-
-
-class KnowledgeBaseService:
-    """Knowledge base management service"""
-    
-    def __init__(self, db: Session = None):
-        self.db = db or SessionLocal()
-    
-    def search_articles(self, query: str, category: str = None) -> List[KnowledgeBaseArticle]:
-        """Search knowledge base articles"""
-        try:
-            search_query = self.db.query(KnowledgeBaseArticle)\
-                .filter(KnowledgeBaseArticle.status == 'published')
-            
-            if category:
-                search_query = search_query.filter(KnowledgeBaseArticle.category == category)
-            
-            # Simple text search (can be enhanced with full-text search)
-            search_query = search_query.filter(
-                or_(
-                    KnowledgeBaseArticle.title.ilike(f'%{query}%'),
-                    KnowledgeBaseArticle.content.ilike(f'%{query}%'),
-                    KnowledgeBaseArticle.keywords.op('&&')([query])
-                )
-            )
-            
-            articles = search_query.order_by(desc(KnowledgeBaseArticle.helpful_votes)).limit(10).all()
-            return articles
-            
-        except Exception as e:
-            logger.error(f"Error searching knowledge base: {e}")
-            return []
+# Duplicate class definitions removed to fix F811 redefinition errors
+# FieldWorkService and KnowledgeBaseService are already implemented above

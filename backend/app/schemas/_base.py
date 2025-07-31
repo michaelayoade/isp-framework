@@ -1,5 +1,4 @@
-from pydantic import BaseModel
-from pydantic import ConfigDict
+from pydantic import BaseModel, ConfigDict
 """Shared base Pydantic model.
 
 This centralises common Pydantic v2 configuration so we don’t have to repeat it
@@ -20,7 +19,7 @@ Using a single base class avoids dozens of duplicated Config blocks and keeps
 our code free of Pydantic-v2 deprecation warnings.
 """
 
-from pydantic import  ConfigDict
+# ConfigDict already imported above
 
 
 class BaseSchema(BaseModel):

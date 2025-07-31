@@ -5,15 +5,15 @@ RESTful file management endpoints with proper resource-based routing.
 Handles file uploads, downloads, metadata, and batch operations.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks, Query
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
 import logging
 
 from app.core.database import get_db
 from app.api.dependencies import get_current_admin
 from app.models.auth.base import Administrator
-from app.models.file_storage import FileCategory, FileStatus, ImportStatus
+from app.models.file_storage import FileCategory, ImportStatus
 from app.schemas.file_storage import (
     FileUploadResponse, FileMetadataResponse, FileListResponse,
     PresignedUploadRequest, ImportJobCreate, ImportJobResponse,

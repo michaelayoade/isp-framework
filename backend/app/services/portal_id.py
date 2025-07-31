@@ -10,7 +10,6 @@ from typing import Optional, List
 from sqlalchemy.orm import Session
 from app.models.customer.portal import PortalConfig, PortalIDHistory
 from app.repositories.base import BaseRepository
-from app.core.exceptions import NotFoundError, ValidationError
 
 logger = logging.getLogger(__name__)
 

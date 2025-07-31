@@ -7,7 +7,6 @@ Internet services, Voice services, Bundle services, and Recurring services.
 
 import logging
 from datetime import datetime, timezone
-from decimal import Decimal
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 
@@ -15,7 +14,6 @@ from ..repositories.services import ServiceManagementRepository
 from app.models.services import (
     CustomerInternetService as InternetService,
     CustomerVoiceService as VoiceService,
-    CustomerService,
     CustomerService as BundleService,
     ServiceTemplate as RecurringService
 )

@@ -5,10 +5,9 @@ Pydantic schemas for plugin management, configuration, hooks, and registry
 with comprehensive validation and type safety.
 """
 
-from pydantic import BaseModel, Field, validator, HttpUrl
-from typing import Optional, List, Dict, Any, Union
+from pydantic import BaseModel, Field, HttpUrl
+from typing import Optional, List, Dict, Any
 from datetime import datetime
-from enum import Enum
 
 from app.models.plugins import (
     PluginStatus,

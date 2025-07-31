@@ -4,17 +4,14 @@ Enhanced Audit Trail functionality for ISP Framework.
 Provides comprehensive audit mixins with soft delete support,
 optimized audit processing, and Change Data Capture capabilities.
 """
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Any, Dict, List
 from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, ForeignKey, Boolean, Index
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship, Session
-from sqlalchemy.event import listens_for
+from sqlalchemy.orm import relationship
 from sqlalchemy.inspection import inspect
 from enum import Enum
-import asyncio
 import json
-from contextlib import contextmanager
 
 from app.core.database import Base
 from app.core.observability import log_audit_event
@@ -103,12 +100,12 @@ class EnhancedAuditMixin:
     @classmethod
     def active_only(cls):
         """Query filter for non-deleted records."""
-        return cls.is_deleted == False
+        return cls.is_deleted is False
     
     @classmethod
     def deleted_only(cls):
         """Query filter for deleted records."""
-        return cls.is_deleted == True
+        return cls.is_deleted is True
 
 
 class EnhancedAuditLog(Base):
@@ -497,7 +494,7 @@ class ConfigurationManager:
         try:
             return db.query(ConfigurationSnapshot).filter(
                 ConfigurationSnapshot.snapshot_type == snapshot_type,
-                ConfigurationSnapshot.is_active == True
+                ConfigurationSnapshot.is_active is True
             ).order_by(ConfigurationSnapshot.created_at.desc()).first()
         finally:
             db.close()
@@ -535,7 +532,7 @@ class ConfigurationManager:
             
             return True
             
-        except Exception as e:
+        except Exception:
             db.rollback()
             return False
         finally:

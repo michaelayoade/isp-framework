@@ -9,7 +9,7 @@ FastAPI decorators and middleware for enforcing RBAC permissions including:
 """
 
 from functools import wraps
-from typing import Optional, List, Callable, Any
+from typing import Optional, Callable
 from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 

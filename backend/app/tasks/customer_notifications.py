@@ -5,7 +5,7 @@ Handles email, SMS, and other customer communications with comprehensive
 error handling and dead-letter queue integration.
 """
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 from celery import current_task
 import structlog
 
@@ -291,8 +291,8 @@ def send_service_restoration_notification(self, customer_id: int, customer_servi
         )
         
         # Send SMS notification
-        sms_message = f"GOOD NEWS: Your internet service has been restored. " \
-                     f"Thank you for your patience. Enjoy your connection!"
+        sms_message = "GOOD NEWS: Your internet service has been restored. " \
+                     "Thank you for your patience. Enjoy your connection!"
         
         sms_task = send_sms.delay(
             customer_id=customer_id,
@@ -389,7 +389,7 @@ def send_bulk_notifications(self, customer_ids: List[int], template_name: str,
             'success': True,
             'total_customers': len(customer_ids),
             'queued_tasks': len(task_ids),
-            'failed_customers': len(failed_customers),
+            'failed_customers_count': len(failed_customers),
             'task_ids': task_ids,
             'failed_customers': failed_customers,
             'template': template_name,

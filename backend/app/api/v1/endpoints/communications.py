@@ -7,7 +7,7 @@ managing preferences, and tracking delivery status.
 
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
+from typing import Optional
 from datetime import datetime
 
 from app.core.database import get_db
@@ -16,7 +16,6 @@ from app.models.auth.base import Administrator
 from app.models.communications import (
     CommunicationType,
     CommunicationStatus,
-    CommunicationPriority,
     TemplateCategory
 )
 from app.schemas.communications import (
@@ -25,7 +24,6 @@ from app.schemas.communications import (
     CommunicationTemplateCreate,
     CommunicationTemplateUpdate,
     PaginatedTemplates,
-    TemplateSearchFilters,
     TemplateTestRequest,
     TemplateTestResponse,
     
@@ -34,16 +32,12 @@ from app.schemas.communications import (
     CommunicationProviderCreate,
     CommunicationProviderUpdate,
     PaginatedProviders,
-    ProviderSearchFilters,
-    
-    # Communication schemas
     CommunicationLog,
     SendCommunicationRequest,
     SendCommunicationResponse,
     BulkCommunicationRequest,
     BulkCommunicationResponse,
     PaginatedCommunicationLogs,
-    CommunicationSearchFilters,
     CommunicationStatsResponse,
     
     # Queue schemas
@@ -52,20 +46,13 @@ from app.schemas.communications import (
     
     # Preference schemas
     CommunicationPreference,
-    CommunicationPreferenceCreate,
-    CommunicationPreferenceUpdate,
-    
-    # Rule schemas
-    CommunicationRule,
-    CommunicationRuleCreate,
-    CommunicationRuleUpdate
+    CommunicationPreferenceUpdate
 )
 from app.services.communications_service import (
     TemplateService,
     ProviderService,
     CommunicationService,
-    PreferenceService,
-    get_communication_services
+    PreferenceService
 )
 
 router = APIRouter()

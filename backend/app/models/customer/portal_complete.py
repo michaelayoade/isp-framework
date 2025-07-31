@@ -9,9 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB, INET
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-import enum
-from datetime import datetime, timedelta
-import hashlib
+from datetime import datetime
 import secrets
 
 

@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Form, Request
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.security import HTTPBasic
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.core.database import get_db
 from app.services.oauth import OAuthService
 from app.schemas.oauth import (
     TokenResponse as OAuthTokenResponse,
-    TokenRequest,
-    ClientCredentialsRequest,
     TokenIntrospectionResponse
 )
 import logging

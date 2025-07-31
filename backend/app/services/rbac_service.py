@@ -8,11 +8,10 @@ Comprehensive Role-Based Access Control service including:
 - Multi-tenant isolation and data segregation
 """
 
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session, Query
-from sqlalchemy import and_, or_
 from datetime import datetime, timezone
-from app.core.exceptions import NotFoundError, ValidationError, PermissionDeniedError
+from app.core.exceptions import PermissionDeniedError
 from app.models.auth import Administrator
 from enum import Enum
 import logging

@@ -245,7 +245,7 @@ class ServiceSuspension(Base):
         # Check payment condition
         if conditions.get('payment_received') and self.related_invoice:
             min_payment_percent = conditions.get('minimum_payment_percent', 100)
-            required_amount = self.overdue_amount * (min_payment_percent / 100)
+            self.overdue_amount * (min_payment_percent / 100)
             
             # This would need to check actual payments against the invoice
             # Implementation would query payment records
@@ -391,7 +391,7 @@ class ServiceAlert(Base):
 
 
 # Performance indexes
-from sqlalchemy import Index
+# Index already imported at the top of the file
 
 # IP assignment indexes
 Index('idx_ip_assignments_ip', ServiceIPAssignment.ip_address)

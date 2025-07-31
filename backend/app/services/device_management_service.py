@@ -9,19 +9,17 @@ This service provides business logic for network device management including:
 - Performance analysis and reporting
 """
 
-import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, func
+from sqlalchemy import and_, desc
 
 from app.models.devices.device_management import (
-    ManagedDevice, DeviceInterface, DeviceMonitoring, DeviceAlert,
-    DeviceConfigBackup, DeviceTemplate, DeviceType, DeviceStatus,
-    AlertSeverity, BackupStatus, MonitoringProtocol
+    ManagedDevice, DeviceMonitoring, DeviceAlert,
+    DeviceConfigBackup, DeviceType, DeviceStatus,
+    AlertSeverity, BackupStatus
 )
-from app.core.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -112,12 +110,6 @@ class DeviceMonitoringService:
         metrics = {}
         
         # Standard SNMP OIDs for common metrics
-        oids = {
-            'cpu_usage': '1.3.6.1.4.1.2021.11.9.0',  # UCD-SNMP-MIB
-            'memory_usage': '1.3.6.1.4.1.2021.4.6.0',  # UCD-SNMP-MIB
-            'uptime': '1.3.6.1.2.1.1.3.0',  # SNMPv2-MIB
-            'interface_count': '1.3.6.1.2.1.2.1.0'  # IF-MIB
-        }
         
         # Placeholder for actual SNMP implementation
         # This would use pysnmp to query the device
@@ -162,7 +154,7 @@ class DeviceMonitoringService:
             and_(
                 DeviceAlert.device_id == device_id,
                 DeviceAlert.alert_type == alert_type,
-                DeviceAlert.is_active == True
+                DeviceAlert.is_active is True
             )
         ).first()
         
@@ -242,7 +234,7 @@ class DeviceConfigService:
     async def schedule_config_backups(self):
         """Schedule automatic config backups for devices"""
         devices = self.db.query(ManagedDevice).filter(
-            ManagedDevice.config_backup_enabled == True
+            ManagedDevice.config_backup_enabled is True
         ).all()
         
         for device in devices:

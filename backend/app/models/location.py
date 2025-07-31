@@ -4,7 +4,7 @@ Location Models
 This module contains SQLAlchemy models for location management.
 """
 
-from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, Text
+from sqlalchemy import Column, Integer, String, DECIMAL, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from .base import Base

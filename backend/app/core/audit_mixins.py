@@ -10,12 +10,10 @@ This module provides comprehensive audit infrastructure including:
 """
 
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, List
-from sqlalchemy import Column, Integer, DateTime, String, Boolean, event, inspect
+from typing import Any, Dict, Optional
+from sqlalchemy import Column, Integer, DateTime, event, inspect
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import Session
-from sqlalchemy.orm.events import InstanceEvents
-import json
 import logging
 
 logger = logging.getLogger(__name__)

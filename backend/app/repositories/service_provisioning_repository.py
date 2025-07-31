@@ -11,18 +11,17 @@ rollback capabilities, and comprehensive audit trails.
 """
 
 from typing import List, Optional, Dict, Any, Tuple
-from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlalchemy import and_, or_, desc, asc, func, text, case
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_, func
 from datetime import datetime, timezone, timedelta
 
 from app.repositories.base import BaseRepository
 from app.models.services import (
     ServiceProvisioning, ProvisioningTemplate, ProvisioningQueue,
-    ProvisioningStatus, ServiceType, ChangeMethod
+    ProvisioningStatus, ServiceType
 )
 from app.models.services.instances import CustomerService
 from app.models.customer import Customer
-from app.models.auth import Administrator
 
 
 class ServiceProvisioningRepository(BaseRepository[ServiceProvisioning]):
@@ -73,7 +72,7 @@ class ServiceProvisioningRepository(BaseRepository[ServiceProvisioning]):
         )
         
         if not include_retryable:
-            query = query.filter(ServiceProvisioning.can_retry == False)
+            query = query.filter(ServiceProvisioning.can_retry is False)
         
         return query.options(
             joinedload(ServiceProvisioning.service).joinedload(CustomerService.customer),
@@ -284,29 +283,29 @@ class ProvisioningTemplateRepository(BaseRepository[ProvisioningTemplate]):
         """Get provisioning templates for a specific service type"""
         return self.db.query(ProvisioningTemplate).filter(
             ProvisioningTemplate.service_type == service_type,
-            ProvisioningTemplate.is_active == True
+            ProvisioningTemplate.is_active is True
         ).order_by(ProvisioningTemplate.name).all()
     
     def get_default_template(self, service_type: ServiceType) -> Optional[ProvisioningTemplate]:
         """Get default provisioning template for a service type"""
         return self.db.query(ProvisioningTemplate).filter(
             ProvisioningTemplate.service_type == service_type,
-            ProvisioningTemplate.is_default == True,
-            ProvisioningTemplate.is_active == True
+            ProvisioningTemplate.is_default is True,
+            ProvisioningTemplate.is_active is True
         ).first()
     
     def get_automated_templates(self) -> List[ProvisioningTemplate]:
         """Get templates with full automation enabled"""
         return self.db.query(ProvisioningTemplate).filter(
-            ProvisioningTemplate.is_active == True,
+            ProvisioningTemplate.is_active is True,
             ProvisioningTemplate.automation_level == 'full'
         ).order_by(ProvisioningTemplate.service_type, ProvisioningTemplate.name).all()
     
     def get_templates_requiring_qa(self) -> List[ProvisioningTemplate]:
         """Get templates that require QA approval"""
         return self.db.query(ProvisioningTemplate).filter(
-            ProvisioningTemplate.is_active == True,
-            ProvisioningTemplate.requires_qa == True
+            ProvisioningTemplate.is_active is True,
+            ProvisioningTemplate.requires_qa is True
         ).order_by(ProvisioningTemplate.service_type, ProvisioningTemplate.name).all()
     
     def get_template_usage_stats(self, template_id: int, days: int = 30) -> Dict[str, Any]:

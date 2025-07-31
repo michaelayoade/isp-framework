@@ -4,8 +4,8 @@ Request/response models for ticketing API endpoints
 """
 
 from typing import List, Optional, Dict, Any, Union
-from pydantic import BaseModel, Field, validator
-from datetime import datetime, date
+from pydantic import BaseModel, Field
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 

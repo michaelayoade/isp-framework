@@ -71,7 +71,7 @@ async def list_sites(
     try:
         query = db.query(Site)
         if active_only:
-            query = query.filter(Site.is_active == True)
+            query = query.filter(Site.is_active is True)
         
         sites = query.all()
         
@@ -167,7 +167,7 @@ async def list_devices(
         if status:
             query = query.filter(AutomationDevice.status == status)
         if managed_only:
-            query = query.filter(AutomationDevice.is_managed == True)
+            query = query.filter(AutomationDevice.is_managed is True)
         
         devices = query.all()
         

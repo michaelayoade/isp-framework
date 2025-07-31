@@ -9,10 +9,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from decimal import Decimal
 from datetime import datetime, timezone
-from typing import Optional
 
 from app.core.database import Base
-from .enums import TransactionCategory
 
 
 class TaxRate(Base):
