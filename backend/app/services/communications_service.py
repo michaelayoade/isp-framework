@@ -10,7 +10,7 @@ from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func, desc
-from jinja2 import Environment, BaseLoader, TemplateError
+from jinja2 import Environment, BaseLoader, select_autoescape, TemplateError
 import json
 import asyncio
 from email.mime.text import MIMEText
@@ -54,7 +54,10 @@ class TemplateService:
     
     def __init__(self, db: Session):
         self.db = db
-        self.jinja_env = Environment(loader=BaseLoader())
+        self.jinja_env = Environment(
+            loader=BaseLoader(),
+            autoescape=select_autoescape(["html", "xml"])
+        )
     
     def create_template(self, template_data: CommunicationTemplateCreate, created_by: int) -> CommunicationTemplate:
         """Create a new communication template"""

@@ -183,6 +183,7 @@ jobs:
           name: changelog
 
       - name: Create GitHub Release
+        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -221,9 +222,7 @@ jobs:
     needs: [validate, release]
     runs-on: ubuntu-latest
     if: needs.validate.outputs.is_prerelease == 'false'
-    environment:
-      name: production
-      url: https://ispframework.com
+
     steps:
       - name: Deploy to production
         run: |
@@ -231,36 +230,7 @@ jobs:
           # Add your deployment commands here
           # e.g., kubectl apply, helm upgrade, etc.
 
-  # Notify stakeholders
-  notify:
-    needs: [validate, release]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Notify Slack
-        if: success()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: success
-          text: |
-            🎉 Release v${{ needs.validate.outputs.version }} has been published!
-            
-            📦 Docker images available at: ghcr.io/${{ github.repository }}
-            📋 Release notes: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.validate.outputs.version }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Notify on failure
-        if: failure()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: failure
-          text: |
-            ❌ Release v${{ needs.validate.outputs.version }} failed!
-            
-            Please check the workflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # Update documentation
   docs:

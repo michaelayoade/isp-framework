@@ -222,8 +222,11 @@ class FeatureFlag(Base, AuditMixin):
         if self.enabled_percentage > 0:
             # Simple hash-based percentage (deterministic)
             import hashlib
+
+            # Bandit B324 fix: use a cryptographically stronger hash (SHA-256)
+
             hash_input = f"{self.name}:{user_id or ip_address or 'anonymous'}"
-            hash_value = int(hashlib.md5(hash_input.encode()).hexdigest()[:8], 16)
+            hash_value = int(hashlib.sha256(hash_input.encode()).hexdigest()[:8], 16)
             percentage = (hash_value % 100) + 1
             return percentage <= self.enabled_percentage
         
