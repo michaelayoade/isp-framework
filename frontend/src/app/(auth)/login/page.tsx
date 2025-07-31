@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { adminAuthApi, adminAuthUtils } from '@/api/admin-auth';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,15 +22,16 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // TODO: Implement actual authentication
-      console.log('Login attempt:', { email, password });
+      // Call admin authentication API
+      const response = await adminAuthApi.login({ username, password });
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Store tokens and user role
+      adminAuthUtils.setTokens(response);
       
       // Redirect to dashboard on success
       router.push('/dashboard');
-    } catch {
+    } catch (error) {
+      console.error('Login error:', error);
       setError('Invalid credentials. Please try again.');
     } finally {
       setIsLoading(false);
@@ -56,13 +58,13 @@ export default function LoginPage() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>

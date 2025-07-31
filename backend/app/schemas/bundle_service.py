@@ -3,7 +3,7 @@ Replace with full schema definitions when implementing Bundle Service.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import List as _List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -32,8 +32,6 @@ class BundleServiceInDB(BundleServiceBase):
 BundleService = BundleServiceInDB
 
 # Common list alias used in responses
-from typing import List as _List
-
 BundleServiceList = _List[BundleServiceInDB]
 
 

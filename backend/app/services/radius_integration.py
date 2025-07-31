@@ -22,14 +22,13 @@ from ..models.customer import Customer
 from ..models.networking.ipam import IPAllocation
 from ..models.networking.radius import CustomerOnline, CustomerStatistics, RadiusSession
 from ..models.networking.routers import Router
+from ..repositories.base import BaseRepository
+from ..repositories.service_plan import ServicePlanRepository
+from ..services.customer import CustomerService as CustomerServiceClass
 
 # Create aliases for backward compatibility
 IPv4IP = IPAllocation
 IPv6IP = IPAllocation
-
-from ..repositories.base import BaseRepository
-from ..repositories.service_plan import ServicePlanRepository
-from ..services.customer import CustomerService as CustomerServiceClass
 
 logger = logging.getLogger(__name__)
 

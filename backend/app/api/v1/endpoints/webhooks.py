@@ -10,12 +10,11 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-
-logger = logging.getLogger(__name__)
 from app.core.security import get_current_admin_user
 from app.models.webhooks.enums import DeliveryStatus, EventCategory, WebhookStatus
 from app.schemas.webhooks import (  # Event Types; Endpoints; Events; Deliveries; Filters; Testing; Statistics
@@ -52,6 +51,7 @@ from app.services.webhook_service import (
     WebhookTestService,
 )
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -729,8 +729,6 @@ async def process_pending_deliveries(
 # ============================================================================
 # Backward Compatibility Redirects (Temporary - Remove after 6 months)
 # ============================================================================
-
-from fastapi.responses import RedirectResponse
 
 
 # Redirect old /webhooks/* paths to new /integrations/webhooks/* paths

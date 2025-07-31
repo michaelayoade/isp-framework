@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 """
 Service Management Schemas
 
@@ -11,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 
 # Internet Service Schemas

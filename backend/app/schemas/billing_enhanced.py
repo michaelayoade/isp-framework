@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 """
 Billing Pydantic Schemas
 
@@ -11,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from app.models.billing import (
     AccountStatus,

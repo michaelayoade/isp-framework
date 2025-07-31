@@ -21,6 +21,7 @@ from .base import (
     CustomerNote,
 )
 from .portal import PortalConfig, PortalIDHistory
+from .status import CustomerStatus
 
 __all__ = [
     # Core Customer Models
@@ -34,7 +35,9 @@ __all__ = [
     "CustomerDocument",
     "CustomerNote",
     "CustomerBonusTrafficCounter",
-    # Portal Management
+    # Portal Models
     "PortalConfig",
     "PortalIDHistory",
+    # Status Models
+    "CustomerStatus",
 ]

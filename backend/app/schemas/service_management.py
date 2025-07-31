@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 """
 Service Management Schemas - ISP Service Management System
 
@@ -16,7 +14,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 # Import service enums
 from app.models.services.enums import (

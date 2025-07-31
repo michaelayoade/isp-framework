@@ -31,9 +31,10 @@ from app.models.services import (
 )
 from app.repositories.service_repository_factory import ServiceRepositoryFactory
 
+from app.core.exceptions import BusinessLogicError, NotFoundError, ValidationError
+
 # Create alias for backward compatibility
 InternetTariff = Tariff
-from app.core.exceptions import BusinessLogicError, NotFoundError, ValidationError
 
 logger = logging.getLogger(__name__)
 

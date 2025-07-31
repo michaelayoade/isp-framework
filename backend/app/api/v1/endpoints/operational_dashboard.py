@@ -9,6 +9,7 @@ from typing import Any, Dict
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_admin_user
@@ -220,8 +221,6 @@ async def health_check_endpoint(db: Session = Depends(get_db)) -> Dict[str, Any]
 # ============================================================================
 # Backward Compatibility Redirects (Temporary - Remove after 6 months)
 # ============================================================================
-
-from fastapi.responses import RedirectResponse
 
 
 # Redirect old /dashboard/* paths to new /monitoring/dashboard/* paths

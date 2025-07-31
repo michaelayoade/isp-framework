@@ -5,8 +5,8 @@ from sqlalchemy import asc, desc
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.models.base import Base
 from app.core.exceptions import NotFoundError
+from app.models.base import Base
 
 logger = logging.getLogger(__name__)
 

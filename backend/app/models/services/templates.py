@@ -13,6 +13,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -355,7 +356,6 @@ class BundleServiceTemplate(Base):
 
 
 # Performance indexes
-from sqlalchemy import Index
 
 # Service template indexes
 Index(

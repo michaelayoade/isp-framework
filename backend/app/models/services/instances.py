@@ -15,6 +15,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -434,7 +435,6 @@ class CustomerVoiceService(Base):
 
 
 # Performance indexes
-from sqlalchemy import Index
 
 # Customer service indexes
 Index(

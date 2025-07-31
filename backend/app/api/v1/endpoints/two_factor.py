@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_admin
@@ -259,8 +260,6 @@ async def revoke_api_key(
 # ============================================================================
 # Backward Compatibility Redirects (Temporary - Remove after 6 months)
 # ============================================================================
-
-from fastapi.responses import RedirectResponse
 
 
 # Redirect old /auth/2fa/* paths to new /auth/two-factor/* paths

@@ -5,7 +5,15 @@ domain-organized structure for better maintainability and scalability.
 """
 
 # Import all models here to ensure they are registered with SQLAlchemy
-from .base import Base
+# API Management Models
+from .api_management import (
+    APIEndpoint,
+    APIKey,
+    APIQuota,
+    APIRateLimit,
+    APIUsage,
+    APIVersion,
+)
 
 # Enhanced Audit Models
 from .audit import AuditProcessingStatus, AuditQueue, CDCLog, ConfigurationSnapshot
@@ -19,6 +27,7 @@ from .auth import (
     OAuthToken,
     TwoFactorAuth,
 )
+from .base import Base
 
 # Billing System Models
 from .billing import (
@@ -92,6 +101,14 @@ from .devices import (
     MikroTikSystemStats,
 )
 
+# File Storage Models
+from .file_storage import (
+    ExportJob,
+    FileMetadata,
+    FilePermission,
+    ImportJob,
+)
+
 # Foundation Models
 from .foundation import (
     FileStorage,
@@ -136,6 +153,14 @@ from .plugins import (
     PluginStatus,
     PluginTemplate,
     PluginType,
+)
+
+# RBAC Models
+from .rbac import (
+    Permission,
+    Role,
+    RolePermission,
+    UserRole,
 )
 
 # Service Management Models
@@ -198,6 +223,18 @@ from .webhooks import (
 
 __all__ = [
     "Base",
+    # API Management Models
+    "APIEndpoint",
+    "APIKey",
+    "APIQuota",
+    "APIRateLimit",
+    "APIUsage",
+    "APIVersion",
+    # File Storage Models
+    "ExportJob",
+    "FileMetadata",
+    "FilePermission",
+    "ImportJob",
     # Authentication Models
     "Administrator",
     "OAuthClient",
@@ -205,6 +242,11 @@ __all__ = [
     "OAuthToken",
     "TwoFactorAuth",
     "ApiKey",
+    # RBAC Models
+    "Permission",
+    "Role",
+    "RolePermission",
+    "UserRole",
     # Customer Models
     "Customer",
     "CustomerExtended",

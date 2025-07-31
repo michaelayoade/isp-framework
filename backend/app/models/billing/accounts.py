@@ -5,9 +5,8 @@ Customer billing account management with prepaid/postpaid support,
 real-time balance tracking, and advanced account configuration.
 """
 
-from sqlalchemy import DECIMAL, Boolean, Column, DateTime
+from sqlalchemy import DECIMAL, Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

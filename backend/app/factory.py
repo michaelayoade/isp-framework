@@ -79,9 +79,9 @@ def create_app(include_optional_routers: bool = None) -> FastAPI:
             billing,
             customers,
             resellers,
+            ticketing,
         )
         from app.api.v1.endpoints import settings as settings_router
-        from app.api.v1.endpoints import ticketing
 
         # Core authentication and user management
         app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])

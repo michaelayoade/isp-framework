@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 """
 Pydantic Schemas for Modular Network Architecture
 
@@ -13,7 +11,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 # Generic type for paginated responses
 T = TypeVar("T")

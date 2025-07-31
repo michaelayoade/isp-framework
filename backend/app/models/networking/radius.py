@@ -15,6 +15,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -489,7 +490,6 @@ class CustomerStatistics(Base):
 
 
 # Performance indexes
-from sqlalchemy import Index
 
 # RADIUS session indexes
 Index(

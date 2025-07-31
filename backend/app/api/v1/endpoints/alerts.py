@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -457,8 +458,6 @@ def _get_sms_recipients(payload: Dict[str, Any]) -> List[str]:
 # ============================================================================
 # Backward Compatibility Redirects (Temporary - Remove after 6 months)
 # ============================================================================
-
-from fastapi.responses import RedirectResponse
 
 
 # Redirect old /alerts/* paths to new /monitoring/alerts/* paths

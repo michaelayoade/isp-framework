@@ -13,6 +13,7 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -365,8 +366,6 @@ class TariffPromotion(Base):
 
 
 # Indexes for performance
-from sqlalchemy import Index
-
 Index("idx_tariffs_service_type_active", Tariff.service_type, Tariff.is_active)
 Index("idx_tariffs_public_active", Tariff.is_public, Tariff.is_active)
 Index("idx_internet_config_tariff", InternetTariffConfig.tariff_id)

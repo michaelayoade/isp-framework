@@ -8,9 +8,17 @@ and audit trail for all billing operations.
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DECIMAL, Boolean, Column, DateTime
+from sqlalchemy import (
+    DECIMAL,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+)
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Index, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

@@ -1,16 +1,15 @@
-from pydantic import BaseModel
-
 """
 Reseller Management Schemas
 
 Pydantic schemas for reseller management in single-tenant ISP Framework.
 Resellers can manage their assigned customers with limited administrative access.
 """
+
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
 
-from pydantic import ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class ResellerBase(BaseModel):

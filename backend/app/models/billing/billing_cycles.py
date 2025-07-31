@@ -7,9 +7,17 @@ batch invoice generation, and comprehensive cycle tracking.
 
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import DECIMAL, Boolean, Column, DateTime
+from sqlalchemy import (
+    DECIMAL,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func

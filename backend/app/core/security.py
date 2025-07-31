@@ -8,8 +8,13 @@ from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.database import get_db
+from app.models.customer.base import Customer
+from app.models.customer.portal_complete import CustomerPortalSession
+from app.models.foundation.base import Reseller
 
 logger = logging.getLogger(__name__)
 
@@ -273,9 +278,6 @@ async def require_network_access(
 
 
 # Customer Portal Authentication
-from sqlalchemy.orm import Session
-
-from app.core.database import get_db
 
 
 def get_current_admin_user(
@@ -283,11 +285,6 @@ def get_current_admin_user(
 ) -> dict:
     """Get current admin user with admin scope validation."""
     return current_user
-
-
-from app.models.customer.base import Customer
-from app.models.customer.portal_complete import CustomerPortalSession
-from app.models.foundation.base import Reseller
 
 
 def get_current_customer(

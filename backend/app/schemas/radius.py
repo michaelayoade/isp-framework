@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 """
 RADIUS Session Management Schemas
 
@@ -12,7 +10,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 # Enums for session management

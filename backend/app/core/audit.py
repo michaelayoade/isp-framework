@@ -12,8 +12,8 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import relationship
 
-from app.models.base import Base
 from app.core.observability import log_audit_event
+from app.models.base import Base
 
 
 class AuditMixin:

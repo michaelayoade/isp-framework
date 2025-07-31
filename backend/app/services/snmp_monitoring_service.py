@@ -26,9 +26,6 @@ from pysnmp.hlapi.asyncio import (
     UdpTransportTarget,
     UsmUserData,
     getCmd,
-    usmAesCfb128Protocol,
-    usmDESPrivProtocol,
-    usmHMACMD5AuthProtocol,
 )
 from pysnmp.proto.rfc1902 import Counter32, Counter64, Gauge32, Integer32
 from sqlalchemy.orm import Session

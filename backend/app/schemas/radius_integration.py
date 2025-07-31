@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-
 #!/usr/bin/env python3
 """
 RADIUS Integration Schemas
@@ -11,7 +9,7 @@ and service integration API endpoints.
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class RadiusAuthRequest(BaseModel):

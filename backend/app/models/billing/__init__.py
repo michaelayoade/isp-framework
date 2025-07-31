@@ -32,7 +32,7 @@ from .invoices import Invoice, InvoiceItem
 from .payment_plans import PaymentPlan, PaymentPlanInstallment
 from .payments import Payment, PaymentMethod, PaymentRefund
 from .tax_rates import TaxRate
-from .transactions import BillingTransaction, BalanceHistory
+from .transactions import BalanceHistory, BillingTransaction
 
 __all__ = [
     "AccountingEntry",
