@@ -50,9 +50,12 @@ class Customer(Base):
     subdivision_id = Column(Integer)  # state/province
 
     # Financial
+    billing_type_id = Column(
+        Integer, ForeignKey("billing_types.id"), nullable=True
+    )  # Foreign key to billing_types table
     billing_type = Column(
         String(20), default="recurring"
-    )  # recurring, prepaid_daily, prepaid_monthly
+    )  # Legacy billing type field (kept for backward compatibility)
     mrr_total = Column(Integer, default=0)  # Monthly recurring revenue in cents
     daily_prepaid_cost = Column(Integer, default=0)  # Daily cost in cents
 
@@ -111,6 +114,9 @@ class Customer(Base):
     )
     # Customer status relationship
     status_ref = relationship("CustomerStatus", back_populates="customers")
+    
+    # Billing type relationship
+    billing_type_ref = relationship("BillingType", back_populates="customers")
 
     # Device relationships for MAC authentication
     devices = relationship("Device", back_populates="customer")

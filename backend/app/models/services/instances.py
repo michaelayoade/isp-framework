@@ -40,6 +40,12 @@ class CustomerService(Base):
     service_template_id = Column(
         Integer, ForeignKey("service_templates.id"), nullable=False
     )
+    service_type_id = Column(
+        Integer, ForeignKey("service_types.id"), nullable=True
+    )  # Link to ServiceType lookup
+    service_plan_id = Column(
+        Integer, ForeignKey("service_plans.id"), nullable=True
+    )  # Link to ServicePlan
 
     # Service Identity
     service_number = Column(String(50), unique=True, nullable=False, index=True)
@@ -116,6 +122,8 @@ class CustomerService(Base):
     service_template = relationship(
         "ServiceTemplate", back_populates="customer_services"
     )
+    service_type_ref = relationship("ServiceType", back_populates="customer_services")
+    service_plan_ref = relationship("ServicePlan", back_populates="customer_services")
     tariff = relationship("Tariff", back_populates="customer_services")
     billing_option = relationship("TariffBillingOption")
     primary_router = relationship("Router", foreign_keys=[primary_router_id])

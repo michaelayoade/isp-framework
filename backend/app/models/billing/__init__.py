@@ -19,6 +19,7 @@ This modular approach provides:
 from .accounting import AccountingEntry
 from .accounts import CustomerBillingAccount
 from .billing_cycles import BillingCycle
+from .billing_type import BillingType
 from .credit_notes import CreditNote
 from .dunning import DunningAction, DunningCase
 from .enums import (
@@ -38,6 +39,7 @@ __all__ = [
     "AccountingEntry",
     "CustomerBillingAccount",
     "BillingCycle",
+    "BillingType",
     "CreditNote",
     "DunningCase",
     "DunningAction",

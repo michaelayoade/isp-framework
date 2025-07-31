@@ -33,6 +33,7 @@ from .base import Base
 from .billing import (
     BalanceHistory,
     BillingTransaction,
+    BillingType,
     CreditNote,
     CustomerBillingAccount,
     DunningCase,
@@ -126,7 +127,10 @@ from .networking import (
     Cable,
     CustomerOnline,
     CustomerStatistics,
+    Device,
     DeviceConnection,
+    DeviceGroup,
+    DeviceGroupMember,
     DHCPReservation,
     IPAllocation,
     IPPool,
@@ -164,6 +168,7 @@ from .rbac import (
 )
 
 # Service Management Models
+from .service import ServiceType
 from .services import (
     BundleServiceTemplate,
     CustomerInternetService,
@@ -172,6 +177,7 @@ from .services import (
     InternetServiceTemplate,
     ServiceAlert,
     ServiceIPAssignment,
+    ServicePlan,
     ServiceProvisioning,
     ServiceStatusHistory,
     ServiceSuspension,
@@ -182,6 +188,9 @@ from .services import (
 
 # Settings & Configuration Models
 from .settings import ConfigurationTemplate, FeatureFlag, Setting, SettingHistory
+
+# Ticket Lookup Tables
+from .ticket import TicketStatus as TicketStatusModel
 
 # Ticketing System Models
 from .ticketing import (
@@ -272,6 +281,7 @@ __all__ = [
     "TicketType",
     "TicketPriority",
     "TicketStatus",
+    "TicketStatusModel",
     "TicketSource",
     "TicketMessage",
     "TicketAttachment",
@@ -307,6 +317,9 @@ __all__ = [
     "IPRange",
     "NetworkSite",
     "NetworkDevice",
+    "Device",
+    "DeviceGroup",
+    "DeviceGroupMember",
     "DeviceConnection",
     "Cable",
     "RadiusSession",
@@ -345,10 +358,12 @@ __all__ = [
     "CiscoVLAN",
     "CiscoAccessList",
     # Service Management Models
+    "ServiceType",
     "ServiceTemplate",
     "InternetServiceTemplate",
     "VoiceServiceTemplate",
     "BundleServiceTemplate",
+    "ServicePlan",
     "CustomerService",
     "CustomerInternetService",
     "CustomerVoiceService",
@@ -361,6 +376,7 @@ __all__ = [
     # Billing System Models
     "CustomerBillingAccount",
     "BillingTransaction",
+    "BillingType",
     "BalanceHistory",
     "Invoice",
     "InvoiceItem",

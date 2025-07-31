@@ -33,6 +33,9 @@ from .enums import (
 # Import customer service instances
 from .instances import CustomerInternetService, CustomerService, CustomerVoiceService
 
+# Import service plans
+from .service_plan import ServicePlan
+
 # Import management models
 from .management import (
     ServiceAlert,
@@ -81,6 +84,8 @@ __all__ = [
     "CustomerService",
     "CustomerInternetService",
     "CustomerVoiceService",
+    # Service Plans
+    "ServicePlan",
     # Provisioning
     "ServiceProvisioning",
     "ProvisioningTemplate",

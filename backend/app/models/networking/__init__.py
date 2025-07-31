@@ -8,6 +8,7 @@ This module contains all network-related models including:
 - Network monitoring and statistics
 """
 
+from .device import Device, DeviceGroup, DeviceGroupMember
 from .ipam import DHCPReservation, IPAllocation, IPPool, IPRange
 from .nas_radius import NASDevice, RADIUSAccounting, RADIUSClient, RADIUSServer
 from .networks import Cable, DeviceConnection, NetworkDevice, NetworkSite
@@ -20,6 +21,10 @@ from .radius import (
 from .routers import Router, RouterSector
 
 __all__ = [
+    # Device Management
+    "Device",
+    "DeviceGroup",
+    "DeviceGroupMember",
     # IP Address Management
     "IPPool",
     "IPAllocation",

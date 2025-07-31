@@ -98,7 +98,10 @@ class Ticket(Base):
     impact = Column(Integer, default=3)  # 1-5 scale
 
     # Status Management
-    status = Column(Enum(TicketStatus), default=TicketStatus.NEW, index=True)
+    status = Column(Enum(TicketStatus), default=TicketStatus.NEW, index=True)  # Legacy enum status
+    status_id = Column(
+        Integer, ForeignKey("ticket_statuses.id"), nullable=True
+    )  # Link to TicketStatus lookup table
     substatus = Column(String(100))  # Additional status details
 
     # Assignment
@@ -171,6 +174,7 @@ class Ticket(Base):
     service = relationship("CustomerService")
     contact = relationship("CustomerContact")
     assigned_agent = relationship("Administrator", foreign_keys=[assigned_to])
+    status_ref = relationship("TicketStatus", back_populates="tickets")
     sla_policy = relationship("SLAPolicy", back_populates="tickets")
 
     # Ticket interactions

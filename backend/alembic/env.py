@@ -14,9 +14,9 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from app.core.database import Base
 from app.core.config import settings
 
-# Import models explicitly to ensure they are registered with SQLAlchemy
-import app.models.base
-import app.models.customer
+# Import all models explicitly to ensure they are registered with SQLAlchemy
+# This is critical for Alembic to properly resolve foreign key relationships
+import app.models  # This imports all models through the main models module
 
 
 # this is the Alembic Config object, which provides

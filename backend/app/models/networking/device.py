@@ -61,6 +61,11 @@ class Device(Base):
     # Relationships
     customer = relationship("Customer", back_populates="devices")
     approver = relationship("Administrator", foreign_keys=[approved_by])
+    groups = relationship(
+        "DeviceGroup",
+        secondary="device_group_members",
+        back_populates="devices"
+    )
 
     # Indexes for performance
     __table_args__ = (
