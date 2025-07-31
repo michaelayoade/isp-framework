@@ -65,6 +65,7 @@ class CreditNote(Base):
     invoice = relationship("Invoice", back_populates="credit_notes")
     approver = relationship("Administrator", foreign_keys=[approved_by])
     creator = relationship("Administrator", foreign_keys=[created_by])
+    accounting_entries = relationship("AccountingEntry", back_populates="credit_note")
 
     def __repr__(self):
         return f"<CreditNote(id={self.id}, number='{self.credit_note_number}', amount={self.amount})>"

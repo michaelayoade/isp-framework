@@ -156,6 +156,7 @@ class Payment(Base):
     invoice = relationship("Invoice", back_populates="payments")
     payment_method = relationship("PaymentMethod", back_populates="payments")
     refunds = relationship("PaymentRefund", back_populates="payment")
+    accounting_entries = relationship("AccountingEntry", back_populates="payment")
 
     # Indexes
     __table_args__ = (

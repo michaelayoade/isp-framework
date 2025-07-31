@@ -86,6 +86,8 @@ class Invoice(Base):
     )
     payments = relationship("Payment", back_populates="invoice")
     credit_notes = relationship("CreditNote", back_populates="invoice")
+    accounting_entries = relationship("AccountingEntry", back_populates="invoice")
+    tax_calculations = relationship("TaxCalculation", back_populates="invoice")
     parent_invoice = relationship("Invoice", remote_side=[id])
     child_invoices = relationship("Invoice", back_populates="parent_invoice")
     billing_cycle = relationship("BillingCycle", foreign_keys=[billing_cycle_id])
