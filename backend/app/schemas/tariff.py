@@ -1,32 +1,36 @@
 from pydantic import BaseModel
+
 """
 ISP Tariff Schemas
 
 Simple Pydantic schemas for tariff management aligned with ISP Framework vision.
 """
 
-from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
-from pydantic import  Field
+from typing import List, Optional
+
+from pydantic import Field
 
 
 class InternetTariffBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     service_name: Optional[str] = Field(None, max_length=255)
     partners_ids: List[int] = Field(default_factory=list)
-    
+
     # Pricing
     price: Decimal = Field(default=0, ge=0, decimal_places=4)
     with_vat: bool = True
     vat_percent: Decimal = Field(default=0, ge=0, le=100, decimal_places=2)
-    
+
     # Speed Configuration (in kbps)
     speed_download: int = Field(..., gt=0, description="Download speed in kbps")
     speed_upload: int = Field(..., gt=0, description="Upload speed in kbps")
-    speed_limit_at: int = Field(default=10, ge=0, le=100, description="Speed limit percentage")
+    speed_limit_at: int = Field(
+        default=10, ge=0, le=100, description="Speed limit percentage"
+    )
     aggregation: int = Field(default=1, ge=1)
-    
+
     # Burst Configuration
     burst_limit: int = Field(default=0, ge=0)
     burst_limit_fixed_down: int = Field(default=0, ge=0)
@@ -36,15 +40,15 @@ class InternetTariffBase(BaseModel):
     burst_threshold_fixed_up: int = Field(default=0, ge=0)
     burst_time: int = Field(default=0, ge=0)
     burst_type: str = Field(default="none", pattern="^(none|percent|fixed)$")
-    
+
     # Speed Limit Configuration
     speed_limit_type: str = Field(default="none", pattern="^(none|percent|fixed)$")
     speed_limit_fixed_down: int = Field(default=0, ge=0)
     speed_limit_fixed_up: int = Field(default=0, ge=0)
-    
+
     # Billing Configuration
     billing_types: List[str] = Field(default_factory=list)
-    
+
     # Status and availability
     is_active: bool = True
     is_public: bool = True
@@ -60,18 +64,18 @@ class InternetTariffUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     service_name: Optional[str] = Field(None, max_length=255)
     partners_ids: Optional[List[int]] = None
-    
+
     # Pricing
     price: Optional[Decimal] = Field(None, ge=0, decimal_places=4)
     with_vat: Optional[bool] = None
     vat_percent: Optional[Decimal] = Field(None, ge=0, le=100, decimal_places=2)
-    
+
     # Speed Configuration
     speed_download: Optional[int] = Field(None, gt=0)
     speed_upload: Optional[int] = Field(None, gt=0)
     speed_limit_at: Optional[int] = Field(None, ge=0, le=100)
     aggregation: Optional[int] = Field(None, ge=1)
-    
+
     # Burst Configuration
     burst_limit: Optional[int] = Field(None, ge=0)
     burst_limit_fixed_down: Optional[int] = Field(None, ge=0)
@@ -81,15 +85,15 @@ class InternetTariffUpdate(BaseModel):
     burst_threshold_fixed_up: Optional[int] = Field(None, ge=0)
     burst_time: Optional[int] = Field(None, ge=0)
     burst_type: Optional[str] = Field(None, pattern="^(none|percent|fixed)$")
-    
+
     # Speed Limit Configuration
     speed_limit_type: Optional[str] = Field(None, pattern="^(none|percent|fixed)$")
     speed_limit_fixed_down: Optional[int] = Field(None, ge=0)
     speed_limit_fixed_up: Optional[int] = Field(None, ge=0)
-    
+
     # Billing Configuration
     billing_types: Optional[List[str]] = None
-    
+
     # Status and availability
     is_active: Optional[bool] = None
     is_public: Optional[bool] = None

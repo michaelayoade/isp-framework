@@ -3,11 +3,12 @@ Ticketing System Pydantic Schemas
 Request/response models for ticketing API endpoints
 """
 
-from typing import List, Optional, Dict, Any, Union
-from pydantic import BaseModel, Field
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field
 
 
 # Enums for validation
@@ -91,12 +92,13 @@ class TicketBase(BaseModel):
 
 class TicketCreate(TicketBase):
     """Schema for creating tickets."""
+
     customer_id: Optional[int] = Field(None, example=123)
     service_id: Optional[int] = Field(None, example=456)
     contact_id: Optional[int] = Field(None, example=789)
     source: TicketSourceEnum = TicketSourceEnum.CUSTOMER_PORTAL
     source_reference: Optional[str] = Field(None, example="EMAIL-2024-001")
-    
+
     class Config:
         schema_extra = {
             "example": {
@@ -107,7 +109,7 @@ class TicketCreate(TicketBase):
                 "customer_id": 123,
                 "service_id": 456,
                 "source": "customer_portal",
-                "tags": ["connectivity", "intermittent"]
+                "tags": ["connectivity", "intermittent"],
             }
         }
 
@@ -171,7 +173,7 @@ class TicketResponse(TicketBase):
     updated_at: Optional[datetime]
     resolved_at: Optional[datetime]
     closed_at: Optional[datetime]
-    
+
     # Computed properties
     is_overdue: Optional[bool] = None
     sla_time_remaining_hours: Optional[float] = None
@@ -318,7 +320,7 @@ class FieldWorkOrderResponse(FieldWorkOrderBase):
     created_at: datetime
     updated_at: Optional[datetime]
     completed_at: Optional[datetime]
-    
+
     # Computed properties
     is_overdue: Optional[bool] = None
     actual_duration_hours: Optional[float] = None

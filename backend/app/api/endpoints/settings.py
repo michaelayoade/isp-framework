@@ -3,14 +3,16 @@ Settings management endpoints for ISP Framework.
 
 Provides REST API for managing application settings and feature flags.
 """
+
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
-from app.services.settings_service import get_settings_service, get_feature_flag_service
-from app.models.settings import SettingType, SettingCategory
 from app.api.dependencies import get_current_admin_user
 from app.models.auth.base import Administrator
+from app.models.settings import SettingCategory, SettingType
+from app.services.settings_service import get_feature_flag_service, get_settings_service
 
 router = APIRouter()
 
@@ -84,7 +86,7 @@ class FeatureFlagUpdateRequest(BaseModel):
 @router.get("/", response_model=List[SettingResponse])
 async def get_all_settings(
     category: Optional[SettingCategory] = None,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Get all settings, optionally filtered by category."""
     try:
@@ -92,19 +94,27 @@ async def get_all_settings(
             if category:
                 settings = service.get_settings_by_category(category)
             else:
-                settings = service.db.query(service.db.query(service.db.query.__class__.__bases__[0]).model).filter(
-                    service.db.query.__class__.__bases__[0].model.is_active is True
-                ).all()
+                settings = (
+                    service.db.query(
+                        service.db.query(service.db.query.__class__.__bases__[0]).model
+                    )
+                    .filter(
+                        service.db.query.__class__.__bases__[0].model.is_active is True
+                    )
+                    .all()
+                )
                 # Simplified - get all active settings
                 settings = []
                 all_settings = service.get_all_settings()
                 for key, value in all_settings.items():
-                    setting_obj = service.db.query(service.db.query.__class__.__bases__[0]).filter(
-                        service.db.query.__class__.__bases__[0].key == key
-                    ).first()
+                    setting_obj = (
+                        service.db.query(service.db.query.__class__.__bases__[0])
+                        .filter(service.db.query.__class__.__bases__[0].key == key)
+                        .first()
+                    )
                     if setting_obj:
                         settings.append(setting_obj)
-            
+
             return [
                 SettingResponse(
                     key=setting.key,
@@ -121,35 +131,36 @@ async def get_all_settings(
                     validation_regex=setting.validation_regex,
                     min_value=setting.min_value,
                     max_value=setting.max_value,
-                    allowed_values=setting.allowed_values
+                    allowed_values=setting.allowed_values,
                 )
                 for setting in settings
             ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get settings: {str(e)}"
+            detail=f"Failed to get settings: {str(e)}",
         )
 
 
 @router.get("/{key}", response_model=SettingResponse)
 async def get_setting(
-    key: str,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    key: str, current_admin: Administrator = Depends(get_current_admin_user)
 ):
     """Get a specific setting by key."""
     try:
         with get_settings_service() as service:
-            setting = service.db.query(service.db.query.__class__.__bases__[0]).filter(
-                service.db.query.__class__.__bases__[0].key == key
-            ).first()
-            
+            setting = (
+                service.db.query(service.db.query.__class__.__bases__[0])
+                .filter(service.db.query.__class__.__bases__[0].key == key)
+                .first()
+            )
+
             if not setting:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Setting '{key}' not found"
+                    detail=f"Setting '{key}' not found",
                 )
-            
+
             return SettingResponse(
                 key=setting.key,
                 value=setting.get_typed_value(),
@@ -165,14 +176,14 @@ async def get_setting(
                 validation_regex=setting.validation_regex,
                 min_value=setting.min_value,
                 max_value=setting.max_value,
-                allowed_values=setting.allowed_values
+                allowed_values=setting.allowed_values,
             )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get setting: {str(e)}"
+            detail=f"Failed to get setting: {str(e)}",
         )
 
 
@@ -181,7 +192,7 @@ async def update_setting(
     key: str,
     request_data: SettingUpdateRequest,
     request: Request,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Update a setting value."""
     try:
@@ -192,31 +203,28 @@ async def update_setting(
                 changed_by_id=current_admin.id,
                 change_reason=request_data.change_reason,
                 ip_address=request.client.host if request.client else None,
-                user_agent=request.headers.get("User-Agent")
+                user_agent=request.headers.get("User-Agent"),
             )
-            
+
             return {
                 "message": "Setting updated successfully",
                 "key": key,
                 "new_value": setting.get_typed_value(),
-                "requires_restart": setting.requires_restart
+                "requires_restart": setting.requires_restart,
             }
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update setting: {str(e)}"
+            detail=f"Failed to update setting: {str(e)}",
         )
 
 
 @router.post("/")
 async def create_setting(
     request_data: SettingCreateRequest,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Create a new setting."""
     try:
@@ -235,46 +243,39 @@ async def create_setting(
                 validation_regex=request_data.validation_regex,
                 min_value=request_data.min_value,
                 max_value=request_data.max_value,
-                allowed_values=request_data.allowed_values
+                allowed_values=request_data.allowed_values,
             )
-            
+
             return {
                 "message": "Setting created successfully",
                 "key": setting.key,
-                "id": setting.id
+                "id": setting.id,
             }
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create setting: {str(e)}"
+            detail=f"Failed to create setting: {str(e)}",
         )
 
 
 @router.delete("/{key}")
 async def delete_setting(
-    key: str,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    key: str, current_admin: Administrator = Depends(get_current_admin_user)
 ):
     """Delete a setting (soft delete)."""
     try:
         with get_settings_service() as service:
             service.delete_setting(key, changed_by_id=current_admin.id)
-            
+
             return {"message": f"Setting '{key}' deleted successfully"}
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete setting: {str(e)}"
+            detail=f"Failed to delete setting: {str(e)}",
         )
 
 
@@ -282,13 +283,13 @@ async def delete_setting(
 async def get_setting_history(
     key: str,
     limit: int = 50,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Get change history for a setting."""
     try:
         with get_settings_service() as service:
             history = service.get_setting_history(key, limit)
-            
+
             return [
                 {
                     "id": h.id,
@@ -297,52 +298,46 @@ async def get_setting_history(
                     "changed_by_id": h.changed_by_id,
                     "changed_at": h.changed_at.isoformat(),
                     "change_reason": h.change_reason,
-                    "ip_address": h.ip_address
+                    "ip_address": h.ip_address,
                 }
                 for h in history
             ]
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get setting history: {str(e)}"
+            detail=f"Failed to get setting history: {str(e)}",
         )
 
 
 @router.post("/initialize")
 async def initialize_default_settings(
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Initialize default settings."""
     try:
         with get_settings_service() as service:
             count = service.initialize_default_settings()
-            
-            return {
-                "message": "Default settings initialized",
-                "created_count": count
-            }
+
+            return {"message": "Default settings initialized", "created_count": count}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to initialize settings: {str(e)}"
+            detail=f"Failed to initialize settings: {str(e)}",
         )
 
 
 # Feature Flags endpoints
 @router.get("/flags/", response_model=List[FeatureFlagResponse])
 async def get_all_feature_flags(
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Get all feature flags."""
     try:
         with get_feature_flag_service() as service:
             flags = service.get_all_flags()
-            
+
             return [
                 FeatureFlagResponse(
                     name=flag.name,
@@ -354,14 +349,14 @@ async def get_all_feature_flags(
                     enabled_ip_ranges=flag.enabled_ip_ranges,
                     enabled_environments=flag.enabled_environments,
                     category=flag.category,
-                    tags=flag.tags
+                    tags=flag.tags,
                 )
                 for flag in flags
             ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get feature flags: {str(e)}"
+            detail=f"Failed to get feature flags: {str(e)}",
         )
 
 
@@ -371,26 +366,26 @@ async def check_feature_flag(
     user_id: Optional[int] = None,
     ip_address: Optional[str] = None,
     environment: Optional[str] = None,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Check if a feature flag is enabled for given context."""
     try:
         with get_feature_flag_service() as service:
             is_enabled = service.is_enabled(name, user_id, ip_address, environment)
-            
+
             return {
                 "flag_name": name,
                 "is_enabled": is_enabled,
                 "context": {
                     "user_id": user_id,
                     "ip_address": ip_address,
-                    "environment": environment
-                }
+                    "environment": environment,
+                },
             }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to check feature flag: {str(e)}"
+            detail=f"Failed to check feature flag: {str(e)}",
         )
 
 
@@ -398,30 +393,29 @@ async def check_feature_flag(
 async def update_feature_flag(
     name: str,
     request_data: FeatureFlagUpdateRequest,
-    current_admin: Administrator = Depends(get_current_admin_user)
+    current_admin: Administrator = Depends(get_current_admin_user),
 ):
     """Update a feature flag."""
     try:
         with get_feature_flag_service() as service:
             # Filter out None values
-            update_data = {k: v for k, v in request_data.dict().items() if v is not None}
-            
+            update_data = {
+                k: v for k, v in request_data.dict().items() if v is not None
+            }
+
             flag = service.update_flag(name, **update_data)
-            
+
             return {
                 "message": "Feature flag updated successfully",
                 "flag_name": flag.name,
-                "is_enabled": flag.is_enabled
+                "is_enabled": flag.is_enabled,
             }
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update feature flag: {str(e)}"
+            detail=f"Failed to update feature flag: {str(e)}",
         )
 
 

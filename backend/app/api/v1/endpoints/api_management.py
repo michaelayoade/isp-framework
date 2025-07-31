@@ -9,27 +9,42 @@ Comprehensive REST API endpoints for API management including:
 - Access control and security
 """
 
-from typing import List, Optional
+import logging
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
+from typing import List, Optional
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
 from app.api.v1.dependencies import get_current_admin
+from app.core.database import get_db
+from app.core.exceptions import (
+    NotFoundError,
+    QuotaExceededError,
+    RateLimitError,
+    ValidationError,
+)
 from app.models.auth import Administrator
-from app.services.api_management_service import APIManagementService
 from app.repositories.api_management_repository import (
-    APIUsageRepository, APIRateLimitRepository
+    APIRateLimitRepository,
+    APIUsageRepository,
 )
 from app.schemas.api_management import (
-    APIKeyCreate, APIKeyUpdate, APIKeyResponse, APIUsageCreate, 
-    APIVersionCreate, APIVersionUpdate, 
-    APIVersionResponse, QuotaStatus, APIQuotaStatus,
-    APIKeyUsageStats, APIEndpointCreate, APIEndpointResponse,
-    APIUsageAnalytics
+    APIEndpointCreate,
+    APIEndpointResponse,
+    APIKeyCreate,
+    APIKeyResponse,
+    APIKeyUpdate,
+    APIKeyUsageStats,
+    APIQuotaStatus,
+    APIUsageAnalytics,
+    APIUsageCreate,
+    APIVersionCreate,
+    APIVersionResponse,
+    APIVersionUpdate,
+    QuotaStatus,
 )
-from app.core.exceptions import NotFoundError, ValidationError, RateLimitError, QuotaExceededError
-import logging
+from app.services.api_management_service import APIManagementService
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +55,7 @@ router = APIRouter(tags=["api-management"])
 async def create_api_key(
     key_data: APIKeyCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new API key"""
     service = APIManagementService(db)
@@ -57,11 +72,13 @@ async def list_api_keys(
     customer_id: Optional[int] = Query(None, description="Filter by customer ID"),
     admin_id: Optional[int] = Query(None, description="Filter by admin ID"),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
-    search: Optional[str] = Query(None, description="Search in key name or description"),
+    search: Optional[str] = Query(
+        None, description="Search in key name or description"
+    ),
     limit: int = Query(100, ge=1, le=1000, description="Number of results to return"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """List API keys with filtering"""
     service = APIManagementService(db)
@@ -72,7 +89,7 @@ async def list_api_keys(
         is_active=is_active,
         search=search,
         limit=limit,
-        offset=offset
+        offset=offset,
     )
     return [APIKeyResponse.from_orm(key) for key in keys]
 
@@ -81,7 +98,7 @@ async def list_api_keys(
 async def get_api_key(
     key_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get API key details"""
     service = APIManagementService(db)
@@ -97,7 +114,7 @@ async def update_api_key(
     key_id: int,
     key_data: APIKeyUpdate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Update API key configuration"""
     service = APIManagementService(db)
@@ -114,7 +131,7 @@ async def update_api_key(
 async def revoke_api_key(
     key_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Revoke an API key"""
     service = APIManagementService(db)
@@ -128,20 +145,20 @@ async def revoke_api_key(
 @router.get("/keys/{key_id}/usage", response_model=APIKeyUsageStats)
 async def get_api_key_usage(
     key_id: int,
-    start_date: Optional[datetime] = Query(None, description="Start date for usage data"),
+    start_date: Optional[datetime] = Query(
+        None, description="Start date for usage data"
+    ),
     end_date: Optional[datetime] = Query(None, description="End date for usage data"),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get usage statistics for an API key"""
     service = APIManagementService(db)
     try:
         analytics = service.get_usage_analytics(
-            api_key_id=key_id,
-            start_date=start_date,
-            end_date=end_date
+            api_key_id=key_id, start_date=start_date, end_date=end_date
         )
-        
+
         return APIKeyUsageStats(
             key_id=key_id,
             total_requests=analytics.total_requests,
@@ -150,7 +167,11 @@ async def get_api_key_usage(
             average_response_time=analytics.average_response_time,
             requests_by_endpoint=analytics.requests_by_endpoint,
             requests_by_day=analytics.requests_by_day,
-            last_used=analytics.requests_by_day.get(max(analytics.requests_by_day.keys())) if analytics.requests_by_day else None
+            last_used=(
+                analytics.requests_by_day.get(max(analytics.requests_by_day.keys()))
+                if analytics.requests_by_day
+                else None
+            ),
         )
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -160,22 +181,22 @@ async def get_api_key_usage(
 async def get_api_key_quota(
     key_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get quota status for an API key"""
     service = APIManagementService(db)
     key = service.get_api_key(key_id)
-    
+
     # Get daily quota usage
     daily_usage = service.check_quota(key_id, "daily")
     daily_usage_count = daily_usage.get("usage_count", 0)
     daily_limit = key.daily_quota
-    
+
     # Get monthly quota usage
     monthly_usage = service.check_quota(key_id, "monthly")
     monthly_usage_count = monthly_usage.get("usage_count", 0)
     monthly_limit = key.monthly_quota
-    
+
     return APIQuotaStatus(
         key_id=key_id,
         daily_used=daily_usage_count,
@@ -183,7 +204,7 @@ async def get_api_key_quota(
         daily_remaining=max(0, daily_limit - daily_usage_count),
         monthly_used=monthly_usage_count,
         monthly_limit=monthly_limit,
-        monthly_remaining=max(0, monthly_limit - monthly_usage_count)
+        monthly_remaining=max(0, monthly_limit - monthly_usage_count),
     )
 
 
@@ -191,7 +212,7 @@ async def get_api_key_quota(
 async def create_api_version(
     version_data: APIVersionCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new API version"""
     service = APIManagementService(db)
@@ -206,7 +227,7 @@ async def create_api_version(
 async def list_api_versions(
     status: Optional[str] = Query(None, description="Filter by status"),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """List API versions"""
     service = APIManagementService(db)
@@ -218,7 +239,7 @@ async def list_api_versions(
 async def get_api_version(
     version_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get API version details"""
     service = APIManagementService(db)
@@ -234,7 +255,7 @@ async def update_api_version(
     version_id: int,
     version_data: APIVersionUpdate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Update API version"""
     service = APIManagementService(db)
@@ -250,7 +271,7 @@ async def create_api_endpoint(
     version_id: int,
     endpoint_data: APIEndpointCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new API endpoint"""
     service = APIManagementService(db)
@@ -261,11 +282,13 @@ async def create_api_endpoint(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/versions/{version_id}/endpoints", response_model=List[APIEndpointResponse])
+@router.get(
+    "/versions/{version_id}/endpoints", response_model=List[APIEndpointResponse]
+)
 async def list_api_endpoints(
     version_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """List all endpoints for an API version"""
     service = APIManagementService(db)
@@ -275,12 +298,14 @@ async def list_api_endpoints(
 
 @router.get("/usage/analytics", response_model=APIUsageAnalytics)
 async def get_usage_analytics(
-    start_date: Optional[datetime] = Query(None, description="Start date for analytics"),
+    start_date: Optional[datetime] = Query(
+        None, description="Start date for analytics"
+    ),
     end_date: Optional[datetime] = Query(None, description="End date for analytics"),
     api_key_id: Optional[int] = Query(None, description="Filter by API key ID"),
     endpoint: Optional[str] = Query(None, description="Filter by endpoint"),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get comprehensive usage analytics"""
     service = APIManagementService(db)
@@ -288,7 +313,7 @@ async def get_usage_analytics(
         api_key_id=api_key_id,
         start_date=start_date,
         end_date=end_date,
-        endpoint=endpoint
+        endpoint=endpoint,
     )
     return analytics
 
@@ -298,26 +323,27 @@ async def cleanup_old_data(
     days_to_keep: int = Query(90, ge=1, le=365, description="Days of data to keep"),
     background_tasks: BackgroundTasks = None,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Clean up old usage data"""
     service = APIManagementService(db)
     deleted_count = service.cleanup_old_usage_data(days_to_keep)
-    
+
     return {
         "message": f"Cleaned up {deleted_count} old usage records",
-        "days_to_keep": days_to_keep
+        "days_to_keep": days_to_keep,
     }
 
 
 # Public endpoints for API key validation (no authentication required)
+
 
 @router.get("/validate")
 async def validate_api_key(
     api_key: str = Query(..., description="API key to validate"),
     client_ip: Optional[str] = Query(None, description="Client IP address"),
     user_agent: Optional[str] = Query(None, description="User agent string"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Validate an API key (no authentication required)"""
     service = APIManagementService(db)
@@ -328,17 +354,14 @@ async def validate_api_key(
             "key_name": key.key_name,
             "expires_at": key.expires_at,
             "scopes": key.scopes,
-            "permissions": key.permissions
+            "permissions": key.permissions,
         }
     except (NotFoundError, ValidationError) as e:
         return {"valid": False, "error": str(e)}
 
 
 @router.post("/usage/log")
-async def log_api_usage(
-    usage_data: APIUsageCreate,
-    db: Session = Depends(get_db)
-):
+async def log_api_usage(usage_data: APIUsageCreate, db: Session = Depends(get_db)):
     """Log API usage (for internal use)"""
     service = APIManagementService(db)
     try:
@@ -350,27 +373,30 @@ async def log_api_usage(
 
 # Rate limiting and quota checking endpoints
 
+
 @router.get("/rate-limit/check")
 async def check_rate_limit(
     api_key: str = Query(..., description="API key to check"),
     endpoint: Optional[str] = Query(None, description="Endpoint being accessed"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Check rate limit status"""
     service = APIManagementService(db)
     try:
         key = service.validate_api_key(api_key)
         service.check_rate_limit(key.id, endpoint)
-        
+
         # Get current rate limit status
         rate_limit_repo = APIRateLimitRepository(db)
         rate_limit = rate_limit_repo.get_current_window(key.id)
-        
+
         return {
             "allowed": True,
             "current_count": rate_limit.request_count if rate_limit else 0,
             "limit": key.rate_limit,
-            "remaining": max(0, key.rate_limit - (rate_limit.request_count if rate_limit else 0))
+            "remaining": max(
+                0, key.rate_limit - (rate_limit.request_count if rate_limit else 0)
+            ),
         }
     except (NotFoundError, RateLimitError) as e:
         return {"allowed": False, "error": str(e)}
@@ -380,30 +406,30 @@ async def check_rate_limit(
 async def check_quota(
     api_key: str = Query(..., description="API key to check"),
     quota_type: str = Query("daily", pattern="^(daily|monthly)$"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Check quota status"""
     service = APIManagementService(db)
     try:
         key = service.validate_api_key(api_key)
         service.check_quota(key.id, quota_type)
-        
+
         # Get current usage
         usage_repo = APIUsageRepository(db)
         usage = usage_repo.get_usage_analytics(api_key_id=key.id)
-        
+
         if quota_type == "daily":
             limit = key.daily_quota
             used = sum(v for k, v in usage.get("daily_usage", {}).items())
         else:
             limit = key.monthly_quota
             used = usage.get("total_requests", 0)
-        
+
         return {
             "allowed": True,
             "used": used,
             "limit": limit,
-            "remaining": max(0, limit - used)
+            "remaining": max(0, limit - used),
         }
     except (NotFoundError, QuotaExceededError) as e:
         return {"allowed": False, "error": str(e)}

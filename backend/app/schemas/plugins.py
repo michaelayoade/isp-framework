@@ -5,15 +5,12 @@ Pydantic schemas for plugin management, configuration, hooks, and registry
 with comprehensive validation and type safety.
 """
 
-from pydantic import BaseModel, Field, HttpUrl
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from app.models.plugins import (
-    PluginStatus,
-    PluginType,
-    PluginPriority
-)
+from pydantic import BaseModel, Field, HttpUrl
+
+from app.models.plugins import PluginPriority, PluginStatus, PluginType
 
 
 # Base schemas
@@ -77,7 +74,9 @@ class Plugin(PluginBase):
 class PluginConfigurationBase(BaseModel):
     config_key: str = Field(..., min_length=1, max_length=255)
     config_value: Any
-    config_type: str = Field(default="string", pattern="^(string|number|boolean|object|array)$")
+    config_type: str = Field(
+        default="string", pattern="^(string|number|boolean|object|array)$"
+    )
     is_encrypted: bool = False
     is_required: bool = False
     description: Optional[str] = None
@@ -91,7 +90,9 @@ class PluginConfigurationCreate(PluginConfigurationBase):
 
 class PluginConfigurationUpdate(BaseModel):
     config_value: Optional[Any] = None
-    config_type: Optional[str] = Field(None, pattern="^(string|number|boolean|object|array)$")
+    config_type: Optional[str] = Field(
+        None, pattern="^(string|number|boolean|object|array)$"
+    )
     is_encrypted: Optional[bool] = None
     is_required: Optional[bool] = None
     description: Optional[str] = None
@@ -238,7 +239,9 @@ class PluginRegistryCreate(PluginRegistryBase):
 class PluginRegistryUpdate(BaseModel):
     display_name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
-    latest_version: Optional[str] = Field(None, pattern="^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$")
+    latest_version: Optional[str] = Field(
+        None, pattern="^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
+    )
     author: Optional[str] = Field(None, max_length=255)
     license: Optional[str] = Field(None, max_length=100)
     repository_url: Optional[HttpUrl] = None
@@ -287,7 +290,9 @@ class PluginTemplateCreate(PluginTemplateBase):
 class PluginTemplateUpdate(BaseModel):
     display_name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
-    template_version: Optional[str] = Field(None, pattern="^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$")
+    template_version: Optional[str] = Field(
+        None, pattern="^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
+    )
     template_files: Optional[Dict[str, str]] = None
     config_schema: Optional[Dict[str, Any]] = None
     author: Optional[str] = Field(None, max_length=255)
@@ -311,6 +316,7 @@ class PluginTemplate(PluginTemplateBase):
 # Request/Response schemas
 class PluginInstallRequest(BaseModel):
     """Request to install a plugin"""
+
     source_type: str = Field(..., pattern="^(registry|upload|git|local)$")
     source_location: str = Field(..., min_length=1)
     version: Optional[str] = None
@@ -320,6 +326,7 @@ class PluginInstallRequest(BaseModel):
 
 class PluginInstallResponse(BaseModel):
     """Response after plugin installation"""
+
     plugin_id: int
     status: PluginStatus
     message: str
@@ -329,6 +336,7 @@ class PluginInstallResponse(BaseModel):
 
 class PluginExecuteRequest(BaseModel):
     """Request to execute a plugin method"""
+
     method_name: str = Field(..., min_length=1, max_length=255)
     parameters: Dict[str, Any] = Field(default_factory=dict)
     context: Dict[str, Any] = Field(default_factory=dict)
@@ -336,6 +344,7 @@ class PluginExecuteRequest(BaseModel):
 
 class PluginExecuteResponse(BaseModel):
     """Response from plugin execution"""
+
     success: bool
     result: Any = None
     error: Optional[str] = None
@@ -345,6 +354,7 @@ class PluginExecuteResponse(BaseModel):
 
 class PluginStatsResponse(BaseModel):
     """Plugin statistics response"""
+
     total_plugins: int
     active_plugins: int
     inactive_plugins: int
@@ -357,6 +367,7 @@ class PluginStatsResponse(BaseModel):
 
 class PluginHealthResponse(BaseModel):
     """Plugin health check response"""
+
     plugin_id: int
     plugin_name: str
     status: PluginStatus
@@ -369,6 +380,7 @@ class PluginHealthResponse(BaseModel):
 # Search and filter schemas
 class PluginSearchFilters(BaseModel):
     """Search filters for plugins"""
+
     plugin_type: Optional[PluginType] = None
     status: Optional[PluginStatus] = None
     category: Optional[str] = None
@@ -381,6 +393,7 @@ class PluginSearchFilters(BaseModel):
 
 class PluginRegistrySearchFilters(BaseModel):
     """Search filters for plugin registry"""
+
     plugin_type: Optional[PluginType] = None
     is_verified: Optional[bool] = None
     is_featured: Optional[bool] = None
@@ -392,8 +405,11 @@ class PluginRegistrySearchFilters(BaseModel):
 
 class PluginLogSearchFilters(BaseModel):
     """Search filters for plugin logs"""
+
     plugin_id: Optional[int] = None
-    log_level: Optional[str] = Field(None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
+    log_level: Optional[str] = Field(
+        None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
+    )
     hook_name: Optional[str] = None
     user_id: Optional[int] = None
     date_from: Optional[datetime] = None
@@ -404,6 +420,7 @@ class PluginLogSearchFilters(BaseModel):
 # Pagination schemas
 class PaginatedPlugins(BaseModel):
     """Paginated plugins response"""
+
     items: List[Plugin]
     total: int
     page: int
@@ -413,6 +430,7 @@ class PaginatedPlugins(BaseModel):
 
 class PaginatedPluginRegistry(BaseModel):
     """Paginated plugin registry response"""
+
     items: List[PluginRegistry]
     total: int
     page: int
@@ -422,6 +440,7 @@ class PaginatedPluginRegistry(BaseModel):
 
 class PaginatedPluginLogs(BaseModel):
     """Paginated plugin logs response"""
+
     items: List[PluginLog]
     total: int
     page: int
@@ -431,6 +450,7 @@ class PaginatedPluginLogs(BaseModel):
 
 class PaginatedPluginTemplates(BaseModel):
     """Paginated plugin templates response"""
+
     items: List[PluginTemplate]
     total: int
     page: int
@@ -441,6 +461,7 @@ class PaginatedPluginTemplates(BaseModel):
 # Bulk operation schemas
 class BulkPluginOperation(BaseModel):
     """Bulk plugin operation request"""
+
     plugin_ids: List[int] = Field(..., min_items=1)
     operation: str = Field(..., pattern="^(enable|disable|update|uninstall)$")
     parameters: Dict[str, Any] = Field(default_factory=dict)
@@ -448,6 +469,7 @@ class BulkPluginOperation(BaseModel):
 
 class BulkPluginOperationResponse(BaseModel):
     """Bulk plugin operation response"""
+
     successful: List[int]
     failed: List[Dict[str, Any]]
     warnings: List[str] = Field(default_factory=list)

@@ -10,6 +10,7 @@ from enum import Enum
 # Align with existing database enums to avoid conflicts
 class BillingType(str, Enum):
     """Billing account types - using simple string values"""
+
     PREPAID = "prepaid"
     POSTPAID = "postpaid"
     HYBRID = "hybrid"
@@ -17,6 +18,7 @@ class BillingType(str, Enum):
 
 class AccountStatus(str, Enum):
     """Customer billing account status - using simple string values"""
+
     ACTIVE = "active"
     SUSPENDED = "suspended"
     CLOSED = "closed"
@@ -25,6 +27,7 @@ class AccountStatus(str, Enum):
 
 class TransactionType(str, Enum):
     """Transaction types for billing operations - using simple string values"""
+
     CHARGE = "charge"
     PAYMENT = "payment"
     REFUND = "refund"
@@ -36,6 +39,7 @@ class TransactionType(str, Enum):
 
 class TransactionCategory(str, Enum):
     """Categories for transaction classification - using simple string values"""
+
     SERVICE_FEE = "service_fee"
     SETUP_FEE = "setup_fee"
     USAGE_CHARGE = "usage_charge"
@@ -50,6 +54,7 @@ class TransactionCategory(str, Enum):
 # Use existing database enum names to avoid conflicts
 class InvoiceStatus(str, Enum):
     """Invoice status values - matches existing 'invoicestatus' enum"""
+
     DRAFT = "draft"
     PENDING = "pending"
     SENT = "sent"
@@ -61,6 +66,7 @@ class InvoiceStatus(str, Enum):
 
 class PaymentStatus(str, Enum):
     """Payment status values - matches existing 'paymentstatus' enum"""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -71,6 +77,7 @@ class PaymentStatus(str, Enum):
 
 class PaymentMethodType(str, Enum):
     """Payment method types - matches existing 'paymentmethod' enum where possible"""
+
     CASH = "cash"
     BANK_TRANSFER = "bank_transfer"
     CREDIT_CARD = "credit_card"
@@ -87,6 +94,7 @@ class PaymentMethodType(str, Enum):
 
 class DunningStatus(str, Enum):
     """Dunning status enumeration"""
+
     ACTIVE = "active"
     PAUSED = "paused"
     COMPLETED = "completed"
@@ -95,6 +103,7 @@ class DunningStatus(str, Enum):
 
 class PaymentPlanStatus(str, Enum):
     """Payment plan status enumeration"""
+
     ACTIVE = "active"
     COMPLETED = "completed"
     DEFAULTED = "defaulted"
@@ -103,6 +112,7 @@ class PaymentPlanStatus(str, Enum):
 
 class BillingCycleType(str, Enum):
     """Billing cycle type enumeration"""
+
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"
     SEMI_ANNUAL = "semi_annual"
@@ -112,6 +122,7 @@ class BillingCycleType(str, Enum):
 
 class CreditNoteReason(str, Enum):
     """Credit note reason enumeration"""
+
     SERVICE_CREDIT = "service_credit"
     BILLING_ERROR = "billing_error"
     SERVICE_DOWNTIME = "service_downtime"
@@ -124,6 +135,7 @@ class CreditNoteReason(str, Enum):
 
 class InstallmentStatus(str, Enum):
     """Payment plan installment status"""
+
     PENDING = "pending"
     PAID = "paid"
     OVERDUE = "overdue"
@@ -132,6 +144,7 @@ class InstallmentStatus(str, Enum):
 
 class DunningActionType(str, Enum):
     """Dunning action types"""
+
     EMAIL_REMINDER = "email_reminder"
     SMS_REMINDER = "sms_reminder"
     PHONE_CALL = "phone_call"
@@ -144,6 +157,7 @@ class DunningActionType(str, Enum):
 
 class EscalationLevel(str, Enum):
     """Dunning escalation levels"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -152,6 +166,7 @@ class EscalationLevel(str, Enum):
 
 class DeliveryStatus(str, Enum):
     """Message delivery status"""
+
     PENDING = "pending"
     SENT = "sent"
     DELIVERED = "delivered"

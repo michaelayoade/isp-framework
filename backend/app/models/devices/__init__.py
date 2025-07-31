@@ -8,32 +8,30 @@ This module contains all network device-specific models including:
 - Vendor-agnostic device abstractions
 """
 
+from .cisco import CiscoAccessList, CiscoDevice, CiscoInterface, CiscoVLAN
 from .device_management import (
-    ManagedDevice,
-    DeviceInterface,
-    DeviceMonitoring,
+    AlertSeverity,
+    BackupStatus,
     DeviceAlert,
     DeviceConfigBackup,
-    DeviceTemplate,
-    DeviceType, 
+    DeviceInterface,
+    DeviceMonitoring,
     DeviceStatus,
-    AlertSeverity, 
-    BackupStatus, 
-    MonitoringProtocol
+    DeviceTemplate,
+    DeviceType,
+    ManagedDevice,
+    MonitoringProtocol,
 )
 from .mikrotik import (
-    MikroTikDevice, 
-    MikroTikInterface, 
-    MikroTikSimpleQueue, 
+    MikroTikDevice,
+    MikroTikDHCPLease,
     MikroTikFirewallRule,
-    MikroTikDHCPLease, 
-    MikroTikPPPoESecret, 
     MikroTikHotspotUser,
-    MikroTikSystemStats, 
-    MikroTikInterfaceStats
-)
-from .cisco import (
-    CiscoDevice, CiscoInterface, CiscoVLAN, CiscoAccessList
+    MikroTikInterface,
+    MikroTikInterfaceStats,
+    MikroTikPPPoESecret,
+    MikroTikSimpleQueue,
+    MikroTikSystemStats,
 )
 
 __all__ = [
@@ -49,18 +47,16 @@ __all__ = [
     "AlertSeverity",
     "BackupStatus",
     "MonitoringProtocol",
-    
     # MikroTik Integration
     "MikroTikDevice",
     "MikroTikInterface",
-    "MikroTikSimpleQueue", 
+    "MikroTikSimpleQueue",
     "MikroTikFirewallRule",
     "MikroTikDHCPLease",
     "MikroTikPPPoESecret",
     "MikroTikHotspotUser",
     "MikroTikSystemStats",
     "MikroTikInterfaceStats",
-    
     # Cisco Integration
     "CiscoDevice",
     "CiscoInterface",

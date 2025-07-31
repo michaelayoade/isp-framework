@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 """
 Billing Pydantic Schemas
 
@@ -6,21 +7,30 @@ Comprehensive Pydantic schemas for the modular billing system with validation
 and serialization for all billing entities and API operations.
 """
 
-from typing import List, Optional, Dict, Any
 from datetime import datetime
 from decimal import Decimal
-from pydantic import  Field, field_validator
+from typing import Any, Dict, List, Optional
+
+from pydantic import Field, field_validator
 
 from app.models.billing import (
-    BillingType, AccountStatus, TransactionType, TransactionCategory,
-    InvoiceStatus, PaymentStatus, PaymentMethodType, CreditNoteReason,
-    DunningStatus, BillingCycleType
+    AccountStatus,
+    BillingCycleType,
+    BillingType,
+    CreditNoteReason,
+    DunningStatus,
+    InvoiceStatus,
+    PaymentMethodType,
+    PaymentStatus,
+    TransactionCategory,
+    TransactionType,
 )
 
 
 # Base Schemas
 class TimestampMixin(BaseModel):
     """Mixin for timestamp fields"""
+
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -28,6 +38,7 @@ class TimestampMixin(BaseModel):
 # Billing Account Schemas
 class BillingAccountBase(BaseModel):
     """Base billing account schema"""
+
     account_name: Optional[str] = Field(None, max_length=255)
     billing_type: BillingType
     account_status: Optional[AccountStatus] = AccountStatus.ACTIVE
@@ -42,11 +53,13 @@ class BillingAccountBase(BaseModel):
 
 class BillingAccountCreate(BillingAccountBase):
     """Schema for creating billing account"""
+
     customer_id: int = Field(..., gt=0)
 
 
 class BillingAccountUpdate(BaseModel):
     """Schema for updating billing account"""
+
     account_name: Optional[str] = Field(None, max_length=255)
     account_status: Optional[AccountStatus] = None
     credit_limit: Optional[Decimal] = Field(None, ge=0)
@@ -59,6 +72,7 @@ class BillingAccountUpdate(BaseModel):
 
 class BillingAccountResponse(BillingAccountBase, TimestampMixin):
     """Schema for billing account response"""
+
     id: int
     customer_id: int
     account_number: str
@@ -71,6 +85,7 @@ class BillingAccountResponse(BillingAccountBase, TimestampMixin):
 # Balance and Transaction Schemas
 class BalanceUpdateRequest(BaseModel):
     """Schema for balance update request"""
+
     amount: Decimal = Field(..., description="Amount to add/subtract from balance")
     transaction_type: TransactionType
     description: str = Field(..., max_length=500)
@@ -79,6 +94,7 @@ class BalanceUpdateRequest(BaseModel):
 
 class BalanceResponse(BaseModel):
     """Schema for balance response"""
+
     available_balance: Decimal
     reserved_balance: Decimal
     total_balance: Decimal
@@ -87,6 +103,7 @@ class BalanceResponse(BaseModel):
 
 class TransactionResponse(TimestampMixin):
     """Schema for transaction response"""
+
     id: int
     transaction_id: str
     billing_account_id: int
@@ -103,6 +120,7 @@ class TransactionResponse(TimestampMixin):
 # Invoice Schemas
 class InvoiceItemCreate(BaseModel):
     """Schema for creating invoice item"""
+
     description: str = Field(..., max_length=500)
     quantity: Decimal = Field(..., gt=0)
     unit_price: Decimal = Field(..., ge=0)
@@ -118,6 +136,7 @@ class InvoiceItemCreate(BaseModel):
 
 class InvoiceItemResponse(InvoiceItemCreate, TimestampMixin):
     """Schema for invoice item response"""
+
     id: int
     invoice_id: int
     proration_factor: Optional[Decimal] = None
@@ -125,6 +144,7 @@ class InvoiceItemResponse(InvoiceItemCreate, TimestampMixin):
 
 class InvoiceBase(BaseModel):
     """Base invoice schema"""
+
     description: Optional[str] = Field(None, max_length=1000)
     due_date: datetime
     currency: Optional[str] = Field("USD", max_length=3)
@@ -135,12 +155,14 @@ class InvoiceBase(BaseModel):
 
 class InvoiceCreate(InvoiceBase):
     """Schema for creating invoice"""
+
     billing_account_id: int = Field(..., gt=0)
     invoice_items: List[InvoiceItemCreate] = Field(..., min_items=1)
 
 
 class InvoiceUpdate(BaseModel):
     """Schema for updating invoice"""
+
     description: Optional[str] = Field(None, max_length=1000)
     due_date: Optional[datetime] = None
     payment_terms: Optional[str] = None
@@ -150,6 +172,7 @@ class InvoiceUpdate(BaseModel):
 
 class InvoiceResponse(InvoiceBase, TimestampMixin):
     """Schema for invoice response"""
+
     id: int
     invoice_number: str
     billing_account_id: int
@@ -167,6 +190,7 @@ class InvoiceResponse(InvoiceBase, TimestampMixin):
 # Payment Schemas
 class PaymentMethodCreate(BaseModel):
     """Schema for creating payment method"""
+
     billing_account_id: int = Field(..., gt=0)
     method_type: PaymentMethodType
     method_name: Optional[str] = Field(None, max_length=255)
@@ -181,12 +205,14 @@ class PaymentMethodCreate(BaseModel):
 
 class PaymentMethodResponse(PaymentMethodCreate, TimestampMixin):
     """Schema for payment method response"""
+
     id: int
     is_active: bool
 
 
 class PaymentCreate(BaseModel):
     """Schema for creating payment"""
+
     billing_account_id: int = Field(..., gt=0)
     amount: Decimal = Field(..., gt=0)
     payment_method_id: int = Field(..., gt=0)
@@ -200,6 +226,7 @@ class PaymentCreate(BaseModel):
 
 class PaymentResponse(PaymentCreate, TimestampMixin):
     """Schema for payment response"""
+
     id: int
     payment_reference: str
     payment_status: PaymentStatus
@@ -211,6 +238,7 @@ class PaymentResponse(PaymentCreate, TimestampMixin):
 # Credit Note Schemas
 class CreditNoteCreate(BaseModel):
     """Schema for creating credit note"""
+
     billing_account_id: int = Field(..., gt=0)
     original_invoice_id: Optional[int] = None
     credit_amount: Decimal = Field(..., gt=0)
@@ -223,6 +251,7 @@ class CreditNoteCreate(BaseModel):
 
 class CreditNoteResponse(CreditNoteCreate, TimestampMixin):
     """Schema for credit note response"""
+
     id: int
     credit_number: str
     is_applied: bool
@@ -232,6 +261,7 @@ class CreditNoteResponse(CreditNoteCreate, TimestampMixin):
 # Payment Plan Schemas
 class PaymentPlanCreate(BaseModel):
     """Schema for creating payment plan"""
+
     billing_account_id: int = Field(..., gt=0)
     original_amount: Decimal = Field(..., gt=0)
     plan_name: str = Field(..., max_length=255)
@@ -246,6 +276,7 @@ class PaymentPlanCreate(BaseModel):
 
 class PaymentPlanResponse(PaymentPlanCreate, TimestampMixin):
     """Schema for payment plan response"""
+
     id: int
     is_active: bool
     remaining_balance: Decimal
@@ -256,6 +287,7 @@ class PaymentPlanResponse(PaymentPlanCreate, TimestampMixin):
 # Dunning Schemas
 class DunningCaseCreate(BaseModel):
     """Schema for creating dunning case"""
+
     billing_account_id: int = Field(..., gt=0)
     overdue_amount: Decimal = Field(..., gt=0)
     days_overdue: int = Field(..., ge=0)
@@ -267,6 +299,7 @@ class DunningCaseCreate(BaseModel):
 
 class DunningCaseResponse(DunningCaseCreate, TimestampMixin):
     """Schema for dunning case response"""
+
     id: int
     case_number: str
     dunning_status: DunningStatus
@@ -278,6 +311,7 @@ class DunningCaseResponse(DunningCaseCreate, TimestampMixin):
 # Billing Cycle Schemas
 class BillingCycleCreate(BaseModel):
     """Schema for creating billing cycle"""
+
     billing_account_id: int = Field(..., gt=0)
     cycle_name: str = Field(..., max_length=255)
     cycle_type: BillingCycleType
@@ -291,6 +325,7 @@ class BillingCycleCreate(BaseModel):
 
 class BillingCycleResponse(BillingCycleCreate, TimestampMixin):
     """Schema for billing cycle response"""
+
     id: int
     is_processed: bool
     processed_date: Optional[datetime] = None
@@ -301,6 +336,7 @@ class BillingCycleResponse(BillingCycleCreate, TimestampMixin):
 # Report and Analytics Schemas
 class AccountSummaryResponse(BaseModel):
     """Schema for account summary response"""
+
     account_info: Dict[str, Any]
     transaction_summary: Dict[str, Any]
     invoice_summary: Dict[str, Any]
@@ -309,6 +345,7 @@ class AccountSummaryResponse(BaseModel):
 
 class BillingReportResponse(BaseModel):
     """Schema for billing report response"""
+
     report_date: datetime
     total_accounts: int
     active_accounts: int
@@ -323,6 +360,7 @@ class BillingReportResponse(BaseModel):
 # Search and Filter Schemas
 class BillingAccountSearchRequest(BaseModel):
     """Schema for billing account search request"""
+
     search_term: Optional[str] = None
     billing_type: Optional[BillingType] = None
     account_status: Optional[AccountStatus] = None
@@ -334,6 +372,7 @@ class BillingAccountSearchRequest(BaseModel):
 
 class InvoiceSearchRequest(BaseModel):
     """Schema for invoice search request"""
+
     search_term: Optional[str] = None
     account_id: Optional[int] = None
     status: Optional[InvoiceStatus] = None
@@ -347,6 +386,7 @@ class InvoiceSearchRequest(BaseModel):
 
 class PaymentSearchRequest(BaseModel):
     """Schema for payment search request"""
+
     search_term: Optional[str] = None
     account_id: Optional[int] = None
     status: Optional[PaymentStatus] = None
@@ -361,6 +401,7 @@ class PaymentSearchRequest(BaseModel):
 # Pagination Schemas
 class PaginatedResponse(BaseModel):
     """Generic paginated response schema"""
+
     items: List[Any]
     total: int
     limit: int
@@ -368,42 +409,47 @@ class PaginatedResponse(BaseModel):
     has_next: bool
     has_previous: bool
 
-    @field_validator('has_next', always=True)
+    @field_validator("has_next", always=True)
     def validate_has_next(cls, v, values):
-        total = values.get('total', 0)
-        limit = values.get('limit', 0)
-        offset = values.get('offset', 0)
+        total = values.get("total", 0)
+        limit = values.get("limit", 0)
+        offset = values.get("offset", 0)
         return (offset + limit) < total
 
-    @field_validator('has_previous', always=True)
+    @field_validator("has_previous", always=True)
     def validate_has_previous(cls, v, values):
-        offset = values.get('offset', 0)
+        offset = values.get("offset", 0)
         return offset > 0
 
 
 class PaginatedBillingAccountResponse(PaginatedResponse):
     """Paginated billing account response"""
+
     items: List[BillingAccountResponse]
 
 
 class PaginatedInvoiceResponse(PaginatedResponse):
     """Paginated invoice response"""
+
     items: List[InvoiceResponse]
 
 
 class PaginatedPaymentResponse(PaginatedResponse):
     """Paginated payment response"""
+
     items: List[PaymentResponse]
 
 
 class PaginatedTransactionResponse(PaginatedResponse):
     """Paginated transaction response"""
+
     items: List[TransactionResponse]
 
 
 # Validation Schemas
 class BillingValidationResponse(BaseModel):
     """Schema for billing validation response"""
+
     is_valid: bool
     validation_errors: List[str] = []
     warnings: List[str] = []
@@ -411,6 +457,7 @@ class BillingValidationResponse(BaseModel):
 
 class BalanceValidationRequest(BaseModel):
     """Schema for balance validation request"""
+
     account_id: int = Field(..., gt=0)
     requested_amount: Decimal = Field(..., gt=0)
     transaction_type: TransactionType
@@ -418,6 +465,7 @@ class BalanceValidationRequest(BaseModel):
 
 class BalanceValidationResponse(BillingValidationResponse):
     """Schema for balance validation response"""
+
     available_balance: Optional[Decimal] = None
     credit_limit: Optional[Decimal] = None
     can_process: bool
@@ -426,6 +474,7 @@ class BalanceValidationResponse(BillingValidationResponse):
 # Bulk Operation Schemas
 class BulkInvoiceCreate(BaseModel):
     """Schema for bulk invoice creation"""
+
     billing_account_ids: List[int] = Field(..., min_items=1)
     invoice_template: InvoiceBase
     invoice_items_template: List[InvoiceItemCreate]
@@ -433,11 +482,13 @@ class BulkInvoiceCreate(BaseModel):
 
 class BulkPaymentProcess(BaseModel):
     """Schema for bulk payment processing"""
+
     payment_requests: List[PaymentCreate] = Field(..., min_items=1)
 
 
 class BulkOperationResponse(BaseModel):
     """Schema for bulk operation response"""
+
     total_requested: int
     successful: int
     failed: int
@@ -448,6 +499,7 @@ class BulkOperationResponse(BaseModel):
 # Configuration Schemas
 class BillingConfigurationResponse(BaseModel):
     """Schema for billing configuration response"""
+
     supported_currencies: List[str]
     default_currency: str
     supported_payment_methods: List[PaymentMethodType]

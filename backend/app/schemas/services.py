@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 """
 Service Management Schemas
 
@@ -8,8 +9,9 @@ Internet services, Voice services, Bundle services, and Recurring services.
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional, List
-from pydantic import  Field
+from typing import List, Optional
+
+from pydantic import Field
 
 
 # Internet Service Schemas
@@ -18,7 +20,9 @@ class InternetServiceBase(BaseModel):
     description: Optional[str] = None
     download_speed: int = Field(..., gt=0, description="Download speed in Mbps")
     upload_speed: int = Field(..., gt=0, description="Upload speed in Mbps")
-    data_limit: Optional[int] = Field(None, gt=0, description="Data limit in GB, null for unlimited")
+    data_limit: Optional[int] = Field(
+        None, gt=0, description="Data limit in GB, null for unlimited"
+    )
     monthly_price: Decimal = Field(..., gt=0)
     setup_fee: Decimal = Field(0, ge=0)
     cancellation_fee: Decimal = Field(0, ge=0)
@@ -227,7 +231,9 @@ class ServiceTariffCreate(ServiceTariffBase):
 class ServiceTariffUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
-    tariff_type: Optional[str] = Field(None, pattern="^(internet|voice|bundle|recurring)$")
+    tariff_type: Optional[str] = Field(
+        None, pattern="^(internet|voice|bundle|recurring)$"
+    )
     service_id: Optional[int] = Field(None, gt=0)
     base_price: Optional[Decimal] = Field(None, gt=0)
     currency: Optional[str] = Field(None, min_length=3, max_length=3)
@@ -252,6 +258,7 @@ class ServiceTariff(ServiceTariffBase):
 # Service Management Overview Schemas
 class ServiceOverview(BaseModel):
     """Overview of all service types and counts"""
+
     internet_services: int
     voice_services: int
     bundle_services: int
@@ -263,7 +270,10 @@ class ServiceOverview(BaseModel):
 
 class ServiceSearchFilters(BaseModel):
     """Filters for service search and listing"""
-    service_type: Optional[str] = Field(None, pattern="^(internet|voice|bundle|recurring)$")
+
+    service_type: Optional[str] = Field(
+        None, pattern="^(internet|voice|bundle|recurring)$"
+    )
     is_active: Optional[bool] = None
     is_public: Optional[bool] = None
     min_price: Optional[Decimal] = Field(None, ge=0)
@@ -273,6 +283,7 @@ class ServiceSearchFilters(BaseModel):
 
 class ServiceListResponse(BaseModel):
     """Response for service listing with pagination"""
+
     services: List[dict]  # Mixed service types
     total: int
     page: int

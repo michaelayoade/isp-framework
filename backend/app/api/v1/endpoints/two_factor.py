@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
-from app.core.database import get_db
-from app.services.two_factor import TwoFactorService, ApiKeyService
+
 from app.api.dependencies import get_current_admin
+from app.core.database import get_db
 from app.models import Administrator
 from app.schemas.two_factor import (
-    TwoFactorSetupResponse,
-    TwoFactorVerifyRequest,
-    TwoFactorStatusResponse,
     ApiKeyCreateRequest,
+    ApiKeyListResponse,
     ApiKeyResponse,
-    ApiKeyListResponse
+    TwoFactorSetupResponse,
+    TwoFactorStatusResponse,
+    TwoFactorVerifyRequest,
 )
-import logging
+from app.services.two_factor import ApiKeyService, TwoFactorService
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,7 @@ router = APIRouter()
 @router.post("/setup", response_model=TwoFactorSetupResponse)
 async def setup_2fa(
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Set up TOTP 2FA for the current administrator
@@ -31,25 +33,22 @@ async def setup_2fa(
     try:
         tfa_service = TwoFactorService(db)
         setup_data = tfa_service.setup_totp(current_admin.id)
-        
+
         return TwoFactorSetupResponse(
             secret_key=setup_data["secret_key"],
             qr_code=setup_data["qr_code"],
             manual_entry_key=setup_data["manual_entry_key"],
             issuer=setup_data["issuer"],
-            account_name=setup_data["account_name"]
+            account_name=setup_data["account_name"],
         )
-    
+
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"2FA setup error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to set up 2FA"
+            detail="Failed to set up 2FA",
         )
 
 
@@ -57,7 +56,7 @@ async def setup_2fa(
 async def verify_2fa_setup(
     request: TwoFactorVerifyRequest,
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Verify 2FA setup and enable 2FA
@@ -66,23 +65,20 @@ async def verify_2fa_setup(
     try:
         tfa_service = TwoFactorService(db)
         result = tfa_service.verify_totp_setup(current_admin.id, request.code)
-        
+
         return {
             "enabled": result["enabled"],
             "backup_codes": result["backup_codes"],
-            "message": result["message"]
+            "message": result["message"],
         }
-    
+
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"2FA verification error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to verify 2FA setup"
+            detail="Failed to verify 2FA setup",
         )
 
 
@@ -91,7 +87,7 @@ async def verify_2fa_code(
     request: TwoFactorVerifyRequest,
     req: Request,
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Verify 2FA code for authentication
@@ -99,28 +95,25 @@ async def verify_2fa_code(
     try:
         tfa_service = TwoFactorService(db)
         client_ip = req.client.host
-        
+
         is_valid = tfa_service.verify_totp_code(
-            current_admin.id, 
-            request.code, 
-            client_ip
+            current_admin.id, request.code, client_ip
         )
-        
+
         if not is_valid:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid 2FA code"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid 2FA code"
             )
-        
+
         return {"verified": True, "message": "2FA code verified successfully"}
-    
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"2FA code verification error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to verify 2FA code"
+            detail="Failed to verify 2FA code",
         )
 
 
@@ -128,7 +121,7 @@ async def verify_2fa_code(
 async def disable_2fa(
     request: TwoFactorVerifyRequest,
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Disable 2FA for the current administrator
@@ -137,29 +130,29 @@ async def disable_2fa(
     try:
         tfa_service = TwoFactorService(db)
         success = tfa_service.disable_2fa(current_admin.id, request.code)
-        
+
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid 2FA code or 2FA not enabled"
+                detail="Invalid 2FA code or 2FA not enabled",
             )
-        
+
         return {"disabled": True, "message": "2FA has been disabled successfully"}
-    
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"2FA disable error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to disable 2FA"
+            detail="Failed to disable 2FA",
         )
 
 
 @router.get("/status", response_model=TwoFactorStatusResponse)
 async def get_2fa_status(
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Get 2FA status for the current administrator
@@ -167,14 +160,14 @@ async def get_2fa_status(
     try:
         tfa_service = TwoFactorService(db)
         status_data = tfa_service.get_2fa_status(current_admin.id)
-        
+
         return TwoFactorStatusResponse(**status_data)
-    
+
     except Exception as e:
         logger.error(f"2FA status error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get 2FA status"
+            detail="Failed to get 2FA status",
         )
 
 
@@ -183,7 +176,7 @@ async def get_2fa_status(
 async def create_api_key(
     request: ApiKeyCreateRequest,
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Create a new API key for the current administrator
@@ -195,28 +188,25 @@ async def create_api_key(
             key_name=request.key_name,
             scopes=",".join(request.scopes) if request.scopes else "api",
             permissions=request.permissions,
-            expires_in_days=request.expires_in_days
+            expires_in_days=request.expires_in_days,
         )
-        
+
         return ApiKeyResponse(**api_key_data)
-    
+
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"API key creation error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create API key"
+            detail="Failed to create API key",
         )
 
 
 @router.get("/api-keys", response_model=ApiKeyListResponse)
 async def list_api_keys(
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     List API keys for the current administrator
@@ -224,14 +214,14 @@ async def list_api_keys(
     try:
         api_key_service = ApiKeyService(db)
         api_keys = api_key_service.list_api_keys(current_admin.id)
-        
+
         return ApiKeyListResponse(api_keys=api_keys)
-    
+
     except Exception as e:
         logger.error(f"API key listing error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to list API keys"
+            detail="Failed to list API keys",
         )
 
 
@@ -239,7 +229,7 @@ async def list_api_keys(
 async def revoke_api_key(
     key_id: int,
     current_admin: Administrator = Depends(get_current_admin),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Revoke an API key
@@ -247,22 +237,22 @@ async def revoke_api_key(
     try:
         api_key_service = ApiKeyService(db)
         success = api_key_service.revoke_api_key(key_id, current_admin.id)
-        
+
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="API key not found or access denied"
+                detail="API key not found or access denied",
             )
-        
+
         return {"revoked": True, "message": "API key has been revoked successfully"}
-    
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"API key revocation error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to revoke API key"
+            detail="Failed to revoke API key",
         )
 
 
@@ -272,6 +262,7 @@ async def revoke_api_key(
 
 from fastapi.responses import RedirectResponse
 
+
 # Redirect old /auth/2fa/* paths to new /auth/two-factor/* paths
 @router.get("/{path:path}")
 async def redirect_old_2fa_get(path: str):
@@ -279,11 +270,13 @@ async def redirect_old_2fa_get(path: str):
     new_path = f"/api/v1/auth/two-factor/{path}"
     return RedirectResponse(url=new_path, status_code=307)
 
+
 @router.post("/{path:path}")
 async def redirect_old_2fa_post(path: str):
     """Temporary redirect for old /auth/2fa/* paths"""
     new_path = f"/api/v1/auth/two-factor/{path}"
     return RedirectResponse(url=new_path, status_code=307)
+
 
 @router.delete("/{path:path}")
 async def redirect_old_2fa_delete(path: str):

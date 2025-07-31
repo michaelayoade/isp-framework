@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+// Button import removed - not used in this component
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CustomerUI } from '@/mappers/customers/customerMapper';
@@ -45,7 +45,7 @@ export function CustomerDeleteModal({
         description: `${customer.name} has been successfully deleted.`,
       });
       onOpenChange(false);
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to delete customer. Please try again.',

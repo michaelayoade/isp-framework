@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, EmailStr
+
 
 # Customer schemas
 class CustomerBase(BaseModel):
@@ -15,8 +17,10 @@ class CustomerBase(BaseModel):
     zip_code: Optional[str] = None
     country: Optional[str] = "Nigeria"
 
+
 class CustomerCreate(CustomerBase):
     pass
+
 
 class CustomerUpdate(BaseModel):
     name: Optional[str] = None
@@ -27,14 +31,16 @@ class CustomerUpdate(BaseModel):
     city: Optional[str] = None
     state: Optional[str] = None
 
+
 class Customer(CustomerBase):
     id: int
     status: str
     created_at: datetime
     updated_at: Optional[datetime]
-    
+
     class Config:
         from_attributes = True
+
 
 # Response schemas
 class CustomerList(BaseModel):
@@ -43,13 +49,16 @@ class CustomerList(BaseModel):
     page: int
     per_page: int
 
-# Token schemas  
+
+# Token schemas
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
     username: Optional[str] = None
+
 
 # Service Plan schemas
 class ServicePlanBase(BaseModel):
@@ -63,16 +72,19 @@ class ServicePlanBase(BaseModel):
     upload_speed: Optional[int] = None
     data_limit: Optional[int] = None
 
+
 class ServicePlanCreate(ServicePlanBase):
     pass
+
 
 class ServicePlan(ServicePlanBase):
     id: int
     is_active: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
+
 
 # Customer Service schemas
 class CustomerServiceCreate(BaseModel):
@@ -80,6 +92,7 @@ class CustomerServiceCreate(BaseModel):
     service_plan_id: int
     custom_price: Optional[int] = None
     discount_percentage: Optional[int] = 0
+
 
 class CustomerService(BaseModel):
     id: int
@@ -89,6 +102,6 @@ class CustomerService(BaseModel):
     start_date: datetime
     custom_price: Optional[int]
     discount_percentage: int
-    
+
     class Config:
         from_attributes = True

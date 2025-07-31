@@ -5,15 +5,17 @@ Comprehensive Pydantic schemas for billing module including invoices, payments,
 credit notes, and accounting for ISP Framework.
 """
 
-from pydantic import BaseModel, Field, field_validator, ValidationInfo
-from typing import Optional, List
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 
 class InvoiceStatus(str, Enum):
     """Invoice status enumeration"""
+
     DRAFT = "draft"
     PENDING = "pending"
     SENT = "sent"
@@ -25,6 +27,7 @@ class InvoiceStatus(str, Enum):
 
 class PaymentStatus(str, Enum):
     """Payment status enumeration"""
+
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -34,6 +37,7 @@ class PaymentStatus(str, Enum):
 
 class PaymentMethod(str, Enum):
     """Payment method enumeration"""
+
     CASH = "cash"
     BANK_TRANSFER = "bank_transfer"
     CREDIT_CARD = "credit_card"
@@ -46,6 +50,7 @@ class PaymentMethod(str, Enum):
 
 class CreditNoteReason(str, Enum):
     """Credit note reason enumeration"""
+
     REFUND = "refund"
     DISCOUNT = "discount"
     ERROR_CORRECTION = "error_correction"
@@ -57,6 +62,7 @@ class CreditNoteReason(str, Enum):
 # Invoice Schemas
 class InvoiceItemBase(BaseModel):
     """Base schema for invoice items"""
+
     description: str = Field(..., min_length=1, max_length=500)
     item_type: Optional[str] = Field(None, max_length=50)
     service_id: Optional[int] = Field(None, gt=0)
@@ -74,11 +80,13 @@ class InvoiceItemBase(BaseModel):
 
 class InvoiceItemCreate(InvoiceItemBase):
     """Schema for creating invoice items"""
+
     pass
 
 
 class InvoiceItemUpdate(BaseModel):
     """Schema for updating invoice items"""
+
     description: Optional[str] = Field(None, min_length=1, max_length=500)
     item_type: Optional[str] = Field(None, max_length=50)
     service_id: Optional[int] = Field(None, gt=0)
@@ -96,6 +104,7 @@ class InvoiceItemUpdate(BaseModel):
 
 class InvoiceItemResponse(InvoiceItemBase):
     """Schema for invoice item responses"""
+
     id: int
     invoice_id: int
     line_total: Decimal
@@ -106,6 +115,7 @@ class InvoiceItemResponse(InvoiceItemBase):
 
 class InvoiceBase(BaseModel):
     """Base schema for invoices"""
+
     customer_id: int = Field(..., gt=0)
     invoice_date: datetime
     due_date: datetime
@@ -121,21 +131,27 @@ class InvoiceBase(BaseModel):
     parent_invoice_id: Optional[int] = Field(None, gt=0)
     additional_data: Optional[dict] = None
 
-    @field_validator('due_date')
+    @field_validator("due_date")
     @classmethod
     def due_date_must_be_after_invoice_date(cls, v, info):
-        if hasattr(info, 'data') and 'invoice_date' in info.data and v <= info.data['invoice_date']:
-            raise ValueError('Due date must be after invoice date')
+        if (
+            hasattr(info, "data")
+            and "invoice_date" in info.data
+            and v <= info.data["invoice_date"]
+        ):
+            raise ValueError("Due date must be after invoice date")
         return v
 
 
 class InvoiceCreate(InvoiceBase):
     """Schema for creating invoices"""
+
     items: List[InvoiceItemCreate] = Field(default_factory=list)
 
 
 class InvoiceUpdate(BaseModel):
     """Schema for updating invoices"""
+
     customer_id: Optional[int] = Field(None, gt=0)
     invoice_date: Optional[datetime] = None
     due_date: Optional[datetime] = None
@@ -155,6 +171,7 @@ class InvoiceUpdate(BaseModel):
 
 class InvoiceResponse(InvoiceBase):
     """Schema for invoice responses"""
+
     id: int
     invoice_number: str
     subtotal: Decimal
@@ -176,6 +193,7 @@ class InvoiceResponse(InvoiceBase):
 
 class InvoiceSearch(BaseModel):
     """Schema for invoice search parameters"""
+
     customer_id: Optional[int] = Field(None, gt=0)
     status: Optional[InvoiceStatus] = None
     invoice_number: Optional[str] = Field(None, max_length=50)
@@ -192,6 +210,7 @@ class InvoiceSearch(BaseModel):
 # Payment Schemas
 class PaymentBase(BaseModel):
     """Base schema for payments"""
+
     invoice_id: int = Field(..., gt=0)
     customer_id: int = Field(..., gt=0)
     payment_date: datetime
@@ -207,11 +226,13 @@ class PaymentBase(BaseModel):
 
 class PaymentCreate(PaymentBase):
     """Schema for creating payments"""
+
     pass
 
 
 class PaymentUpdate(BaseModel):
     """Schema for updating payments"""
+
     payment_date: Optional[datetime] = None
     amount: Optional[Decimal] = Field(None, gt=0)
     currency: Optional[str] = Field(None, min_length=3, max_length=3)
@@ -226,6 +247,7 @@ class PaymentUpdate(BaseModel):
 
 class PaymentResponse(PaymentBase):
     """Schema for payment responses"""
+
     id: int
     payment_number: str
     status: PaymentStatus
@@ -238,6 +260,7 @@ class PaymentResponse(PaymentBase):
 
 class PaymentSearch(BaseModel):
     """Schema for payment search parameters"""
+
     customer_id: Optional[int] = Field(None, gt=0)
     invoice_id: Optional[int] = Field(None, gt=0)
     status: Optional[PaymentStatus] = None
@@ -252,6 +275,7 @@ class PaymentSearch(BaseModel):
 # Payment Refund Schemas
 class PaymentRefundBase(BaseModel):
     """Base schema for payment refunds"""
+
     payment_id: int = Field(..., gt=0)
     amount: Decimal = Field(..., gt=0)
     reason: Optional[str] = Field(None, max_length=200)
@@ -260,11 +284,13 @@ class PaymentRefundBase(BaseModel):
 
 class PaymentRefundCreate(PaymentRefundBase):
     """Schema for creating payment refunds"""
+
     refund_date: datetime
 
 
 class PaymentRefundUpdate(BaseModel):
     """Schema for updating payment refunds"""
+
     amount: Optional[Decimal] = Field(None, gt=0)
     reason: Optional[str] = Field(None, max_length=200)
     status: Optional[PaymentStatus] = None
@@ -273,6 +299,7 @@ class PaymentRefundUpdate(BaseModel):
 
 class PaymentRefundResponse(PaymentRefundBase):
     """Schema for payment refund responses"""
+
     id: int
     refund_number: str
     refund_date: datetime
@@ -285,6 +312,7 @@ class PaymentRefundResponse(PaymentRefundBase):
 # Credit Note Schemas
 class CreditNoteBase(BaseModel):
     """Base schema for credit notes"""
+
     invoice_id: int = Field(..., gt=0)
     customer_id: int = Field(..., gt=0)
     credit_date: datetime
@@ -298,11 +326,13 @@ class CreditNoteBase(BaseModel):
 
 class CreditNoteCreate(CreditNoteBase):
     """Schema for creating credit notes"""
+
     pass
 
 
 class CreditNoteUpdate(BaseModel):
     """Schema for updating credit notes"""
+
     credit_date: Optional[datetime] = None
     amount: Optional[Decimal] = Field(None, gt=0)
     currency: Optional[str] = Field(None, min_length=3, max_length=3)
@@ -315,6 +345,7 @@ class CreditNoteUpdate(BaseModel):
 
 class CreditNoteResponse(CreditNoteBase):
     """Schema for credit note responses"""
+
     id: int
     credit_note_number: str
     status: str
@@ -327,6 +358,7 @@ class CreditNoteResponse(CreditNoteBase):
 
 class CreditNoteSearch(BaseModel):
     """Schema for credit note search parameters"""
+
     customer_id: Optional[int] = Field(None, gt=0)
     invoice_id: Optional[int] = Field(None, gt=0)
     reason: Optional[CreditNoteReason] = None
@@ -340,6 +372,7 @@ class CreditNoteSearch(BaseModel):
 # Billing Cycle Schemas
 class BillingCycleBase(BaseModel):
     """Base schema for billing cycles"""
+
     cycle_name: str = Field(..., min_length=1, max_length=100)
     cycle_type: str = Field(..., pattern="^(monthly|quarterly|yearly)$")
     cycle_day: int = Field(..., ge=1, le=31)
@@ -348,20 +381,22 @@ class BillingCycleBase(BaseModel):
     due_date: datetime
     additional_data: Optional[dict] = None
 
-    @field_validator('end_date')
+    @field_validator("end_date")
     def end_date_must_be_after_start_date(cls, v, info: ValidationInfo):
-        if info.data and 'start_date' in info.data and v <= info.data.get('start_date'):
-            raise ValueError('End date must be after start date')
+        if info.data and "start_date" in info.data and v <= info.data.get("start_date"):
+            raise ValueError("End date must be after start date")
         return v
 
 
 class BillingCycleCreate(BillingCycleBase):
     """Schema for creating billing cycles"""
+
     pass
 
 
 class BillingCycleUpdate(BaseModel):
     """Schema for updating billing cycles"""
+
     cycle_name: Optional[str] = Field(None, min_length=1, max_length=100)
     cycle_type: Optional[str] = Field(None, pattern="^(monthly|quarterly|yearly)$")
     cycle_day: Optional[int] = Field(None, ge=1, le=31)
@@ -374,6 +409,7 @@ class BillingCycleUpdate(BaseModel):
 
 class BillingCycleResponse(BillingCycleBase):
     """Schema for billing cycle responses"""
+
     id: int
     status: str
     invoices_generated: bool
@@ -388,6 +424,7 @@ class BillingCycleResponse(BillingCycleBase):
 # Accounting Schemas
 class AccountingEntryBase(BaseModel):
     """Base schema for accounting entries"""
+
     entry_date: datetime
     description: str = Field(..., min_length=1, max_length=500)
     account_code: str = Field(..., min_length=1, max_length=20)
@@ -402,20 +439,29 @@ class AccountingEntryBase(BaseModel):
     notes: Optional[str] = None
     additional_data: Optional[dict] = None
 
-    @field_validator('credit_amount')
+    @field_validator("credit_amount")
     def debit_or_credit_must_be_positive(cls, v, info: ValidationInfo):
-        if info.data and 'debit_amount' in info.data and info.data.get('debit_amount') == 0 and v == 0:
-            raise ValueError('Either debit_amount or credit_amount must be greater than 0')
+        if (
+            info.data
+            and "debit_amount" in info.data
+            and info.data.get("debit_amount") == 0
+            and v == 0
+        ):
+            raise ValueError(
+                "Either debit_amount or credit_amount must be greater than 0"
+            )
         return v
 
 
 class AccountingEntryCreate(AccountingEntryBase):
     """Schema for creating accounting entries"""
+
     pass
 
 
 class AccountingEntryUpdate(BaseModel):
     """Schema for updating accounting entries"""
+
     entry_date: Optional[datetime] = None
     description: Optional[str] = Field(None, min_length=1, max_length=500)
     account_code: Optional[str] = Field(None, min_length=1, max_length=20)
@@ -430,6 +476,7 @@ class AccountingEntryUpdate(BaseModel):
 
 class AccountingEntryResponse(AccountingEntryBase):
     """Schema for accounting entry responses"""
+
     id: int
     entry_number: str
     created_at: datetime
@@ -439,6 +486,7 @@ class AccountingEntryResponse(AccountingEntryBase):
 # Tax Rate Schemas
 class TaxRateBase(BaseModel):
     """Base schema for tax rates"""
+
     name: str = Field(..., min_length=1, max_length=100)
     rate: Decimal = Field(..., ge=0, le=100)
     country: Optional[str] = Field(None, min_length=2, max_length=2)
@@ -450,20 +498,27 @@ class TaxRateBase(BaseModel):
     tax_type: Optional[str] = Field(None, max_length=50)
     description: Optional[str] = None
 
-    @field_validator('expiry_date')
+    @field_validator("expiry_date")
     def expiry_date_must_be_after_effective_date(cls, v, info: ValidationInfo):
-        if v and info.data and 'effective_date' in info.data and v <= info.data.get('effective_date'):
-            raise ValueError('Expiry date must be after effective date')
+        if (
+            v
+            and info.data
+            and "effective_date" in info.data
+            and v <= info.data.get("effective_date")
+        ):
+            raise ValueError("Expiry date must be after effective date")
         return v
 
 
 class TaxRateCreate(TaxRateBase):
     """Schema for creating tax rates"""
+
     pass
 
 
 class TaxRateUpdate(BaseModel):
     """Schema for updating tax rates"""
+
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     rate: Optional[Decimal] = Field(None, ge=0, le=100)
     country: Optional[str] = Field(None, min_length=2, max_length=2)
@@ -480,6 +535,7 @@ class TaxRateUpdate(BaseModel):
 
 class TaxRateResponse(TaxRateBase):
     """Schema for tax rate responses"""
+
     id: int
     is_active: bool
     is_default: bool
@@ -490,6 +546,7 @@ class TaxRateResponse(TaxRateBase):
 # Summary and Statistics Schemas
 class BillingOverview(BaseModel):
     """Schema for billing overview statistics"""
+
     total_invoices: int
     total_amount: Decimal
     paid_amount: Decimal
@@ -507,6 +564,7 @@ class BillingOverview(BaseModel):
 
 class CustomerBillingSummary(BaseModel):
     """Schema for customer billing summary"""
+
     customer_id: int
     total_invoices: int
     total_amount: Decimal

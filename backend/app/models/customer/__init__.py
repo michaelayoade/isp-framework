@@ -10,15 +10,15 @@ This module contains all customer-related models including:
 
 from .base import (
     Customer,
-    CustomerExtended,
-    CustomerLabel,
-    CustomerLabelAssociation,
-    CustomerInfo,
     CustomerBilling,
+    CustomerBonusTrafficCounter,
     CustomerContact,
     CustomerDocument,
+    CustomerExtended,
+    CustomerInfo,
+    CustomerLabel,
+    CustomerLabelAssociation,
     CustomerNote,
-    CustomerBonusTrafficCounter
 )
 from .portal import PortalConfig, PortalIDHistory
 
@@ -34,7 +34,6 @@ __all__ = [
     "CustomerDocument",
     "CustomerNote",
     "CustomerBonusTrafficCounter",
-    
     # Portal Management
     "PortalConfig",
     "PortalIDHistory",

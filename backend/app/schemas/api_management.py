@@ -9,10 +9,11 @@ Pydantic schemas for API management including:
 - Quota management
 """
 
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class APIKeyStatus(str, Enum):
@@ -61,12 +62,20 @@ class APIKeyCreate(APIKeyBase):
     partner_id: Optional[int] = None
     customer_id: Optional[int] = None
     admin_id: Optional[int] = None
-    
-    @field_validator('partner_id', 'customer_id', 'admin_id')
+
+    @field_validator("partner_id", "customer_id", "admin_id")
     def validate_owner(cls, v, values):
         # Ensure at least one owner is specified
-        if not any([values.get('partner_id'), values.get('customer_id'), values.get('admin_id')]):
-            raise ValueError('At least one owner (partner_id, customer_id, or admin_id) must be specified')
+        if not any(
+            [
+                values.get("partner_id"),
+                values.get("customer_id"),
+                values.get("admin_id"),
+            ]
+        ):
+            raise ValueError(
+                "At least one owner (partner_id, customer_id, or admin_id) must be specified"
+            )
         return v
 
 
@@ -98,7 +107,7 @@ class APIKeyResponse(APIKeyBase):
     usage_count: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -111,7 +120,7 @@ class APIKeyMinimal(BaseModel):
     last_used: Optional[datetime] = None
     usage_count: int
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -139,7 +148,7 @@ class APIUsageResponse(APIUsageBase):
     id: int
     api_key_id: int
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -179,7 +188,7 @@ class APIVersionResponse(APIVersionBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -225,7 +234,7 @@ class APIEndpointResponse(APIEndpointBase):
     api_version_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -256,7 +265,7 @@ class APIQuotaResponse(APIQuotaBase):
     is_exceeded: bool = False
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -277,7 +286,7 @@ class APIRateLimitResponse(APIRateLimitBase):
     api_key_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -290,16 +299,16 @@ class APIUsageAnalytics(BaseModel):
     average_response_time: float
     unique_endpoints: int
     unique_users: int
-    
+
     # Time-based breakdown
     requests_by_hour: Dict[str, int]
     requests_by_day: Dict[str, int]
     requests_by_endpoint: Dict[str, int]
-    
+
     # Error analysis
     error_breakdown: Dict[str, int]
     status_code_distribution: Dict[int, int]
-    
+
     # Performance metrics
     response_time_percentiles: Dict[str, float]
 
@@ -313,7 +322,7 @@ class APIKeyUsageReport(BaseModel):
     average_response_time: float
     quota_usage: Dict[str, float]
     last_used: Optional[datetime]
-    
+
     class Config:
         from_attributes = True
 
@@ -432,6 +441,7 @@ class QuotaStatus(BaseModel):
 
 class APIQuotaStatus(BaseModel):
     """API quota status with daily and monthly usage tracking"""
+
     key_id: int
     daily_used: int
     daily_limit: int

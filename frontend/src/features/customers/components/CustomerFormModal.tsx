@@ -147,7 +147,7 @@ export function CustomerFormModal({
           : 'New customer has been successfully created.',
       });
       onOpenChange(false);
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: customer 

@@ -9,18 +9,16 @@ This module contains all authentication-related models including:
 """
 
 from .base import Administrator
-from .oauth import OAuthClient, OAuthAuthorizationCode, OAuthToken
-from .two_factor import TwoFactorAuth, ApiKey
+from .oauth import OAuthAuthorizationCode, OAuthClient, OAuthToken
+from .two_factor import ApiKey, TwoFactorAuth
 
 __all__ = [
     # Base Authentication
     "Administrator",
-    
     # OAuth Models
     "OAuthClient",
-    "OAuthAuthorizationCode", 
+    "OAuthAuthorizationCode",
     "OAuthToken",
-    
     # 2FA Models
     "TwoFactorAuth",
     "ApiKey",

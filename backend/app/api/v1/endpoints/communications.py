@@ -5,54 +5,48 @@ REST API endpoints for communication templates, providers, sending communication
 managing preferences, and tracking delivery status.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
-from sqlalchemy.orm import Session
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
-from app.core.database import get_db
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+
 from app.api.dependencies import get_current_admin
+from app.core.database import get_db
 from app.models.auth.base import Administrator
 from app.models.communications import (
-    CommunicationType,
     CommunicationStatus,
-    TemplateCategory
+    CommunicationType,
+    TemplateCategory,
 )
-from app.schemas.communications import (
-    # Template schemas
-    CommunicationTemplate,
-    CommunicationTemplateCreate,
-    CommunicationTemplateUpdate,
-    PaginatedTemplates,
-    TemplateTestRequest,
-    TemplateTestResponse,
-    
-    # Provider schemas
+from app.schemas.communications import (  # Template schemas; Provider schemas; Queue schemas; Preference schemas
+    BulkCommunicationRequest,
+    BulkCommunicationResponse,
+    CommunicationLog,
+    CommunicationPreference,
+    CommunicationPreferenceUpdate,
     CommunicationProvider,
     CommunicationProviderCreate,
     CommunicationProviderUpdate,
+    CommunicationQueue,
+    CommunicationStatsResponse,
+    CommunicationTemplate,
+    CommunicationTemplateCreate,
+    CommunicationTemplateUpdate,
+    PaginatedCommunicationLogs,
     PaginatedProviders,
-    CommunicationLog,
+    PaginatedQueues,
+    PaginatedTemplates,
     SendCommunicationRequest,
     SendCommunicationResponse,
-    BulkCommunicationRequest,
-    BulkCommunicationResponse,
-    PaginatedCommunicationLogs,
-    CommunicationStatsResponse,
-    
-    # Queue schemas
-    CommunicationQueue,
-    PaginatedQueues,
-    
-    # Preference schemas
-    CommunicationPreference,
-    CommunicationPreferenceUpdate
+    TemplateTestRequest,
+    TemplateTestResponse,
 )
 from app.services.communications_service import (
-    TemplateService,
-    ProviderService,
     CommunicationService,
-    PreferenceService
+    PreferenceService,
+    ProviderService,
+    TemplateService,
 )
 
 router = APIRouter()
@@ -63,7 +57,7 @@ router = APIRouter()
 async def create_template(
     template_data: CommunicationTemplateCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new communication template"""
     template_service = TemplateService(db)
@@ -82,27 +76,27 @@ async def get_templates(
     is_active: Optional[bool] = None,
     search_term: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get communication templates with filtering and pagination"""
     template_service = TemplateService(db)
     skip = (page - 1) * size
-    
+
     templates, total = template_service.get_templates(
         skip=skip,
         limit=size,
         category=category,
         communication_type=communication_type,
         is_active=is_active,
-        search_term=search_term
+        search_term=search_term,
     )
-    
+
     return PaginatedTemplates(
         items=templates,
         total=total,
         page=page,
         size=size,
-        pages=(total + size - 1) // size
+        pages=(total + size - 1) // size,
     )
 
 
@@ -110,15 +104,15 @@ async def get_templates(
 async def get_template(
     template_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get a specific communication template"""
     template_service = TemplateService(db)
     template = template_service.get_template(template_id)
-    
+
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
-    
+
     return template
 
 
@@ -127,11 +121,11 @@ async def update_template(
     template_id: int,
     template_data: CommunicationTemplateUpdate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Update a communication template"""
     template_service = TemplateService(db)
-    
+
     try:
         template = template_service.update_template(template_id, template_data)
         if not template:
@@ -145,11 +139,11 @@ async def update_template(
 async def delete_template(
     template_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Delete a communication template"""
     template_service = TemplateService(db)
-    
+
     try:
         success = template_service.delete_template(template_id)
         if not success:
@@ -164,20 +158,22 @@ async def test_template(
     template_id: int,
     test_request: TemplateTestRequest,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Test a communication template with sample data"""
     template_service = TemplateService(db)
-    
+
     try:
-        rendered = template_service.render_template(template_id, test_request.test_variables)
-        
+        rendered = template_service.render_template(
+            template_id, test_request.test_variables
+        )
+
         return TemplateTestResponse(
-            rendered_subject=rendered.get('subject'),
-            rendered_body=rendered['body'],
-            rendered_html=rendered.get('html_body'),
+            rendered_subject=rendered.get("subject"),
+            rendered_body=rendered["body"],
+            rendered_html=rendered.get("html_body"),
             validation_errors=[],
-            missing_variables=[]
+            missing_variables=[],
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -188,7 +184,7 @@ async def test_template(
 async def create_provider(
     provider_data: CommunicationProviderCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new communication provider"""
     provider_service = ProviderService(db)
@@ -203,26 +199,26 @@ async def get_providers(
     is_active: Optional[bool] = None,
     search_term: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get communication providers with filtering and pagination"""
     provider_service = ProviderService(db)
     skip = (page - 1) * size
-    
+
     providers, total = provider_service.get_providers(
         skip=skip,
         limit=size,
         provider_type=provider_type,
         is_active=is_active,
-        search_term=search_term
+        search_term=search_term,
     )
-    
+
     return PaginatedProviders(
         items=providers,
         total=total,
         page=page,
         size=size,
-        pages=(total + size - 1) // size
+        pages=(total + size - 1) // size,
     )
 
 
@@ -230,15 +226,15 @@ async def get_providers(
 async def get_provider(
     provider_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get a specific communication provider"""
     provider_service = ProviderService(db)
     provider = provider_service.get_provider(provider_id)
-    
+
     if not provider:
         raise HTTPException(status_code=404, detail="Provider not found")
-    
+
     return provider
 
 
@@ -247,15 +243,15 @@ async def update_provider(
     provider_id: int,
     provider_data: CommunicationProviderUpdate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Update a communication provider"""
     provider_service = ProviderService(db)
-    
+
     provider = provider_service.update_provider(provider_id, provider_data)
     if not provider:
         raise HTTPException(status_code=404, detail="Provider not found")
-    
+
     return provider
 
 
@@ -263,11 +259,11 @@ async def update_provider(
 async def delete_provider(
     provider_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Delete a communication provider"""
     provider_service = ProviderService(db)
-    
+
     try:
         success = provider_service.delete_provider(provider_id)
         if not success:
@@ -283,19 +279,19 @@ async def send_communication(
     request: SendCommunicationRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Send a single communication"""
     communication_service = CommunicationService(db)
-    
+
     try:
         comm_log = communication_service.send_communication(request, current_admin.id)
-        
+
         return SendCommunicationResponse(
             communication_id=comm_log.id,
             status=comm_log.status,
             message="Communication sent successfully",
-            provider_message_id=comm_log.provider_message_id
+            provider_message_id=comm_log.provider_message_id,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -306,19 +302,19 @@ async def send_bulk_communication(
     request: BulkCommunicationRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Send bulk communications"""
     communication_service = CommunicationService(db)
-    
+
     try:
         queue = communication_service.send_bulk_communication(request, current_admin.id)
-        
+
         return BulkCommunicationResponse(
             queue_id=queue.id,
             total_recipients=queue.total_recipients,
             status=queue.status,
-            message="Bulk communication queued successfully"
+            message="Bulk communication queued successfully",
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -335,12 +331,12 @@ async def get_communication_logs(
     date_from: Optional[datetime] = None,
     date_to: Optional[datetime] = None,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get communication logs with filtering and pagination"""
     communication_service = CommunicationService(db)
     skip = (page - 1) * size
-    
+
     logs, total = communication_service.get_communication_logs(
         skip=skip,
         limit=size,
@@ -348,15 +344,11 @@ async def get_communication_logs(
         status=status,
         customer_id=customer_id,
         date_from=date_from,
-        date_to=date_to
+        date_to=date_to,
     )
-    
+
     return PaginatedCommunicationLogs(
-        items=logs,
-        total=total,
-        page=page,
-        size=size,
-        pages=(total + size - 1) // size
+        items=logs, total=total, page=page, size=size, pages=(total + size - 1) // size
     )
 
 
@@ -364,15 +356,15 @@ async def get_communication_logs(
 async def get_communication_log(
     log_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get a specific communication log"""
     communication_service = CommunicationService(db)
     log = communication_service.get_communication_log(log_id)
-    
+
     if not log:
         raise HTTPException(status_code=404, detail="Communication log not found")
-    
+
     return log
 
 
@@ -380,18 +372,18 @@ async def get_communication_log(
 async def retry_communication(
     log_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Retry a failed communication"""
     communication_service = CommunicationService(db)
-    
+
     success = communication_service.retry_failed_communication(log_id)
     if not success:
         raise HTTPException(
             status_code=400,
-            detail="Communication cannot be retried (not found, not failed, or max retries reached)"
+            detail="Communication cannot be retried (not found, not failed, or max retries reached)",
         )
-    
+
     return {"message": "Communication retry initiated"}
 
 
@@ -400,12 +392,12 @@ async def retry_communication(
 async def get_communication_stats(
     days: int = Query(30, ge=1, le=365),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get communication statistics"""
     communication_service = CommunicationService(db)
     stats = communication_service.get_communication_stats(days)
-    
+
     return CommunicationStatsResponse(**stats)
 
 
@@ -416,26 +408,31 @@ async def get_communication_queues(
     size: int = Query(50, ge=1, le=100),
     status: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get communication queues with filtering and pagination"""
     from app.models.communications import CommunicationQueue
-    
+
     query = db.query(CommunicationQueue)
-    
+
     if status:
         query = query.filter(CommunicationQueue.status == status)
-    
+
     total = query.count()
     skip = (page - 1) * size
-    queues = query.order_by(CommunicationQueue.created_at.desc()).offset(skip).limit(size).all()
-    
+    queues = (
+        query.order_by(CommunicationQueue.created_at.desc())
+        .offset(skip)
+        .limit(size)
+        .all()
+    )
+
     return PaginatedQueues(
         items=queues,
         total=total,
         page=page,
         size=size,
-        pages=(total + size - 1) // size
+        pages=(total + size - 1) // size,
     )
 
 
@@ -443,16 +440,18 @@ async def get_communication_queues(
 async def get_communication_queue(
     queue_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get a specific communication queue"""
     from app.models.communications import CommunicationQueue
-    
-    queue = db.query(CommunicationQueue).filter(CommunicationQueue.id == queue_id).first()
-    
+
+    queue = (
+        db.query(CommunicationQueue).filter(CommunicationQueue.id == queue_id).first()
+    )
+
     if not queue:
         raise HTTPException(status_code=404, detail="Communication queue not found")
-    
+
     return queue
 
 
@@ -461,15 +460,15 @@ async def get_communication_queue(
 async def get_customer_preferences(
     customer_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get customer communication preferences"""
     preference_service = PreferenceService(db)
     preferences = preference_service.get_customer_preferences(customer_id)
-    
+
     if not preferences:
         raise HTTPException(status_code=404, detail="Customer preferences not found")
-    
+
     return preferences
 
 
@@ -478,12 +477,14 @@ async def update_customer_preferences(
     customer_id: int,
     preferences_data: CommunicationPreferenceUpdate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Update customer communication preferences"""
     preference_service = PreferenceService(db)
-    
-    preferences = preference_service.create_or_update_preferences(customer_id, preferences_data)
+
+    preferences = preference_service.create_or_update_preferences(
+        customer_id, preferences_data
+    )
     return preferences
 
 
@@ -491,59 +492,55 @@ async def update_customer_preferences(
 @router.get("/system-templates")
 async def get_system_templates(
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get available system templates"""
     template_service = TemplateService(db)
-    
-    templates, _ = template_service.get_templates(
-        skip=0,
-        limit=1000,
-        is_active=True
-    )
-    
+
+    templates, _ = template_service.get_templates(skip=0, limit=1000, is_active=True)
+
     # Group by category
     by_category = {}
     for template in templates:
         category = template.category.value
         if category not in by_category:
             by_category[category] = []
-        
-        by_category[category].append({
-            "id": template.id,
-            "name": template.name,
-            "communication_type": template.communication_type.value,
-            "description": template.description,
-            "required_variables": template.required_variables,
-            "optional_variables": template.optional_variables
-        })
-    
+
+        by_category[category].append(
+            {
+                "id": template.id,
+                "name": template.name,
+                "communication_type": template.communication_type.value,
+                "description": template.description,
+                "required_variables": template.required_variables,
+                "optional_variables": template.optional_variables,
+            }
+        )
+
     return by_category
 
 
 # Health Check
 @router.get("/health", include_in_schema=False)
-async def health_check(
-    db: Session = Depends(get_db)
-):
+async def health_check(db: Session = Depends(get_db)):
     """Health check for communications module"""
     try:
         # Check database connectivity
         db.execute("SELECT 1")
-        
+
         # Check provider availability
         provider_service = ProviderService(db)
         email_provider = provider_service.get_default_provider(CommunicationType.EMAIL)
         sms_provider = provider_service.get_default_provider(CommunicationType.SMS)
-        
+
         return {
             "status": "healthy",
             "database": "connected",
             "providers": {
                 "email": "available" if email_provider else "not_configured",
-                "sms": "available" if sms_provider else "not_configured"
+                "sms": "available" if sms_provider else "not_configured",
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
@@ -553,44 +550,49 @@ async def health_check(
 @router.get("/dashboard")
 async def get_communications_dashboard(
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get communications dashboard summary"""
     communication_service = CommunicationService(db)
     template_service = TemplateService(db)
     provider_service = ProviderService(db)
-    
+
     # Get basic stats
     stats = communication_service.get_communication_stats(days=7)
-    
+
     # Get template counts
     templates, template_total = template_service.get_templates(skip=0, limit=1)
-    active_templates, _ = template_service.get_templates(skip=0, limit=1, is_active=True)
-    
+    active_templates, _ = template_service.get_templates(
+        skip=0, limit=1, is_active=True
+    )
+
     # Get provider counts
     providers, provider_total = provider_service.get_providers(skip=0, limit=1)
-    active_providers, _ = provider_service.get_providers(skip=0, limit=1, is_active=True)
-    
+    active_providers, _ = provider_service.get_providers(
+        skip=0, limit=1, is_active=True
+    )
+
     # Get pending communications
     from app.models.communications import CommunicationLog
-    pending_count = db.query(CommunicationLog).filter(
-        CommunicationLog.status.in_([
-            CommunicationStatus.PENDING,
-            CommunicationStatus.QUEUED,
-            CommunicationStatus.SENDING
-        ])
-    ).count()
-    
+
+    pending_count = (
+        db.query(CommunicationLog)
+        .filter(
+            CommunicationLog.status.in_(
+                [
+                    CommunicationStatus.PENDING,
+                    CommunicationStatus.QUEUED,
+                    CommunicationStatus.SENDING,
+                ]
+            )
+        )
+        .count()
+    )
+
     return {
         "stats": stats,
-        "templates": {
-            "total": template_total,
-            "active": len(active_templates)
-        },
-        "providers": {
-            "total": provider_total,
-            "active": len(active_providers)
-        },
+        "templates": {"total": template_total, "active": len(active_templates)},
+        "providers": {"total": provider_total, "active": len(active_providers)},
         "pending_communications": pending_count,
-        "last_updated": datetime.now().isoformat()
+        "last_updated": datetime.now().isoformat(),
     }

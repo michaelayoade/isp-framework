@@ -4,6 +4,6 @@ from .service_plan import ServicePlanService
 
 __all__ = [
     "AuthService",
-    "CustomerService", 
+    "CustomerService",
     "ServicePlanService",
 ]

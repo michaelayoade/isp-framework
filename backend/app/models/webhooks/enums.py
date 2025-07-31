@@ -9,6 +9,7 @@ import enum
 
 class WebhookStatus(str, enum.Enum):
     """Webhook endpoint status"""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     DISABLED = "disabled"
@@ -17,6 +18,7 @@ class WebhookStatus(str, enum.Enum):
 
 class DeliveryStatus(str, enum.Enum):
     """Webhook delivery status"""
+
     PENDING = "pending"
     DELIVERED = "delivered"
     FAILED = "failed"
@@ -26,6 +28,7 @@ class DeliveryStatus(str, enum.Enum):
 
 class EventCategory(str, enum.Enum):
     """Event categories for organization"""
+
     CUSTOMER = "customer"
     BILLING = "billing"
     SERVICE = "service"
@@ -39,6 +42,7 @@ class EventCategory(str, enum.Enum):
 
 class FilterOperator(str, enum.Enum):
     """Filter operators for conditional webhooks"""
+
     EQUALS = "equals"
     NOT_EQUALS = "not_equals"
     CONTAINS = "contains"
@@ -56,6 +60,7 @@ class FilterOperator(str, enum.Enum):
 
 class RetryStrategy(str, enum.Enum):
     """Retry strategies for failed deliveries"""
+
     EXPONENTIAL_BACKOFF = "exponential_backoff"
     FIXED_INTERVAL = "fixed_interval"
     LINEAR_BACKOFF = "linear_backoff"
@@ -65,6 +70,7 @@ class RetryStrategy(str, enum.Enum):
 
 class SignatureAlgorithm(str, enum.Enum):
     """Signature algorithms for payload verification"""
+
     HMAC_SHA256 = "hmac_sha256"
     HMAC_SHA512 = "hmac_sha512"
     HMAC_SHA1 = "hmac_sha1"
@@ -72,6 +78,7 @@ class SignatureAlgorithm(str, enum.Enum):
 
 class HttpMethod(str, enum.Enum):
     """HTTP methods for webhook delivery"""
+
     POST = "POST"
     PUT = "PUT"
     PATCH = "PATCH"
@@ -79,6 +86,7 @@ class HttpMethod(str, enum.Enum):
 
 class ContentType(str, enum.Enum):
     """Content types for webhook payloads"""
+
     JSON = "application/json"
     FORM = "application/x-www-form-urlencoded"
     XML = "application/xml"

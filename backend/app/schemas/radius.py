@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 """
 RADIUS Session Management Schemas
 
@@ -6,11 +7,12 @@ This module contains Pydantic schemas for RADIUS session tracking,
 customer online status, and network usage statistics.
 """
 
-from pydantic import  Field, field_validator
-from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
+from typing import List, Optional
+
+from pydantic import Field, field_validator
 
 
 # Enums for session management
@@ -56,33 +58,35 @@ class RadiusSessionBase(BaseModel):
     mac: Optional[str] = Field(None, max_length=17)
     call_to: Optional[str] = Field(None, max_length=50)
     port: Optional[str] = Field(None, max_length=50)
-    price: Decimal = Field(Decimal('0'), ge=0)
+    price: Decimal = Field(Decimal("0"), ge=0)
     time_on: int = Field(0, ge=0)  # seconds
     type: SessionType = SessionType.MIKROTIK_API
     login_is: LoginType = LoginType.USER
     session_id: Optional[str] = Field(None, max_length=255)
     session_status: SessionStatus = SessionStatus.ACTIVE
 
-    @field_validator('mac')
+    @field_validator("mac")
     def validate_mac_address(cls, v):
         if v is None:
             return v
         # Basic MAC address validation
         import re
-        if not re.match(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', v):
-            raise ValueError('Invalid MAC address format')
+
+        if not re.match(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", v):
+            raise ValueError("Invalid MAC address format")
         return v.upper()
 
-    @field_validator('ipv4', 'ipv6')
+    @field_validator("ipv4", "ipv6")
     def validate_ip_address(cls, v):
         if v is None:
             return v
         try:
             import ipaddress
+
             ipaddress.ip_address(v)
             return v
         except Exception:
-            raise ValueError('Invalid IP address')
+            raise ValueError("Invalid IP address")
 
 
 class RadiusSessionCreate(RadiusSessionBase):
@@ -124,31 +128,33 @@ class CustomerOnlineBase(BaseModel):
     mac: Optional[str] = Field(None, max_length=17)
     call_to: Optional[str] = Field(None, max_length=50)
     port: Optional[str] = Field(None, max_length=50)
-    price: Decimal = Field(Decimal('0'), ge=0)
+    price: Decimal = Field(Decimal("0"), ge=0)
     time_on: int = Field(0, ge=0)
     type: SessionType = SessionType.MIKROTIK_API
     login_is: LoginType = LoginType.USER
     session_id: str = Field(..., max_length=255)
 
-    @field_validator('mac')
+    @field_validator("mac")
     def validate_mac_address(cls, v):
         if v is None:
             return v
         import re
-        if not re.match(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$', v):
-            raise ValueError('Invalid MAC address format')
+
+        if not re.match(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", v):
+            raise ValueError("Invalid MAC address format")
         return v.upper()
 
-    @field_validator('ipv4', 'ipv6')
+    @field_validator("ipv4", "ipv6")
     def validate_ip_address(cls, v):
         if v is None:
             return v
         try:
             import ipaddress
+
             ipaddress.ip_address(v)
             return v
         except Exception:
-            raise ValueError('Invalid IP address')
+            raise ValueError("Invalid IP address")
 
 
 class CustomerOnlineCreate(CustomerOnlineBase):
@@ -191,7 +197,7 @@ class CustomerStatisticsBase(BaseModel):
     mac: Optional[str] = Field(None, max_length=17)
     call_to: Optional[str] = Field(None, max_length=50)
     port: Optional[str] = Field(None, max_length=50)
-    price: Decimal = Field(Decimal('0'), ge=0)
+    price: Decimal = Field(Decimal("0"), ge=0)
     time_on: int = Field(0, ge=0)
     type: SessionType = SessionType.MIKROTIK_API
     login_is: LoginType = LoginType.USER

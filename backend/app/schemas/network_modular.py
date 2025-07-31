@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 """
 Pydantic Schemas for Modular Network Architecture
 
@@ -7,14 +8,15 @@ architecture API endpoints, providing type safety and validation for all
 network-related operations.
 """
 
-from pydantic import  Field, field_validator
-from typing import List, Optional, Dict, Any, Generic, TypeVar
+import ipaddress
 from datetime import datetime
 from enum import Enum
-import ipaddress
+from typing import Any, Dict, Generic, List, Optional, TypeVar
+
+from pydantic import Field, field_validator
 
 # Generic type for paginated responses
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 # Enums for validation
@@ -137,13 +139,13 @@ class NetworkDeviceBase(BaseModel):
     is_active: bool = True
     is_monitored: bool = True
 
-    @field_validator('management_ip')
+    @field_validator("management_ip")
     def validate_management_ip(cls, v):
         if v:
             try:
                 ipaddress.ip_address(v)
             except ValueError:
-                raise ValueError('Invalid IP address format')
+                raise ValueError("Invalid IP address format")
         return v
 
 
@@ -195,31 +197,31 @@ class IPPoolBase(BaseModel):
     is_active: bool = True
     allow_auto_assignment: bool = True
 
-    @field_validator('network')
+    @field_validator("network")
     def validate_network(cls, v):
         try:
             ipaddress.ip_network(v, strict=False)
         except ValueError:
-            raise ValueError('Invalid network format')
+            raise ValueError("Invalid network format")
         return v
 
-    @field_validator('gateway')
+    @field_validator("gateway")
     def validate_gateway(cls, v):
         if v:
             try:
                 ipaddress.ip_address(v)
             except ValueError:
-                raise ValueError('Invalid gateway IP address')
+                raise ValueError("Invalid gateway IP address")
         return v
 
-    @field_validator('dns_servers')
+    @field_validator("dns_servers")
     def validate_dns_servers(cls, v):
         if v:
             for dns in v:
                 try:
                     ipaddress.ip_address(dns)
                 except ValueError:
-                    raise ValueError(f'Invalid DNS server IP address: {dns}')
+                    raise ValueError(f"Invalid DNS server IP address: {dns}")
         return v
 
 
@@ -254,12 +256,12 @@ class IPAllocationBase(BaseModel):
     description: Optional[str] = None
     expires_at: Optional[datetime] = None
 
-    @field_validator('ip_address')
+    @field_validator("ip_address")
     def validate_ip_address(cls, v):
         try:
             ipaddress.ip_address(v)
         except ValueError:
-            raise ValueError('Invalid IP address format')
+            raise ValueError("Invalid IP address format")
         return v
 
 

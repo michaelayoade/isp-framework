@@ -3,6 +3,18 @@
 line-length = 88
 target-version = "py311"
 
+# Exclude directories that shouldn't be linted
+exclude = [
+    "node_modules",
+    ".venv",
+    "frontend",
+    "alembic/migrations_backup_*",
+    "__pycache__",
+    ".git",
+]
+
+# Lint configuration (new structure)
+[tool.ruff.lint]
 # Enable core rule sets
 select = [
     "E",    # pycodestyle errors
@@ -21,29 +33,19 @@ ignore = [
     "E712",  # comparison to True/False (will fix manually)
 ]
 
-# Exclude directories that shouldn't be linted
-exclude = [
-    "node_modules",
-    ".venv",
-    "frontend",
-    "alembic/migrations_backup_*",
-    "__pycache__",
-    ".git",
-]
-
 # Per-file ignores for common patterns
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Tests often have unused imports for fixtures/mocks
 "tests/**/*" = ["F401", "E402", "S101"]
 # Alembic migrations may have unused imports and missing __init__.py
-"alembic/**/*" = ["F401", "INP001"]
+"alembic/**/*" = ["F401", "INP001", "E501"]
 # Migration backup directories should be excluded entirely
-"alembic/migrations_backup_*/**/*" = ["F401", "E402", "INP001"]
+"alembic/migrations_backup_*/**/*" = ["F401", "E402", "INP001", "E501"]
 # Conftest files often have unused imports for pytest fixtures
 "**/conftest.py" = ["F401"]
 
 # Import sorting configuration
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["app"]
 force-single-line = false
 combine-as-imports = true

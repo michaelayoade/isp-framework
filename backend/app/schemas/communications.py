@@ -5,15 +5,16 @@ Pydantic schemas for communication templates, providers, logs, and preferences
 with comprehensive validation and type safety.
 """
 
-from pydantic import BaseModel, Field, EmailStr, field_validator
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.models.communications import (
-    CommunicationType,
-    CommunicationStatus,
     CommunicationPriority,
-    TemplateCategory
+    CommunicationStatus,
+    CommunicationType,
+    TemplateCategory,
 )
 
 
@@ -127,10 +128,16 @@ class CommunicationLogBase(BaseModel):
     template_variables: Dict[str, Any] = Field(default_factory=dict)
     scheduled_at: Optional[datetime] = None
 
-    @field_validator('recipient_email', 'recipient_phone')
+    @field_validator("recipient_email", "recipient_phone")
     def validate_recipient(cls, v, values):
-        if not v and not values.get('recipient_phone') and not values.get('recipient_email'):
-            raise ValueError('At least one recipient method (email or phone) must be provided')
+        if (
+            not v
+            and not values.get("recipient_phone")
+            and not values.get("recipient_email")
+        ):
+            raise ValueError(
+                "At least one recipient method (email or phone) must be provided"
+            )
         return v
 
 
@@ -196,7 +203,9 @@ class CommunicationQueueCreate(CommunicationQueueBase):
 
 
 class CommunicationQueueUpdate(BaseModel):
-    status: Optional[str] = Field(None, pattern="^(pending|processing|completed|failed)$")
+    status: Optional[str] = Field(
+        None, pattern="^(pending|processing|completed|failed)$"
+    )
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     processed_count: Optional[int] = Field(None, ge=0)
@@ -243,8 +252,12 @@ class CommunicationPreferenceBase(BaseModel):
     push_support: bool = True
     push_marketing: bool = False
     push_system: bool = True
-    quiet_hours_start: str = Field(default="22:00", pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
-    quiet_hours_end: str = Field(default="08:00", pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$")
+    quiet_hours_start: str = Field(
+        default="22:00", pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+    )
+    quiet_hours_end: str = Field(
+        default="08:00", pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+    )
     timezone: str = Field(default="UTC", max_length=50)
     preferred_language: str = Field(default="en", max_length=10)
 
@@ -312,6 +325,7 @@ class CommunicationRule(CommunicationRuleBase):
 # Request/Response schemas
 class SendCommunicationRequest(BaseModel):
     """Request to send a single communication"""
+
     communication_type: CommunicationType
     recipient_email: Optional[EmailStr] = None
     recipient_phone: Optional[str] = Field(None, max_length=50)
@@ -327,21 +341,28 @@ class SendCommunicationRequest(BaseModel):
     context_type: Optional[str] = Field(None, max_length=50)
     context_id: Optional[int] = None
 
-    @field_validator('recipient_email', 'recipient_phone')
+    @field_validator("recipient_email", "recipient_phone")
     def validate_recipient(cls, v, values):
-        if not v and not values.get('recipient_phone') and not values.get('recipient_email'):
-            raise ValueError('At least one recipient method (email or phone) must be provided')
+        if (
+            not v
+            and not values.get("recipient_phone")
+            and not values.get("recipient_email")
+        ):
+            raise ValueError(
+                "At least one recipient method (email or phone) must be provided"
+            )
         return v
 
-    @field_validator('body')
+    @field_validator("body")
     def validate_content(cls, v, values):
-        if not v and not values.get('template_id'):
-            raise ValueError('Either body content or template_id must be provided')
+        if not v and not values.get("template_id"):
+            raise ValueError("Either body content or template_id must be provided")
         return v
 
 
 class SendCommunicationResponse(BaseModel):
     """Response after sending a communication"""
+
     communication_id: int
     status: CommunicationStatus
     message: str
@@ -350,6 +371,7 @@ class SendCommunicationResponse(BaseModel):
 
 class BulkCommunicationRequest(BaseModel):
     """Request to send bulk communications"""
+
     queue_name: str = Field(..., min_length=1, max_length=255)
     communication_type: CommunicationType
     template_id: Optional[int] = None
@@ -367,6 +389,7 @@ class BulkCommunicationRequest(BaseModel):
 
 class BulkCommunicationResponse(BaseModel):
     """Response after queuing bulk communications"""
+
     queue_id: int
     total_recipients: int
     status: str
@@ -375,6 +398,7 @@ class BulkCommunicationResponse(BaseModel):
 
 class CommunicationStatsResponse(BaseModel):
     """Communication statistics response"""
+
     total_sent: int
     total_delivered: int
     total_failed: int
@@ -388,6 +412,7 @@ class CommunicationStatsResponse(BaseModel):
 
 class TemplateTestRequest(BaseModel):
     """Request to test a template"""
+
     template_id: int
     test_variables: Dict[str, Any] = Field(default_factory=dict)
     recipient_email: Optional[EmailStr] = None
@@ -396,6 +421,7 @@ class TemplateTestRequest(BaseModel):
 
 class TemplateTestResponse(BaseModel):
     """Response from template testing"""
+
     rendered_subject: Optional[str]
     rendered_body: str
     rendered_html: Optional[str]
@@ -406,6 +432,7 @@ class TemplateTestResponse(BaseModel):
 # Search and filter schemas
 class CommunicationSearchFilters(BaseModel):
     """Search filters for communications"""
+
     communication_type: Optional[CommunicationType] = None
     status: Optional[CommunicationStatus] = None
     priority: Optional[CommunicationPriority] = None
@@ -421,6 +448,7 @@ class CommunicationSearchFilters(BaseModel):
 
 class TemplateSearchFilters(BaseModel):
     """Search filters for templates"""
+
     category: Optional[TemplateCategory] = None
     communication_type: Optional[CommunicationType] = None
     is_active: Optional[bool] = None
@@ -431,6 +459,7 @@ class TemplateSearchFilters(BaseModel):
 
 class ProviderSearchFilters(BaseModel):
     """Search filters for providers"""
+
     provider_type: Optional[CommunicationType] = None
     is_active: Optional[bool] = None
     is_default: Optional[bool] = None
@@ -440,6 +469,7 @@ class ProviderSearchFilters(BaseModel):
 # Pagination schemas
 class PaginatedCommunicationLogs(BaseModel):
     """Paginated communication logs response"""
+
     items: List[CommunicationLog]
     total: int
     page: int
@@ -449,6 +479,7 @@ class PaginatedCommunicationLogs(BaseModel):
 
 class PaginatedTemplates(BaseModel):
     """Paginated templates response"""
+
     items: List[CommunicationTemplate]
     total: int
     page: int
@@ -458,6 +489,7 @@ class PaginatedTemplates(BaseModel):
 
 class PaginatedProviders(BaseModel):
     """Paginated providers response"""
+
     items: List[CommunicationProvider]
     total: int
     page: int
@@ -467,6 +499,7 @@ class PaginatedProviders(BaseModel):
 
 class PaginatedQueues(BaseModel):
     """Paginated queues response"""
+
     items: List[CommunicationQueue]
     total: int
     page: int

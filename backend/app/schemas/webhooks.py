@@ -4,19 +4,30 @@ Webhook System Schemas
 Pydantic schemas for webhook API validation and serialization.
 """
 
-from pydantic import BaseModel, Field, HttpUrl, field_validator
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field, HttpUrl, field_validator
+
 from app.models.webhooks.enums import (
-    WebhookStatus, DeliveryStatus, EventCategory, FilterOperator,
-    RetryStrategy, SignatureAlgorithm, HttpMethod, ContentType
+    ContentType,
+    DeliveryStatus,
+    EventCategory,
+    FilterOperator,
+    HttpMethod,
+    RetryStrategy,
+    SignatureAlgorithm,
+    WebhookStatus,
 )
 
 
 # Base Schemas
 class WebhookEventTypeBase(BaseModel):
     """Base schema for webhook event types"""
-    name: str = Field(..., max_length=100, description="Event name (e.g., customer.created)")
+
+    name: str = Field(
+        ..., max_length=100, description="Event name (e.g., customer.created)"
+    )
     category: EventCategory
     description: Optional[str] = None
     payload_schema: Optional[Dict[str, Any]] = None
@@ -28,11 +39,13 @@ class WebhookEventTypeBase(BaseModel):
 
 class WebhookEventTypeCreate(WebhookEventTypeBase):
     """Schema for creating webhook event types"""
+
     pass
 
 
 class WebhookEventTypeUpdate(BaseModel):
     """Schema for updating webhook event types"""
+
     name: Optional[str] = Field(None, max_length=100)
     category: Optional[EventCategory] = None
     description: Optional[str] = None
@@ -45,6 +58,7 @@ class WebhookEventTypeUpdate(BaseModel):
 
 class WebhookEventTypeResponse(WebhookEventTypeBase):
     """Schema for webhook event type responses"""
+
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -56,6 +70,7 @@ class WebhookEventTypeResponse(WebhookEventTypeBase):
 # Webhook Endpoint Schemas
 class WebhookEndpointBase(BaseModel):
     """Base schema for webhook endpoints"""
+
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
     url: HttpUrl
@@ -74,6 +89,7 @@ class WebhookEndpointBase(BaseModel):
 
 class WebhookEndpointCreate(WebhookEndpointBase):
     """Schema for creating webhook endpoints"""
+
     secret_token: Optional[str] = Field(None, min_length=16, max_length=255)
     signature_algorithm: SignatureAlgorithm = SignatureAlgorithm.HMAC_SHA256
     subscribed_event_ids: List[int] = Field(default_factory=list)
@@ -81,6 +97,7 @@ class WebhookEndpointCreate(WebhookEndpointBase):
 
 class WebhookEndpointUpdate(BaseModel):
     """Schema for updating webhook endpoints"""
+
     name: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
     url: Optional[HttpUrl] = None
@@ -101,6 +118,7 @@ class WebhookEndpointUpdate(BaseModel):
 
 class WebhookEndpointResponse(WebhookEndpointBase):
     """Schema for webhook endpoint responses"""
+
     id: int
     status: WebhookStatus
     is_active: bool
@@ -121,6 +139,7 @@ class WebhookEndpointResponse(WebhookEndpointBase):
 # Webhook Filter Schemas
 class WebhookFilterBase(BaseModel):
     """Base schema for webhook filters"""
+
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
     field_path: str = Field(..., max_length=500, description="JSON path to field")
@@ -130,9 +149,9 @@ class WebhookFilterBase(BaseModel):
     include_on_match: bool = True
     is_active: bool = True
 
-    @field_validator('values')
+    @field_validator("values")
     def validate_values_for_operator(cls, v, values):
-        operator = values.get('operator')
+        operator = values.get("operator")
         if operator in [FilterOperator.IN, FilterOperator.NOT_IN] and not v:
             raise ValueError(f"'values' is required for operator {operator}")
         return v
@@ -140,11 +159,13 @@ class WebhookFilterBase(BaseModel):
 
 class WebhookFilterCreate(WebhookFilterBase):
     """Schema for creating webhook filters"""
+
     pass
 
 
 class WebhookFilterUpdate(BaseModel):
     """Schema for updating webhook filters"""
+
     name: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
     field_path: Optional[str] = Field(None, max_length=500)
@@ -157,6 +178,7 @@ class WebhookFilterUpdate(BaseModel):
 
 class WebhookFilterResponse(WebhookFilterBase):
     """Schema for webhook filter responses"""
+
     id: int
     endpoint_id: int
     created_at: datetime
@@ -169,6 +191,7 @@ class WebhookFilterResponse(WebhookFilterBase):
 # Webhook Event Schemas
 class WebhookEventBase(BaseModel):
     """Base schema for webhook events"""
+
     event_type_id: int
     payload: Dict[str, Any]
     event_metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)
@@ -177,6 +200,7 @@ class WebhookEventBase(BaseModel):
 
 class WebhookEventCreate(WebhookEventBase):
     """Schema for creating webhook events"""
+
     source_ip: Optional[str] = None
     user_agent: Optional[str] = None
     triggered_by_user_id: Optional[int] = None
@@ -185,6 +209,7 @@ class WebhookEventCreate(WebhookEventBase):
 
 class WebhookEventResponse(WebhookEventBase):
     """Schema for webhook event responses"""
+
     id: int
     event_id: str
     is_processed: bool
@@ -199,6 +224,7 @@ class WebhookEventResponse(WebhookEventBase):
 # Webhook Delivery Schemas
 class WebhookDeliveryResponse(BaseModel):
     """Schema for webhook delivery responses"""
+
     id: int
     delivery_id: str
     status: DeliveryStatus
@@ -221,6 +247,7 @@ class WebhookDeliveryResponse(BaseModel):
 
 class WebhookDeliveryAttemptResponse(BaseModel):
     """Schema for webhook delivery attempt responses"""
+
     id: int
     attempt_number: int
     attempted_at: datetime
@@ -240,6 +267,7 @@ class WebhookDeliveryAttemptResponse(BaseModel):
 # Search and Filter Schemas
 class WebhookEndpointSearch(BaseModel):
     """Schema for searching webhook endpoints"""
+
     name: Optional[str] = None
     status: Optional[WebhookStatus] = None
     is_active: Optional[bool] = None
@@ -253,6 +281,7 @@ class WebhookEndpointSearch(BaseModel):
 
 class WebhookEventSearch(BaseModel):
     """Schema for searching webhook events"""
+
     event_type_id: Optional[int] = None
     category: Optional[EventCategory] = None
     is_processed: Optional[bool] = None
@@ -264,6 +293,7 @@ class WebhookEventSearch(BaseModel):
 
 class WebhookDeliverySearch(BaseModel):
     """Schema for searching webhook deliveries"""
+
     endpoint_id: Optional[int] = None
     event_id: Optional[int] = None
     status: Optional[DeliveryStatus] = None
@@ -278,6 +308,7 @@ class WebhookDeliverySearch(BaseModel):
 # Statistics and Analytics Schemas
 class WebhookEndpointStats(BaseModel):
     """Schema for webhook endpoint statistics"""
+
     endpoint_id: int
     endpoint_name: str
     total_deliveries: int
@@ -292,6 +323,7 @@ class WebhookEndpointStats(BaseModel):
 
 class WebhookSystemStats(BaseModel):
     """Schema for overall webhook system statistics"""
+
     total_endpoints: int
     active_endpoints: int
     total_event_types: int
@@ -307,18 +339,21 @@ class WebhookSystemStats(BaseModel):
 # Bulk Operations Schemas
 class WebhookEndpointBulkUpdate(BaseModel):
     """Schema for bulk updating webhook endpoints"""
+
     endpoint_ids: List[int]
     updates: WebhookEndpointUpdate
 
 
 class WebhookEventBulkCreate(BaseModel):
     """Schema for bulk creating webhook events"""
+
     events: List[WebhookEventCreate]
 
 
 # Test and Validation Schemas
 class WebhookTestRequest(BaseModel):
     """Schema for testing webhook endpoints"""
+
     endpoint_id: int
     test_payload: Dict[str, Any]
     override_url: Optional[HttpUrl] = None
@@ -326,6 +361,7 @@ class WebhookTestRequest(BaseModel):
 
 class WebhookTestResponse(BaseModel):
     """Schema for webhook test responses"""
+
     success: bool
     status_code: Optional[int] = None
     response_time_ms: Optional[int] = None
@@ -336,6 +372,7 @@ class WebhookTestResponse(BaseModel):
 # Pagination Schemas
 class PaginatedWebhookEndpoints(BaseModel):
     """Paginated webhook endpoints response"""
+
     items: List[WebhookEndpointResponse]
     total: int
     page: int
@@ -345,6 +382,7 @@ class PaginatedWebhookEndpoints(BaseModel):
 
 class PaginatedWebhookEvents(BaseModel):
     """Paginated webhook events response"""
+
     items: List[WebhookEventResponse]
     total: int
     page: int
@@ -354,6 +392,7 @@ class PaginatedWebhookEvents(BaseModel):
 
 class PaginatedWebhookDeliveries(BaseModel):
     """Paginated webhook deliveries response"""
+
     items: List[WebhookDeliveryResponse]
     total: int
     page: int

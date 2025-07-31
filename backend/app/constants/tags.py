@@ -50,28 +50,23 @@ TAG_DESCRIPTIONS = {
     BILLING: "Billing operations including invoices, payments, and accounting",
     TICKETING: "Support ticket management and tracking",
     SETTINGS: "System configuration and settings management",
-    
     SERVICES: "Service management and provisioning",
     INTERNET_SERVICES: "Internet service plans and configurations",
     VOICE_SERVICES: "Voice service plans and configurations",
     BUNDLE_SERVICES: "Bundle service plans and configurations",
-    
     NETWORK: "Network infrastructure and topology management",
     DEVICES: "Network device management and monitoring",
     DEVICE_MANAGEMENT: "Advanced device management operations",
-    
     PLUGINS: "Plugin system management and configuration",
     API_MANAGEMENT: "API key management and access control",
     COMMUNICATIONS: "Communication templates and messaging",
     FILE_STORAGE: "File upload and storage operations",
     WEBHOOKS: "Webhook configuration and management",
     AUTOMATION: "Ansible automation and provisioning",
-    
     LOOKUPS: "Lookup tables and reference data",
     RBAC: "Role-based access control and permissions",
-    
     HEALTH: "System health and monitoring endpoints",
-    ROOT: "Root application endpoints"
+    ROOT: "Root application endpoints",
 }
 
 # Ordered list of tags for consistent display in Swagger UI
@@ -99,5 +94,5 @@ TAG_ORDER = [
     RBAC,
     SETTINGS,
     HEALTH,
-    ROOT
+    ROOT,
 ]

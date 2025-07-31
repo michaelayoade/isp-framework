@@ -14,32 +14,34 @@ Key Features:
 - Network change management
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
-from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from app.core.database import get_db
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+
 from app.api.v1.dependencies import get_current_admin
+from app.core.database import get_db
 from app.models.auth import Administrator
-from app.services.network_service import (
-    get_network_services
-)
-from app.schemas.network_modular import (
-    # Site schemas
-    NetworkSiteResponse, NetworkSiteCreate, NetworkSiteUpdate,
-    # Device schemas  
-    NetworkDeviceResponse, NetworkDeviceCreate, VendorConfigurationCreate,
-    # IPAM schemas
-    IPPoolResponse, IPPoolCreate, IPAllocationResponse, IPAllocationCreate,
+from app.schemas.network_modular import (  # Site schemas; Device schemas; IPAM schemas; Topology schemas; Monitoring schemas; General schemas
+    DeviceConnectionCreate,
+    DeviceMetricCreate,
+    IPAllocationCreate,
+    IPAllocationResponse,
+    IPPoolCreate,
+    IPPoolResponse,
     IPUtilizationResponse,
-    # Topology schemas
-    NetworkTopologyResponse, DeviceConnectionCreate,
-    # Monitoring schemas
-    DeviceMetricCreate, NetworkAlertResponse,
-    # General schemas
-    PaginatedResponse
+    NetworkAlertResponse,
+    NetworkDeviceCreate,
+    NetworkDeviceResponse,
+    NetworkSiteCreate,
+    NetworkSiteResponse,
+    NetworkSiteUpdate,
+    NetworkTopologyResponse,
+    PaginatedResponse,
+    VendorConfigurationCreate,
 )
+from app.services.network_service import get_network_services
 
 router = APIRouter(tags=["network"])
 
@@ -49,7 +51,7 @@ router = APIRouter(tags=["network"])
 async def create_network_site(
     site_data: NetworkSiteCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new network site with modern architecture"""
     try:
@@ -67,7 +69,7 @@ async def get_network_sites(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get network sites with filtering and pagination"""
     try:
@@ -77,17 +79,17 @@ async def get_network_sites(
             filters["site_type"] = site_type
         if is_active is not None:
             filters["is_active"] = is_active
-        
+
         sites = services["site_service"].repository.get_all(
             filters=filters, skip=skip, limit=limit
         )
         total = services["site_service"].repository.count(filters=filters)
-        
+
         return PaginatedResponse(
             items=[NetworkSiteResponse.from_orm(site) for site in sites],
             total=total,
             skip=skip,
-            limit=limit
+            limit=limit,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -98,7 +100,7 @@ async def get_network_site(
     site_id: int,
     include_devices: bool = Query(False),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get a specific network site by ID"""
     try:
@@ -107,10 +109,10 @@ async def get_network_site(
             site = services["site_service"].get_site_with_devices(site_id)
         else:
             site = services["site_service"].repository.get_by_id(site_id)
-        
+
         if not site:
             raise HTTPException(status_code=404, detail="Network site not found")
-        
+
         return NetworkSiteResponse.from_orm(site)
     except HTTPException:
         raise
@@ -123,15 +125,17 @@ async def update_network_site(
     site_id: int,
     site_data: NetworkSiteUpdate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Update a network site"""
     try:
         services = get_network_services(db)
-        site = services["site_service"].repository.update(site_id, site_data.dict(exclude_unset=True))
+        site = services["site_service"].repository.update(
+            site_id, site_data.dict(exclude_unset=True)
+        )
         if not site:
             raise HTTPException(status_code=404, detail="Network site not found")
-        
+
         return NetworkSiteResponse.from_orm(site)
     except HTTPException:
         raise
@@ -144,7 +148,7 @@ async def update_network_site(
 async def create_network_device(
     device_data: NetworkDeviceCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new network device"""
     try:
@@ -164,7 +168,7 @@ async def get_network_devices(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get network devices with filtering"""
     try:
@@ -178,17 +182,17 @@ async def get_network_devices(
             filters["vendor"] = vendor
         if is_active is not None:
             filters["is_active"] = is_active
-        
+
         devices = services["device_service"].repository.get_all(
             filters=filters, skip=skip, limit=limit
         )
         total = services["device_service"].repository.count(filters=filters)
-        
+
         return PaginatedResponse(
             items=[NetworkDeviceResponse.from_orm(device) for device in devices],
             total=total,
             skip=skip,
-            limit=limit
+            limit=limit,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -199,7 +203,7 @@ async def get_network_device(
     device_id: int,
     include_vendor_config: bool = Query(True),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get a specific network device with optional vendor configuration"""
     try:
@@ -210,7 +214,7 @@ async def get_network_device(
                 raise HTTPException(status_code=404, detail="Network device not found")
             return {
                 "device": NetworkDeviceResponse.from_orm(result["device"]),
-                "vendor_config": result["vendor_config"]
+                "vendor_config": result["vendor_config"],
             }
         else:
             device = services["device_service"].repository.get_by_id(device_id)
@@ -228,7 +232,7 @@ async def add_vendor_configuration(
     device_id: int,
     config_data: VendorConfigurationCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Add vendor-specific configuration to a device"""
     try:
@@ -238,7 +242,7 @@ async def add_vendor_configuration(
         )
         if not success:
             raise HTTPException(status_code=404, detail="Network device not found")
-        
+
         return {"message": f"Added {config_data.vendor} configuration successfully"}
     except HTTPException:
         raise
@@ -251,7 +255,7 @@ async def add_vendor_configuration(
 async def create_ip_pool(
     pool_data: IPPoolCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a new IP address pool"""
     try:
@@ -270,7 +274,7 @@ async def get_ip_pools(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get IP pools with filtering"""
     try:
@@ -282,17 +286,17 @@ async def get_ip_pools(
             filters["location_id"] = location_id
         if is_active is not None:
             filters["is_active"] = is_active
-        
+
         pools = services["ipam_service"].pool_repository.get_all(
             filters=filters, skip=skip, limit=limit
         )
         total = services["ipam_service"].pool_repository.count(filters=filters)
-        
+
         return PaginatedResponse(
             items=[IPPoolResponse.from_orm(pool) for pool in pools],
             total=total,
             skip=skip,
-            limit=limit
+            limit=limit,
         )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -302,7 +306,7 @@ async def get_ip_pools(
 async def get_pool_utilization(
     pool_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get IP pool utilization statistics"""
     try:
@@ -310,7 +314,7 @@ async def get_pool_utilization(
         utilization = services["ipam_service"].get_pool_utilization(pool_id)
         if not utilization:
             raise HTTPException(status_code=404, detail="IP pool not found")
-        
+
         return IPUtilizationResponse(**utilization)
     except HTTPException:
         raise
@@ -323,7 +327,7 @@ async def allocate_ip_address(
     pool_id: int,
     allocation_data: IPAllocationCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Allocate an IP address from a pool"""
     try:
@@ -333,7 +337,7 @@ async def allocate_ip_address(
         )
         if not allocation:
             raise HTTPException(status_code=400, detail="Failed to allocate IP address")
-        
+
         return IPAllocationResponse.from_orm(allocation)
     except HTTPException:
         raise
@@ -345,7 +349,7 @@ async def allocate_ip_address(
 async def release_ip_address(
     allocation_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Release an allocated IP address"""
     try:
@@ -353,7 +357,7 @@ async def release_ip_address(
         success = services["ipam_service"].release_ip_address(allocation_id)
         if not success:
             raise HTTPException(status_code=404, detail="IP allocation not found")
-        
+
         return {"message": "IP address released successfully"}
     except HTTPException:
         raise
@@ -366,7 +370,7 @@ async def release_ip_address(
 async def get_network_topology(
     site_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get network topology for visualization"""
     try:
@@ -381,7 +385,7 @@ async def get_network_topology(
 async def create_device_connection(
     connection_data: DeviceConnectionCreate,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Create a connection between two devices"""
     try:
@@ -389,7 +393,10 @@ async def create_device_connection(
         connection = services["topology_service"].create_device_connection(
             connection_data.dict()
         )
-        return {"message": "Device connection created successfully", "id": connection.id}
+        return {
+            "message": "Device connection created successfully",
+            "id": connection.id,
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -400,7 +407,7 @@ async def record_device_metric(
     metric_data: DeviceMetricCreate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Record a device performance metric"""
     try:
@@ -416,7 +423,7 @@ async def get_network_alerts(
     device_id: Optional[int] = Query(None),
     active_only: bool = Query(True),
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get network alerts"""
     try:
@@ -427,8 +434,10 @@ async def get_network_alerts(
             filters = {}
             if device_id:
                 filters["device_id"] = device_id
-            alerts = services["monitoring_service"].alert_repository.get_all(filters=filters)
-        
+            alerts = services["monitoring_service"].alert_repository.get_all(
+                filters=filters
+            )
+
         return [NetworkAlertResponse.from_orm(alert) for alert in alerts]
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -438,15 +447,17 @@ async def get_network_alerts(
 async def acknowledge_alert(
     alert_id: int,
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Acknowledge a network alert"""
     try:
         services = get_network_services(db)
-        success = services["monitoring_service"].acknowledge_alert(alert_id, current_admin.id)
+        success = services["monitoring_service"].acknowledge_alert(
+            alert_id, current_admin.id
+        )
         if not success:
             raise HTTPException(status_code=404, detail="Alert not found")
-        
+
         return {"message": "Alert acknowledged successfully"}
     except HTTPException:
         raise
@@ -458,36 +469,40 @@ async def acknowledge_alert(
 @router.get("/overview")
 async def get_network_overview(
     db: Session = Depends(get_db),
-    current_admin: Administrator = Depends(get_current_admin)
+    current_admin: Administrator = Depends(get_current_admin),
 ):
     """Get comprehensive network overview and statistics"""
     try:
         services = get_network_services(db)
-        
+
         # Gather statistics from all services
         site_stats = services["site_service"].repository.count()
         device_stats = services["device_service"].repository.count()
         pool_stats = services["ipam_service"].pool_repository.count()
         active_alerts = len(services["monitoring_service"].get_active_alerts())
-        
+
         return {
             "sites": {
                 "total": site_stats,
-                "active": services["site_service"].repository.count({"is_active": True})
+                "active": services["site_service"].repository.count(
+                    {"is_active": True}
+                ),
             },
             "devices": {
                 "total": device_stats,
-                "active": services["device_service"].repository.count({"is_active": True}),
-                "by_type": {}  # Could be expanded with device type breakdown
+                "active": services["device_service"].repository.count(
+                    {"is_active": True}
+                ),
+                "by_type": {},  # Could be expanded with device type breakdown
             },
             "ip_pools": {
                 "total": pool_stats,
-                "active": services["ipam_service"].pool_repository.count({"is_active": True})
+                "active": services["ipam_service"].pool_repository.count(
+                    {"is_active": True}
+                ),
             },
-            "monitoring": {
-                "active_alerts": active_alerts
-            },
-            "timestamp": datetime.now()
+            "monitoring": {"active_alerts": active_alerts},
+            "timestamp": datetime.now(),
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

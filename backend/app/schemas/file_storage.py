@@ -5,15 +5,17 @@ Pydantic schemas for file management, CSV imports, ticket attachments,
 and MinIO S3 operations.
 """
 
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field, field_validator
 
 from app.models.file_storage import FileCategory, FileStatus, ImportStatus
 
 
 class FileUploadResponse(BaseModel):
     """Response for file upload operations"""
+
     file_id: int
     filename: str
     file_size: int
@@ -24,6 +26,7 @@ class FileUploadResponse(BaseModel):
 
 class FileMetadataResponse(BaseModel):
     """Response for file metadata"""
+
     id: int
     filename: str
     original_filename: str
@@ -41,13 +44,14 @@ class FileMetadataResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     processed_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
 
 class FileListResponse(BaseModel):
     """Paginated file list response"""
+
     items: List[FileMetadataResponse]
     total: int
     page: int
@@ -57,6 +61,7 @@ class FileListResponse(BaseModel):
 
 class FileFilter(BaseModel):
     """Filter parameters for file listing"""
+
     file_category: Optional[FileCategory] = None
     customer_id: Optional[int] = None
     ticket_id: Optional[int] = None
@@ -73,6 +78,7 @@ class FileFilter(BaseModel):
 
 class PresignedUploadRequest(BaseModel):
     """Request for presigned upload URL"""
+
     filename: str = Field(..., min_length=1, max_length=255)
     file_size: int = Field(..., gt=0, le=104857600)  # 100MB max
     mime_type: str = Field(..., max_length=100)
@@ -81,27 +87,34 @@ class PresignedUploadRequest(BaseModel):
     ticket_id: Optional[int] = None
     metadata: Dict[str, Any] = {}
 
-    @field_validator('filename')
+    @field_validator("filename")
     def validate_filename(cls, v):
         if not v.strip():
-            raise ValueError('Filename cannot be empty')
+            raise ValueError("Filename cannot be empty")
         return v.strip()
 
-    @field_validator('mime_type')
+    @field_validator("mime_type")
     def validate_mime_type(cls, v):
         allowed_types = [
-            'text/csv', 'application/vnd.ms-excel',
-            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-            'application/pdf', 'text/plain',
-            'application/json', 'application/xml'
+            "text/csv",
+            "application/vnd.ms-excel",
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp",
+            "application/pdf",
+            "text/plain",
+            "application/json",
+            "application/xml",
         ]
         if v not in allowed_types:
-            raise ValueError(f'Unsupported file type: {v}')
+            raise ValueError(f"Unsupported file type: {v}")
         return v
 
 
 class ImportJobCreate(BaseModel):
     """Request to create an import job"""
+
     file_metadata_id: int
     import_type: str = Field(..., pattern="^(customer_csv|service_csv|billing_csv)$")
     import_config: Dict[str, Any] = Field(default_factory=dict)
@@ -109,6 +122,7 @@ class ImportJobCreate(BaseModel):
 
 class ImportJobResponse(BaseModel):
     """Response for import job"""
+
     id: int
     job_name: str
     file_metadata_id: int
@@ -125,13 +139,14 @@ class ImportJobResponse(BaseModel):
     import_config: Dict[str, Any] = {}
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
 
 class ImportJobListResponse(BaseModel):
     """Paginated import job list"""
+
     items: List[ImportJobResponse]
     total: int
     page: int
@@ -141,14 +156,18 @@ class ImportJobListResponse(BaseModel):
 
 class ExportJobCreate(BaseModel):
     """Request to create an export job"""
+
     job_name: str = Field(..., min_length=1, max_length=255)
-    export_type: str = Field(..., pattern="^(customer_export|billing_export|service_export)$")
+    export_type: str = Field(
+        ..., pattern="^(customer_export|billing_export|service_export)$"
+    )
     export_config: Dict[str, Any] = Field(default_factory=dict)
     file_format: str = Field(default="csv", pattern="^(csv|xlsx|json)$")
 
 
 class ExportJobResponse(BaseModel):
     """Response for export job"""
+
     id: int
     job_name: str
     export_type: str
@@ -164,13 +183,14 @@ class ExportJobResponse(BaseModel):
     error_message: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
 
 class ExportJobListResponse(BaseModel):
     """Paginated export job list"""
+
     items: List[ExportJobResponse]
     total: int
     page: int
@@ -180,6 +200,7 @@ class ExportJobListResponse(BaseModel):
 
 class FilePermissionUpdate(BaseModel):
     """Update file permissions"""
+
     is_public: Optional[bool] = None
     allowed_customers: Optional[List[int]] = None
     allowed_roles: Optional[List[str]] = None
@@ -188,6 +209,7 @@ class FilePermissionUpdate(BaseModel):
 
 class CSVImportPreview(BaseModel):
     """Preview of CSV import data"""
+
     headers: List[str]
     sample_rows: List[List[str]]
     total_rows: int
@@ -197,6 +219,7 @@ class CSVImportPreview(BaseModel):
 
 class CSVImportMapping(BaseModel):
     """Column mapping for CSV import"""
+
     file_metadata_id: int
     column_mapping: Dict[str, str]  # csv_column -> model_field
     skip_errors: bool = False
@@ -205,6 +228,7 @@ class CSVImportMapping(BaseModel):
 
 class FileProcessingProgress(BaseModel):
     """Real-time progress for file processing"""
+
     job_id: int
     job_type: str  # 'import' or 'export'
     progress_percent: int

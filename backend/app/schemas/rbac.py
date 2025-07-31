@@ -1,31 +1,57 @@
-from pydantic import BaseModel
-from pydantic import Field
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
 
 
 # Permission schemas
 class PermissionBase(BaseModel):
     """Base schema for permissions."""
-    code: str = Field(..., min_length=1, max_length=100, description="Permission code (e.g., customers.view)")
+
+    code: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="Permission code (e.g., customers.view)",
+    )
     name: str = Field(..., min_length=1, max_length=150, description="Display name")
-    description: Optional[str] = Field(None, max_length=255, description="Detailed description")
-    category: str = Field(..., min_length=1, max_length=50, description="Permission category")
+    description: Optional[str] = Field(
+        None, max_length=255, description="Detailed description"
+    )
+    category: str = Field(
+        ..., min_length=1, max_length=50, description="Permission category"
+    )
     is_active: bool = Field(True, description="Is permission active")
     sort_order: int = Field(0, description="Sort order for UI")
-    resource: str = Field(..., min_length=1, max_length=50, description="Resource (customers, invoices, etc.)")
-    action: str = Field(..., min_length=1, max_length=50, description="Action (view, create, update, delete)")
-    scope: str = Field("all", max_length=50, description="Scope (all, own, assigned, etc.)")
-    icon_name: Optional[str] = Field(None, max_length=50, description="Icon identifier for UI")
+    resource: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        description="Resource (customers, invoices, etc.)",
+    )
+    action: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        description="Action (view, create, update, delete)",
+    )
+    scope: str = Field(
+        "all", max_length=50, description="Scope (all, own, assigned, etc.)"
+    )
+    icon_name: Optional[str] = Field(
+        None, max_length=50, description="Icon identifier for UI"
+    )
 
 
 class PermissionCreate(PermissionBase):
     """Schema for creating permission."""
+
     pass
 
 
 class PermissionUpdate(BaseModel):
     """Schema for updating permission."""
+
     code: Optional[str] = Field(None, min_length=1, max_length=100)
     name: Optional[str] = Field(None, min_length=1, max_length=150)
     description: Optional[str] = Field(None, max_length=255)
@@ -40,6 +66,7 @@ class PermissionUpdate(BaseModel):
 
 class Permission(PermissionBase):
     """Schema for permission response."""
+
     id: int
     is_system: bool = Field(..., description="System permissions cannot be deleted")
     created_at: datetime
@@ -49,25 +76,40 @@ class Permission(PermissionBase):
 # Role schemas
 class RoleBase(BaseModel):
     """Base schema for roles."""
+
     code: str = Field(..., min_length=1, max_length=50, description="Role code")
     name: str = Field(..., min_length=1, max_length=100, description="Display name")
-    description: Optional[str] = Field(None, max_length=255, description="Detailed description")
+    description: Optional[str] = Field(
+        None, max_length=255, description="Detailed description"
+    )
     is_active: bool = Field(True, description="Is role active")
     sort_order: int = Field(0, description="Sort order for UI")
     is_admin_role: bool = Field(False, description="Is this an administrative role")
-    max_users: Optional[int] = Field(None, description="Maximum users that can have this role")
-    requires_approval: bool = Field(False, description="Does assignment require approval")
-    color_hex: str = Field("#6B7280", max_length=7, description="Color for role badges (#RRGGBB)")
-    icon_name: Optional[str] = Field(None, max_length=50, description="Icon identifier for UI")
+    max_users: Optional[int] = Field(
+        None, description="Maximum users that can have this role"
+    )
+    requires_approval: bool = Field(
+        False, description="Does assignment require approval"
+    )
+    color_hex: str = Field(
+        "#6B7280", max_length=7, description="Color for role badges (#RRGGBB)"
+    )
+    icon_name: Optional[str] = Field(
+        None, max_length=50, description="Icon identifier for UI"
+    )
 
 
 class RoleCreate(RoleBase):
     """Schema for creating role."""
-    permission_ids: Optional[List[int]] = Field(None, description="List of permission IDs to assign")
+
+    permission_ids: Optional[List[int]] = Field(
+        None, description="List of permission IDs to assign"
+    )
 
 
 class RoleUpdate(BaseModel):
     """Schema for updating role."""
+
     code: Optional[str] = Field(None, min_length=1, max_length=50)
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=255)
@@ -82,21 +124,26 @@ class RoleUpdate(BaseModel):
 
 class Role(RoleBase):
     """Schema for role response."""
+
     id: int
     is_system: bool = Field(..., description="System roles cannot be deleted")
     created_at: datetime
     updated_at: Optional[datetime] = None
-    permissions: Optional[List[Permission]] = Field(None, description="Role permissions")
+    permissions: Optional[List[Permission]] = Field(
+        None, description="Role permissions"
+    )
 
 
 class RoleWithPermissions(Role):
     """Schema for role response with permissions."""
+
     permissions: List[Permission] = Field(..., description="Role permissions")
 
 
 # User role assignment schemas
 class UserRoleBase(BaseModel):
     """Base schema for user role assignments."""
+
     user_id: int = Field(..., description="User ID")
     role_id: int = Field(..., description="Role ID")
     is_active: bool = Field(True, description="Is assignment active")
@@ -105,17 +152,20 @@ class UserRoleBase(BaseModel):
 
 class UserRoleCreate(UserRoleBase):
     """Schema for creating user role assignment."""
+
     pass
 
 
 class UserRoleUpdate(BaseModel):
     """Schema for updating user role assignment."""
+
     is_active: Optional[bool] = None
     expires_at: Optional[datetime] = None
 
 
 class UserRole(UserRoleBase):
     """Schema for user role assignment response."""
+
     id: int
     assigned_by: Optional[int] = Field(None, description="Who assigned this role")
     created_at: datetime
@@ -126,13 +176,17 @@ class UserRole(UserRoleBase):
 # Permission check schemas
 class PermissionCheck(BaseModel):
     """Schema for permission check requests."""
+
     user_id: int = Field(..., description="User ID to check")
     permission_code: str = Field(..., description="Permission code to check")
-    resource_id: Optional[int] = Field(None, description="Optional resource ID for scope checking")
+    resource_id: Optional[int] = Field(
+        None, description="Optional resource ID for scope checking"
+    )
 
 
 class PermissionCheckResult(BaseModel):
     """Schema for permission check results."""
+
     has_permission: bool = Field(..., description="Whether user has the permission")
     reason: Optional[str] = Field(None, description="Reason for denial if applicable")
 
@@ -140,12 +194,16 @@ class PermissionCheckResult(BaseModel):
 # Bulk operations schemas
 class BulkRolePermissionUpdate(BaseModel):
     """Schema for bulk role permission updates."""
+
     role_id: int = Field(..., description="Role ID")
-    permission_ids: List[int] = Field(..., description="List of permission IDs to assign")
+    permission_ids: List[int] = Field(
+        ..., description="List of permission IDs to assign"
+    )
 
 
 class BulkUserRoleUpdate(BaseModel):
     """Schema for bulk user role updates."""
+
     user_id: int = Field(..., description="User ID")
     role_ids: List[int] = Field(..., description="List of role IDs to assign")
 
@@ -153,6 +211,7 @@ class BulkUserRoleUpdate(BaseModel):
 # Summary schemas for dashboard/overview
 class RoleSummary(BaseModel):
     """Summary schema for role overview."""
+
     id: int
     name: str
     code: str
@@ -164,6 +223,7 @@ class RoleSummary(BaseModel):
 
 class PermissionSummary(BaseModel):
     """Summary schema for permission overview."""
+
     id: int
     name: str
     code: str

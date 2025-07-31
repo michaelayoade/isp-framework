@@ -7,116 +7,191 @@ domain-organized structure for better maintainability and scalability.
 # Import all models here to ensure they are registered with SQLAlchemy
 from app.core.database import Base
 
+# Enhanced Audit Models
+from .audit import AuditProcessingStatus, AuditQueue, CDCLog, ConfigurationSnapshot
+
 # Authentication Models
 from .auth import (
-    Administrator, OAuthClient, OAuthAuthorizationCode, OAuthToken, 
-    TwoFactorAuth, ApiKey
-)
-
-# Customer Portal Models
-from .customer.portal_complete import (
-    CustomerPortalSession, CustomerPortalPreferences, CustomerPortalPayment,
-    CustomerPortalAutoPayment, CustomerPortalServiceRequest, CustomerPortalInvoiceView,
-    CustomerPortalUsageView, CustomerPortalNotification, CustomerPortalFAQ,
-    CustomerPortalActivity
-)
-
-# Ticketing System Models
-from .ticketing import (
-    Ticket, TicketType, TicketPriority, TicketStatus, TicketSource,
-    TicketMessage, TicketAttachment, MessageAttachment, SLAPolicy,
-    TicketEscalation, EscalationReason, TicketStatusHistory,
-    TicketTimeEntry, FieldWorkOrder, FieldWorkStatus,
-    NetworkIncident, KnowledgeBaseArticle, TicketTemplate
-)
-
-# Customer Management Models
-from .customer import (
-    Customer, CustomerExtended, CustomerLabel, CustomerNote, CustomerDocument,
-    PortalConfig, PortalIDHistory
-)
-
-# Foundation Models
-from .foundation import (
-    Location, FileStorage, Reseller, Tariff, InternetTariffConfig,
-    TariffBillingOption, TariffZonePricing, TariffPromotion
-)
-
-# Enhanced Audit Models
-from .audit import (
-    AuditQueue, ConfigurationSnapshot, CDCLog, AuditProcessingStatus
-)
-
-# Networking Models
-from .networking import (
-    IPPool, IPAllocation, DHCPReservation, IPRange, NetworkSite, NetworkDevice, DeviceConnection, Cable,
-    RadiusSession, RADIUSInterimUpdate, CustomerOnline, CustomerStatistics, NASDevice, RADIUSServer, RADIUSClient, RADIUSAccounting
-)
-
-# Plugin System Models
-from .plugins import (
-    Plugin, PluginConfiguration, PluginHook, PluginDependency, PluginLog,
-    PluginRegistry, PluginTemplate, PluginStatus, PluginType, PluginPriority
-)
-
-# Communications Models
-from .communications import (
-    CommunicationTemplate, CommunicationProvider, CommunicationLog,
-    CommunicationQueue, CommunicationPreference, CommunicationRule
-)
-
-# Device Integration Models
-from .devices import (
-    ManagedDevice,
-    DeviceInterface,
-    DeviceMonitoring,
-    DeviceAlert,
-    DeviceConfigBackup,
-    DeviceTemplate,
-    MikroTikDevice,
-    MikroTikInterface,
-    MikroTikSimpleQueue,
-    MikroTikFirewallRule,
-    MikroTikDHCPLease,
-    MikroTikPPPoESecret,
-    MikroTikHotspotUser,
-    MikroTikSystemStats,
-    MikroTikInterfaceStats,
-    CiscoDevice,
-    CiscoInterface,
-    CiscoVLAN,
-    CiscoAccessList
-)
-
-# Service Management Models
-from .services import (
-    ServiceTemplate, InternetServiceTemplate, VoiceServiceTemplate, BundleServiceTemplate,
-    CustomerService, CustomerInternetService, CustomerVoiceService, ServiceProvisioning, 
-    ServiceIPAssignment, ServiceStatusHistory, ServiceSuspension, ServiceUsageTracking, ServiceAlert
+    Administrator,
+    ApiKey,
+    OAuthAuthorizationCode,
+    OAuthClient,
+    OAuthToken,
+    TwoFactorAuth,
 )
 
 # Billing System Models
 from .billing import (
-    CustomerBillingAccount, BillingTransaction, BalanceHistory,
-    Invoice, InvoiceItem, PaymentMethod, Payment,
-    CreditNote, PaymentPlan, DunningCase
+    BalanceHistory,
+    BillingTransaction,
+    CreditNote,
+    CustomerBillingAccount,
+    DunningCase,
+    Invoice,
+    InvoiceItem,
+    Payment,
+    PaymentMethod,
+    PaymentPlan,
+)
+
+# Communications Models
+from .communications import (
+    CommunicationLog,
+    CommunicationPreference,
+    CommunicationProvider,
+    CommunicationQueue,
+    CommunicationRule,
+    CommunicationTemplate,
+)
+
+# Customer Management Models
+from .customer import (
+    Customer,
+    CustomerDocument,
+    CustomerExtended,
+    CustomerLabel,
+    CustomerNote,
+    PortalConfig,
+    PortalIDHistory,
+)
+
+# Customer Portal Models
+from .customer.portal_complete import (
+    CustomerPortalActivity,
+    CustomerPortalAutoPayment,
+    CustomerPortalFAQ,
+    CustomerPortalInvoiceView,
+    CustomerPortalNotification,
+    CustomerPortalPayment,
+    CustomerPortalPreferences,
+    CustomerPortalServiceRequest,
+    CustomerPortalSession,
+    CustomerPortalUsageView,
+)
+
+# Device Integration Models
+from .devices import (
+    CiscoAccessList,
+    CiscoDevice,
+    CiscoInterface,
+    CiscoVLAN,
+    DeviceAlert,
+    DeviceConfigBackup,
+    DeviceInterface,
+    DeviceMonitoring,
+    DeviceTemplate,
+    ManagedDevice,
+    MikroTikDevice,
+    MikroTikDHCPLease,
+    MikroTikFirewallRule,
+    MikroTikHotspotUser,
+    MikroTikInterface,
+    MikroTikInterfaceStats,
+    MikroTikPPPoESecret,
+    MikroTikSimpleQueue,
+    MikroTikSystemStats,
+)
+
+# Foundation Models
+from .foundation import (
+    FileStorage,
+    InternetTariffConfig,
+    Location,
+    Reseller,
+    Tariff,
+    TariffBillingOption,
+    TariffPromotion,
+    TariffZonePricing,
+)
+
+# Networking Models
+from .networking import (
+    Cable,
+    CustomerOnline,
+    CustomerStatistics,
+    DeviceConnection,
+    DHCPReservation,
+    IPAllocation,
+    IPPool,
+    IPRange,
+    NASDevice,
+    NetworkDevice,
+    NetworkSite,
+    RADIUSAccounting,
+    RADIUSClient,
+    RADIUSInterimUpdate,
+    RADIUSServer,
+    RadiusSession,
+)
+
+# Plugin System Models
+from .plugins import (
+    Plugin,
+    PluginConfiguration,
+    PluginDependency,
+    PluginHook,
+    PluginLog,
+    PluginPriority,
+    PluginRegistry,
+    PluginStatus,
+    PluginTemplate,
+    PluginType,
+)
+
+# Service Management Models
+from .services import (
+    BundleServiceTemplate,
+    CustomerInternetService,
+    CustomerService,
+    CustomerVoiceService,
+    InternetServiceTemplate,
+    ServiceAlert,
+    ServiceIPAssignment,
+    ServiceProvisioning,
+    ServiceStatusHistory,
+    ServiceSuspension,
+    ServiceTemplate,
+    ServiceUsageTracking,
+    VoiceServiceTemplate,
+)
+
+# Settings & Configuration Models
+from .settings import ConfigurationTemplate, FeatureFlag, Setting, SettingHistory
+
+# Ticketing System Models
+from .ticketing import (
+    EscalationReason,
+    FieldWorkOrder,
+    FieldWorkStatus,
+    KnowledgeBaseArticle,
+    MessageAttachment,
+    NetworkIncident,
+    SLAPolicy,
+    Ticket,
+    TicketAttachment,
+    TicketEscalation,
+    TicketMessage,
+    TicketPriority,
+    TicketSource,
+    TicketStatus,
+    TicketStatusHistory,
+    TicketTemplate,
+    TicketTimeEntry,
+    TicketType,
 )
 
 # Webhook System Models
 from .webhooks import (
-    WebhookEndpoint, WebhookEvent, WebhookDelivery, WebhookEventType,
-    WebhookFilter, WebhookSecret, WebhookDeliveryAttempt
-)
-
-# Settings & Configuration Models
-from .settings import (
-    Setting, SettingHistory, FeatureFlag, ConfigurationTemplate
+    WebhookDelivery,
+    WebhookDeliveryAttempt,
+    WebhookEndpoint,
+    WebhookEvent,
+    WebhookEventType,
+    WebhookFilter,
+    WebhookSecret,
 )
 
 # All models now use the new modular architecture
-
-
-
 
 
 # Remove duplicate imports - already imported above
@@ -130,18 +205,15 @@ __all__ = [
     "OAuthToken",
     "TwoFactorAuth",
     "ApiKey",
-    
     # Customer Models
     "Customer",
     "CustomerExtended",
     "CustomerLabel",
     "CustomerNote",
     "CustomerDocument",
-    
     # Portal Models
     "PortalConfig",
     "PortalIDHistory",
-    
     # Customer Portal Models
     "CustomerPortalSession",
     "CustomerPortalPreferences",
@@ -153,7 +225,6 @@ __all__ = [
     "CustomerPortalNotification",
     "CustomerPortalFAQ",
     "CustomerPortalActivity",
-    
     # Ticketing System Models
     "Ticket",
     "TicketType",
@@ -173,12 +244,10 @@ __all__ = [
     "NetworkIncident",
     "KnowledgeBaseArticle",
     "TicketTemplate",
-    
     # Foundation Models
     "Location",
     "FileStorage",
     "Reseller",
-    
     # Enhanced Audit Models
     "AuditQueue",
     "ConfigurationSnapshot",
@@ -189,7 +258,6 @@ __all__ = [
     "TariffBillingOption",
     "TariffZonePricing",
     "TariffPromotion",
-    
     # Networking Models
     "IPPool",
     "IPAllocation",
@@ -207,7 +275,6 @@ __all__ = [
     "RADIUSServer",
     "RADIUSClient",
     "RADIUSAccounting",
-    
     # Communications Models
     "CommunicationTemplate",
     "CommunicationProvider",
@@ -215,7 +282,6 @@ __all__ = [
     "CommunicationQueue",
     "CommunicationPreference",
     "CommunicationRule",
-    
     # Device Models
     "ManagedDevice",
     "DeviceInterface",
@@ -236,7 +302,6 @@ __all__ = [
     "CiscoInterface",
     "CiscoVLAN",
     "CiscoAccessList",
-    
     # Service Management Models
     "ServiceTemplate",
     "InternetServiceTemplate",
@@ -251,7 +316,6 @@ __all__ = [
     "ServiceSuspension",
     "ServiceUsageTracking",
     "ServiceAlert",
-    
     # Billing System Models
     "CustomerBillingAccount",
     "BillingTransaction",
@@ -263,7 +327,6 @@ __all__ = [
     "CreditNote",
     "PaymentPlan",
     "DunningCase",
-    
     # Webhook System Models
     "WebhookEndpoint",
     "WebhookEvent",
@@ -272,7 +335,6 @@ __all__ = [
     "WebhookFilter",
     "WebhookSecret",
     "WebhookDeliveryAttempt",
-    
     # Plugin System Models
     "Plugin",
     "PluginConfiguration",
@@ -284,7 +346,6 @@ __all__ = [
     "PluginStatus",
     "PluginType",
     "PluginPriority",
-    
     # Settings & Configuration Models
     "Setting",
     "SettingHistory",

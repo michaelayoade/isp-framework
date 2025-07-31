@@ -9,18 +9,20 @@ import enum
 
 class ServiceStatus(enum.Enum):
     """Service lifecycle status"""
-    PENDING = "pending"                    # Ordered, awaiting activation
-    ACTIVE = "active"                      # Currently providing service
-    SUSPENDED = "suspended"                # Temporarily disabled (billing, technical)
-    TERMINATED = "terminated"              # Permanently cancelled
-    EXPIRED = "expired"                    # End date reached, no longer active
-    PENDING_UPGRADE = "pending_upgrade"    # Upgrade scheduled
-    PENDING_DOWNGRADE = "pending_downgrade" # Downgrade scheduled
-    PENDING_RELOCATION = "pending_relocation" # Moving to new address
+
+    PENDING = "pending"  # Ordered, awaiting activation
+    ACTIVE = "active"  # Currently providing service
+    SUSPENDED = "suspended"  # Temporarily disabled (billing, technical)
+    TERMINATED = "terminated"  # Permanently cancelled
+    EXPIRED = "expired"  # End date reached, no longer active
+    PENDING_UPGRADE = "pending_upgrade"  # Upgrade scheduled
+    PENDING_DOWNGRADE = "pending_downgrade"  # Downgrade scheduled
+    PENDING_RELOCATION = "pending_relocation"  # Moving to new address
 
 
 class ServiceType(enum.Enum):
     """Types of services offered"""
+
     INTERNET = "internet"
     VOICE = "voice"
     BUNDLE = "bundle"
@@ -30,6 +32,7 @@ class ServiceType(enum.Enum):
 
 class ProvisioningStatus(enum.Enum):
     """Service provisioning workflow status"""
+
     NOT_STARTED = "not_started"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
@@ -39,6 +42,7 @@ class ProvisioningStatus(enum.Enum):
 
 class SuspensionReason(enum.Enum):
     """Reasons for service suspension"""
+
     NON_PAYMENT = "non_payment"
     CUSTOMER_REQUEST = "customer_request"
     TECHNICAL_ISSUE = "technical_issue"
@@ -49,6 +53,7 @@ class SuspensionReason(enum.Enum):
 
 class ConnectionType(enum.Enum):
     """Network connection types"""
+
     PPPOE = "pppoe"
     DHCP = "dhcp"
     STATIC = "static"
@@ -57,6 +62,7 @@ class ConnectionType(enum.Enum):
 
 class IPAssignmentType(enum.Enum):
     """IP address assignment types"""
+
     STATIC = "static"
     DYNAMIC = "dynamic"
     RESERVED = "reserved"
@@ -64,6 +70,7 @@ class IPAssignmentType(enum.Enum):
 
 class SuspensionType(enum.Enum):
     """Types of service suspension"""
+
     FULL = "full"
     PARTIAL = "partial"
     SPEED_LIMIT = "speed_limit"
@@ -71,6 +78,7 @@ class SuspensionType(enum.Enum):
 
 class ServiceCategory(enum.Enum):
     """Service categories for classification"""
+
     RESIDENTIAL = "residential"
     BUSINESS = "business"
     ENTERPRISE = "enterprise"
@@ -79,6 +87,7 @@ class ServiceCategory(enum.Enum):
 
 class ServiceSubcategory(enum.Enum):
     """Service subcategories"""
+
     HOME = "home"
     SOHO = "soho"
     SMB = "smb"
@@ -88,6 +97,7 @@ class ServiceSubcategory(enum.Enum):
 
 class QualityProfile(enum.Enum):
     """Service quality profiles"""
+
     BASIC = "basic"
     STANDARD = "standard"
     PREMIUM = "premium"
@@ -96,6 +106,7 @@ class QualityProfile(enum.Enum):
 
 class SupportLevel(enum.Enum):
     """Customer support levels"""
+
     BASIC = "basic"
     STANDARD = "standard"
     PREMIUM = "premium"
@@ -103,6 +114,7 @@ class SupportLevel(enum.Enum):
 
 class AlertSeverity(enum.Enum):
     """Alert severity levels for service monitoring"""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -111,6 +123,7 @@ class AlertSeverity(enum.Enum):
 
 class AlertStatus(enum.Enum):
     """Alert status for tracking resolution"""
+
     ACTIVE = "active"
     ACKNOWLEDGED = "acknowledged"
     RESOLVED = "resolved"
@@ -119,6 +132,7 @@ class AlertStatus(enum.Enum):
 
 class UsageMetricType(enum.Enum):
     """Types of usage metrics tracked"""
+
     BANDWIDTH = "bandwidth"
     DATA_TRANSFER = "data_transfer"
     SESSION_TIME = "session_time"
@@ -128,6 +142,7 @@ class UsageMetricType(enum.Enum):
 
 class ProvisioningTaskStatus(enum.Enum):
     """Status of individual provisioning tasks"""
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
@@ -138,6 +153,7 @@ class ProvisioningTaskStatus(enum.Enum):
 
 class ServiceQualityLevel(enum.Enum):
     """Service quality levels for SLA and monitoring"""
+
     BASIC = "basic"
     STANDARD = "standard"
     PREMIUM = "premium"
@@ -146,6 +162,7 @@ class ServiceQualityLevel(enum.Enum):
 
 class ChangeMethod(enum.Enum):
     """Methods for service changes"""
+
     MANUAL = "manual"
     AUTOMATIC = "automatic"
     API = "api"
@@ -155,6 +172,7 @@ class ChangeMethod(enum.Enum):
 
 class BillingModel(enum.Enum):
     """Service billing models"""
+
     POSTPAID = "postpaid"
     PREPAID = "prepaid"
     HYBRID = "hybrid"
@@ -163,6 +181,7 @@ class BillingModel(enum.Enum):
 # Voice service specific enums
 class VoiceCodec(enum.Enum):
     """Voice codecs"""
+
     G711 = "G.711"
     G729 = "G.729"
     G722 = "G.722"
@@ -172,6 +191,7 @@ class VoiceCodec(enum.Enum):
 # Internet service specific enums
 class TrafficPriority(enum.Enum):
     """Traffic priority levels"""
+
     LOW = 1
     NORMAL = 5
     HIGH = 8
@@ -180,6 +200,7 @@ class TrafficPriority(enum.Enum):
 
 class ContentFilterLevel(enum.Enum):
     """Content filtering levels"""
+
     NONE = "none"
     BASIC = "basic"
     FAMILY = "family"

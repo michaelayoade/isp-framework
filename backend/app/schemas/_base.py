@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+
 """Shared base Pydantic model.
 
 This centralises common Pydantic v2 configuration so we don’t have to repeat it

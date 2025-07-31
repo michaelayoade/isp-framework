@@ -5,15 +5,17 @@ Pydantic schemas for customer portal operations including sessions, payments,
 service requests, dashboard data, and notifications.
 """
 
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Dict, Any
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class SessionStatus(str, Enum):
     """Customer portal session status"""
+
     ACTIVE = "active"
     EXPIRED = "expired"
     TERMINATED = "terminated"
@@ -21,6 +23,7 @@ class SessionStatus(str, Enum):
 
 class PaymentStatus(str, Enum):
     """Payment status"""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -30,6 +33,7 @@ class PaymentStatus(str, Enum):
 
 class ServiceRequestStatus(str, Enum):
     """Service request status"""
+
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -39,6 +43,7 @@ class ServiceRequestStatus(str, Enum):
 
 class NotificationStatus(str, Enum):
     """Notification status"""
+
     UNREAD = "unread"
     READ = "read"
     ARCHIVED = "archived"
@@ -47,12 +52,14 @@ class NotificationStatus(str, Enum):
 # Customer Portal Authentication Schemas
 class CustomerPortalLoginRequest(BaseModel):
     """Schema for customer portal login request"""
+
     portal_id: str
     password: str
 
 
 class CustomerPortalLoginResponse(BaseModel):
     """Schema for customer portal login response"""
+
     success: bool
     session_token: Optional[str] = None
     customer_id: Optional[int] = None
@@ -62,12 +69,14 @@ class CustomerPortalLoginResponse(BaseModel):
 
 class CustomerPortalLogoutRequest(BaseModel):
     """Schema for customer portal logout request"""
+
     session_token: str
 
 
 # Customer Portal Session Schemas
 class CustomerPortalSessionBase(BaseModel):
     """Base schema for customer portal sessions"""
+
     customer_id: int
     session_token: str
     ip_address: Optional[str] = None
@@ -77,17 +86,20 @@ class CustomerPortalSessionBase(BaseModel):
 
 class CustomerPortalSessionCreate(CustomerPortalSessionBase):
     """Schema for creating customer portal session"""
+
     pass
 
 
 class CustomerPortalSessionUpdate(BaseModel):
     """Schema for updating customer portal session"""
+
     status: Optional[SessionStatus] = None
     last_activity: Optional[datetime] = None
 
 
 class CustomerPortalSessionResponse(CustomerPortalSessionBase):
     """Schema for customer portal session response"""
+
     id: int
     created_at: datetime
     last_activity: datetime
@@ -100,6 +112,7 @@ class CustomerPortalSessionResponse(CustomerPortalSessionBase):
 # Customer Portal Payment Schemas
 class CustomerPortalPaymentBase(BaseModel):
     """Base schema for customer portal payments"""
+
     customer_id: int
     amount: Decimal = Field(..., decimal_places=2)
     currency: str = "NGN"
@@ -109,6 +122,7 @@ class CustomerPortalPaymentBase(BaseModel):
 
 class CustomerPortalPaymentRequest(BaseModel):
     """Schema for customer portal payment request"""
+
     amount: Decimal = Field(..., decimal_places=2, gt=0)
     currency: str = Field(default="NGN", max_length=3)
     payment_method: str
@@ -117,11 +131,13 @@ class CustomerPortalPaymentRequest(BaseModel):
 
 class CustomerPortalPaymentCreate(CustomerPortalPaymentBase):
     """Schema for creating customer portal payment"""
+
     pass
 
 
 class CustomerPortalPaymentResponse(CustomerPortalPaymentBase):
     """Schema for customer portal payment response"""
+
     id: int
     payment_reference: str
     status: PaymentStatus
@@ -136,6 +152,7 @@ class CustomerPortalPaymentResponse(CustomerPortalPaymentBase):
 # Customer Portal Service Request Schemas
 class CustomerPortalServiceRequestBase(BaseModel):
     """Base schema for customer portal service requests"""
+
     customer_id: int
     request_type: str
     description: str
@@ -144,11 +161,13 @@ class CustomerPortalServiceRequestBase(BaseModel):
 
 class CustomerPortalServiceRequestCreate(CustomerPortalServiceRequestBase):
     """Schema for creating customer portal service request"""
+
     pass
 
 
 class CustomerPortalServiceRequestUpdate(BaseModel):
     """Schema for updating customer portal service request"""
+
     status: Optional[ServiceRequestStatus] = None
     admin_notes: Optional[str] = None
     approved_changes: Optional[Dict[str, Any]] = None
@@ -156,6 +175,7 @@ class CustomerPortalServiceRequestUpdate(BaseModel):
 
 class CustomerPortalServiceRequestResponse(CustomerPortalServiceRequestBase):
     """Schema for customer portal service request response"""
+
     id: int
     status: ServiceRequestStatus
     admin_notes: Optional[str] = None
@@ -170,6 +190,7 @@ class CustomerPortalServiceRequestResponse(CustomerPortalServiceRequestBase):
 # Customer Portal Dashboard Schemas
 class CustomerPortalDashboardData(BaseModel):
     """Schema for customer portal dashboard data"""
+
     customer_info: Dict[str, Any]
     account_balance: Decimal
     active_services: List[Dict[str, Any]]
@@ -182,6 +203,7 @@ class CustomerPortalDashboardData(BaseModel):
 
 class CustomerPortalDashboardResponse(BaseModel):
     """Schema for customer portal dashboard response"""
+
     success: bool = True
     data: CustomerPortalDashboardData
     message: str = "Dashboard data retrieved successfully"
@@ -190,6 +212,7 @@ class CustomerPortalDashboardResponse(BaseModel):
 # Customer Portal Notification Schemas
 class CustomerPortalNotificationBase(BaseModel):
     """Base schema for customer portal notifications"""
+
     customer_id: int
     title: str
     message: str
@@ -199,17 +222,20 @@ class CustomerPortalNotificationBase(BaseModel):
 
 class CustomerPortalNotificationCreate(CustomerPortalNotificationBase):
     """Schema for creating customer portal notification"""
+
     pass
 
 
 class CustomerPortalNotificationUpdate(BaseModel):
     """Schema for updating customer portal notification"""
+
     status: Optional[NotificationStatus] = None
     read_at: Optional[datetime] = None
 
 
 class CustomerPortalNotificationResponse(CustomerPortalNotificationBase):
     """Schema for customer portal notification response"""
+
     id: int
     status: NotificationStatus
     created_at: datetime
@@ -222,6 +248,7 @@ class CustomerPortalNotificationResponse(CustomerPortalNotificationBase):
 # Customer Portal Preferences Schemas
 class CustomerPortalPreferencesBase(BaseModel):
     """Base schema for customer portal preferences"""
+
     customer_id: int
     language: str = "en"
     timezone: str = "Africa/Lagos"
@@ -232,11 +259,13 @@ class CustomerPortalPreferencesBase(BaseModel):
 
 class CustomerPortalPreferencesCreate(CustomerPortalPreferencesBase):
     """Schema for creating customer portal preferences"""
+
     pass
 
 
 class CustomerPortalPreferencesUpdate(BaseModel):
     """Schema for updating customer portal preferences"""
+
     language: Optional[str] = None
     timezone: Optional[str] = None
     email_notifications: Optional[bool] = None
@@ -246,6 +275,7 @@ class CustomerPortalPreferencesUpdate(BaseModel):
 
 class CustomerPortalPreferencesResponse(CustomerPortalPreferencesBase):
     """Schema for customer portal preferences response"""
+
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -257,6 +287,7 @@ class CustomerPortalPreferencesResponse(CustomerPortalPreferencesBase):
 # Search and Filter Schemas
 class CustomerPortalSearchFilters(BaseModel):
     """Schema for customer portal search filters"""
+
     customer_id: Optional[int] = None
     status: Optional[str] = None
     date_from: Optional[datetime] = None
@@ -266,31 +297,34 @@ class CustomerPortalSearchFilters(BaseModel):
 
 class PaginationParams(BaseModel):
     """Schema for pagination parameters"""
+
     page: int = Field(1, ge=1)
     per_page: int = Field(10, ge=1, le=100)
 
 
 class PaginatedResponse(BaseModel):
     """Schema for paginated responses"""
+
     items: List[Any]
     total: int
     page: int
     per_page: int
     pages: int
 
-    @field_validator('pages', mode='before')
+    @field_validator("pages", mode="before")
     @classmethod
     def calculate_pages(cls, v, info):
         # Get values from the data being validated
-        data = info.data if hasattr(info, 'data') else {}
-        total = data.get('total', 0)
-        per_page = data.get('per_page', 10)
+        data = info.data if hasattr(info, "data") else {}
+        total = data.get("total", 0)
+        per_page = data.get("per_page", 10)
         return (total + per_page - 1) // per_page if per_page > 0 else 0
 
 
 # Response Schemas
 class CustomerPortalInvoiceResponse(BaseModel):
     """Schema for customer portal invoice response"""
+
     id: int
     invoice_number: str
     amount: Decimal
@@ -303,6 +337,7 @@ class CustomerPortalInvoiceResponse(BaseModel):
 
 class CustomerPortalUsageResponse(BaseModel):
     """Schema for customer portal usage response"""
+
     service_id: int
     service_name: str
     period: str
@@ -314,6 +349,7 @@ class CustomerPortalUsageResponse(BaseModel):
 
 class CustomerPortalFAQResponse(BaseModel):
     """Schema for customer portal FAQ response"""
+
     id: int
     question: str
     answer: str
@@ -325,6 +361,7 @@ class CustomerPortalFAQResponse(BaseModel):
 
 class CustomerPortalActivityResponse(BaseModel):
     """Schema for customer portal activity response"""
+
     id: int
     action: str
     description: str
@@ -335,6 +372,7 @@ class CustomerPortalActivityResponse(BaseModel):
 
 class CustomerPortalResponse(BaseModel):
     """Generic customer portal response schema"""
+
     success: bool = True
     message: str = "Operation completed successfully"
     data: Optional[Any] = None
@@ -342,6 +380,7 @@ class CustomerPortalResponse(BaseModel):
 
 class CustomerPortalErrorResponse(BaseModel):
     """Customer portal error response schema"""
+
     success: bool = False
     message: str
     error_code: Optional[str] = None
