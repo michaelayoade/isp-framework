@@ -18,16 +18,15 @@ ignore = [
 ]
 
 # Per-file ignores for common patterns
-per-file-ignores = {
-    # Tests often have unused imports for fixtures/mocks
-    "tests/**/*" = ["F401", "E402", "S101"],
-    # Alembic migrations may have unused imports and missing __init__.py
-    "alembic/**/*" = ["F401", "INP001"],
-    # Migration backup directories should be excluded entirely
-    "alembic/migrations_backup_*/**/*" = ["F401", "E402", "INP001"],
-    # Conftest files often have unused imports for pytest fixtures
-    "**/conftest.py" = ["F401"],
-}
+[tool.ruff.per-file-ignores]
+# Tests often have unused imports for fixtures/mocks
+"tests/**/*" = ["F401", "E402", "S101"]
+# Alembic migrations may have unused imports and missing __init__.py
+"alembic/**/*" = ["F401", "INP001"]
+# Migration backup directories should be excluded entirely
+"alembic/migrations_backup_*/**/*" = ["F401", "E402", "INP001"]
+# Conftest files often have unused imports for pytest fixtures
+"**/conftest.py" = ["F401"]
 
 # Exclude directories that shouldn't be linted
 exclude = [
