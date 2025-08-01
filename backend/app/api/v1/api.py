@@ -36,6 +36,7 @@ from app.api.v1.endpoints import (  # Core business endpoints; Service & network
     two_factor,
     webhooks,
 )
+from app.api.v1 import config_management
 
 # Redirects removed - using direct RESTful URLs
 
@@ -81,6 +82,9 @@ api_router.include_router(
 
 # RBAC System
 api_router.include_router(rbac.router, prefix="/rbac", tags=["rbac"])
+
+# Configuration Management
+api_router.include_router(config_management.router, prefix="/config", tags=["configuration"])
 
 # Device Management
 api_router.include_router(devices.router, prefix="/devices", tags=["devices"])
