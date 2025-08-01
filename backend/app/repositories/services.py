@@ -10,9 +10,12 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import and_, asc, desc, or_
 from sqlalchemy.orm import Session
 
-from app.models.services import CustomerInternetService as InternetService
-from app.models.services import CustomerService
-from app.models.services import CustomerVoiceService as VoiceService
+from app.models.services.templates import (
+    BundleServiceTemplate as BundleService,
+    InternetServiceTemplate as InternetService,
+    ServiceTemplate as RecurringService,
+    VoiceServiceTemplate as VoiceService,
+)
 
 from .base import BaseRepository
 
@@ -129,13 +132,13 @@ class VoiceServiceRepository(BaseRepository[VoiceService]):
         )
 
 
-class BundleServiceRepository(BaseRepository[CustomerService]):
+class BundleServiceRepository(BaseRepository[BundleService]):
     """Repository for Bundle service operations"""
 
     def __init__(self, db: Session):
-        super().__init__(CustomerService, db)
+        super().__init__(BundleService, db)
 
-    def get_bundle_services(self, customer_id: int) -> List[CustomerService]:
+    def get_bundle_services(self, customer_id: int) -> List[BundleService]:
         """Get bundle services for a customer"""
         return (
             self.db.query(self.model)
@@ -147,7 +150,7 @@ class BundleServiceRepository(BaseRepository[CustomerService]):
             .all()
         )
 
-    def get_best_savings(self, limit: int = 10) -> List[CustomerService]:
+    def get_best_savings(self, limit: int = 10) -> List[BundleService]:
         """Get bundles with best savings percentage"""
         return (
             self.db.query(self.model)
@@ -157,7 +160,7 @@ class BundleServiceRepository(BaseRepository[CustomerService]):
             .all()
         )
 
-    def get_public_services(self) -> List[CustomerService]:
+    def get_public_services(self) -> List[BundleService]:
         """Get all public bundle services"""
         return (
             self.db.query(self.model)
@@ -167,13 +170,13 @@ class BundleServiceRepository(BaseRepository[CustomerService]):
         )
 
 
-class RecurringServiceRepository(BaseRepository[CustomerService]):
+class RecurringServiceRepository(BaseRepository[RecurringService]):
     """Repository for Recurring service operations"""
 
     def __init__(self, db: Session):
-        super().__init__(CustomerService, db)
+        super().__init__(RecurringService, db)
 
-    def get_by_type(self, service_type: str) -> List[CustomerService]:
+    def get_by_type(self, service_type: str) -> List[RecurringService]:
         """Get recurring services by type"""
         return (
             self.db.query(self.model)
@@ -186,7 +189,7 @@ class RecurringServiceRepository(BaseRepository[CustomerService]):
             .all()
         )
 
-    def get_addons(self) -> List[CustomerService]:
+    def get_addons(self) -> List[RecurringService]:
         """Get services that can be added as addons"""
         return (
             self.db.query(self.model)
@@ -194,7 +197,7 @@ class RecurringServiceRepository(BaseRepository[CustomerService]):
             .all()
         )
 
-    def get_auto_provision_services(self) -> List[CustomerService]:
+    def get_auto_provision_services(self) -> List[RecurringService]:
         """Get services with auto-provisioning enabled"""
         return (
             self.db.query(self.model)
@@ -204,7 +207,7 @@ class RecurringServiceRepository(BaseRepository[CustomerService]):
             .all()
         )
 
-    def get_public_services(self) -> List[CustomerService]:
+    def get_public_services(self) -> List[RecurringService]:
         """Get all public recurring services"""
         return (
             self.db.query(self.model)

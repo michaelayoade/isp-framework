@@ -24,9 +24,13 @@ from .credit_notes import CreditNote
 from .dunning import DunningAction, DunningCase
 from .enums import (
     AccountStatus,
+    BillingCycleType,
+    CreditNoteReason,
+    DunningStatus,
     InvoiceStatus,
     PaymentMethodType,
     PaymentStatus,
+    TransactionCategory,
     TransactionType,
 )
 from .invoices import Invoice, InvoiceItem
@@ -44,10 +48,14 @@ __all__ = [
     "DunningCase",
     "DunningAction",
     "AccountStatus",
+    "BillingCycleType",
+    "CreditNoteReason",
+    "DunningStatus",
     "InvoiceStatus",
     "PaymentMethod",
     "PaymentMethodType",
     "PaymentStatus",
+    "TransactionCategory",
     "TransactionType",
     "Invoice",
     "InvoiceItem",

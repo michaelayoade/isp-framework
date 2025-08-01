@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -115,6 +117,16 @@ def read_root():
         "api_prefix": settings.api_v1_prefix,
     }
 
+
+# Setup SSL/HTTPS security middleware
+if settings.force_https:
+    app.add_middleware(HTTPSRedirectMiddleware)
+
+# Add trusted host middleware for Host header validation
+app.add_middleware(
+    TrustedHostMiddleware, 
+    allowed_hosts=settings.allowed_hosts
+)
 
 # Setup security middleware (rate limiting, headers, threat protection)
 setup_security_middleware(app)

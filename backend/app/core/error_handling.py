@@ -184,10 +184,13 @@ class ValidationError(ISPException):
     """Input validation and schema errors."""
 
     def __init__(self, detail: str, **kwargs):
+        # Use 422 for validation errors (JSON parsing, schema validation)
+        # Use 400 for bad request format/structure
+        status_code = kwargs.pop('status_code', status.HTTP_422_UNPROCESSABLE_ENTITY)
         super().__init__(
             title="Validation Error",
             detail=detail,
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status_code,
             severity=ErrorSeverity.LOW,
             category=ErrorCategory.VALIDATION,
             impact=ErrorImpact.OPERATIONAL,
@@ -241,10 +244,59 @@ class ErrorHandler:
         elif isinstance(exception, HTTPException):
             severity = self._determine_severity_from_status(exception.status_code)
             category = self._determine_category_from_status(exception.status_code)
+            
+            # Determine appropriate title based on status code
+            title_map = {
+                400: "Bad Request",
+                401: "Unauthorized",
+                403: "Forbidden",
+                404: "Not Found",
+                405: "Method Not Allowed",
+                422: "Unprocessable Entity",
+                500: "Internal Server Error",
+                502: "Bad Gateway",
+                503: "Service Unavailable",
+            }
+            title = title_map.get(exception.status_code, "HTTP Error")
 
             return ErrorDetail(
-                type="https://ispframework.com/errors/http",
-                title="HTTP Error",
+                type=f"https://ispframework.com/errors/http",
+                title=title,
+                status=exception.status_code,
+                detail=str(exception.detail),
+                instance=f"/errors/{error_id}",
+                error_id=error_id,
+                timestamp=timestamp,
+                severity=severity,
+                category=category,
+                impact=ErrorImpact.OPERATIONAL,
+                stack_trace=traceback.format_exc(),
+                correlation_id=correlation_id,
+            )
+
+        # Handle Starlette HTTP exceptions (404, 405, etc.)
+        elif hasattr(exception, 'status_code') and hasattr(exception, 'detail'):
+            # This handles Starlette HTTPException that aren't FastAPI HTTPException
+            severity = self._determine_severity_from_status(exception.status_code)
+            category = self._determine_category_from_status(exception.status_code)
+            
+            # Determine appropriate title based on status code
+            title_map = {
+                400: "Bad Request",
+                401: "Unauthorized",
+                403: "Forbidden",
+                404: "Not Found",
+                405: "Method Not Allowed",
+                422: "Unprocessable Entity",
+                500: "Internal Server Error",
+                502: "Bad Gateway",
+                503: "Service Unavailable",
+            }
+            title = title_map.get(exception.status_code, "HTTP Error")
+
+            return ErrorDetail(
+                type=f"https://ispframework.com/errors/http",
+                title=title,
                 status=exception.status_code,
                 detail=str(exception.detail),
                 instance=f"/errors/{error_id}",

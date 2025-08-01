@@ -17,6 +17,9 @@ class BasicCustomerResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
+    class Config:
+        from_attributes = True
+
 
 class CustomerServiceBase(BaseModel):
     """Base customer service schema with common fields."""
@@ -87,6 +90,9 @@ class CustomerServiceResponse(CustomerServiceBase):
     effective_price: Optional[int] = Field(
         None, description="Effective price after discounts"
     )
+
+    class Config:
+        from_attributes = True
     monthly_cost: Optional[int] = Field(None, description="Monthly cost calculation")
 
 

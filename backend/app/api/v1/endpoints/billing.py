@@ -55,15 +55,15 @@ async def create_invoice(
         invoice = invoice_service.create_invoice(invoice_data)
         return invoice
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create invoice",
+            status_code=500,
+            detail=f"Failed to create invoice: {str(e)}",
         )
 
 
-@router.get("/invoices/", response_model=List[InvoiceResponse])
+@router.get("/invoices/search", response_model=List[InvoiceResponse])
 async def search_invoices(
     customer_id: Optional[int] = Query(None, description="Filter by customer ID"),
     status: Optional[str] = Query(None, description="Filter by invoice status"),
@@ -99,7 +99,7 @@ async def search_invoices(
 
     except Exception:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail="Failed to search invoices",
         )
 
@@ -317,7 +317,7 @@ async def create_payment(
         )
 
 
-@router.get("/payments/", response_model=List[PaymentResponse])
+@router.get("/payments/search", response_model=List[PaymentResponse])
 async def search_payments(
     customer_id: Optional[int] = Query(None, description="Filter by customer ID"),
     invoice_id: Optional[int] = Query(None, description="Filter by invoice ID"),
@@ -353,7 +353,7 @@ async def search_payments(
 
     except Exception:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail="Failed to search payments",
         )
 
@@ -453,7 +453,7 @@ async def create_credit_note(
         )
 
 
-@router.get("/credit-notes/", response_model=List[CreditNoteResponse])
+@router.get("/credit-notes/search", response_model=List[CreditNoteResponse])
 async def search_credit_notes(
     customer_id: Optional[int] = Query(None, description="Filter by customer ID"),
     invoice_id: Optional[int] = Query(None, description="Filter by invoice ID"),
@@ -489,7 +489,7 @@ async def search_credit_notes(
 
     except Exception:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail="Failed to search credit notes",
         )
 

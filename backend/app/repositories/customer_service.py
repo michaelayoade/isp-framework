@@ -6,7 +6,7 @@ from sqlalchemy import and_, func, or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, joinedload
 
-from app.models.services import CustomerService, ServiceTemplate
+from app.models.services import CustomerService, ServicePlan
 from app.models.services.enums import ServiceStatus
 from app.repositories.base import BaseRepository
 
@@ -36,7 +36,7 @@ class CustomerServiceRepository(BaseRepository[CustomerService]):
         return (
             self.db.query(CustomerService)
             .options(
-                joinedload(CustomerService.service_template),
+                joinedload(CustomerService.service_plan),
                 joinedload(CustomerService.customer),
             )
             .filter(CustomerService.id == service_id)
@@ -108,8 +108,8 @@ class CustomerServiceRepository(BaseRepository[CustomerService]):
             query = query.filter(CustomerService.status == search_params["status"])
 
         if search_params.get("service_type"):
-            query = query.join(ServiceTemplate).filter(
-                ServiceTemplate.service_type == search_params["service_type"]
+            query = query.join(ServicePlan).filter(
+                ServicePlan.service_type_id == search_params["service_type"]
             )
 
         if search_params.get("active_only", True):
@@ -119,8 +119,8 @@ class CustomerServiceRepository(BaseRepository[CustomerService]):
             current_time = datetime.now(timezone.utc)
             query = query.filter(
                 or_(
-                    CustomerService.end_date.is_(None),
-                    CustomerService.end_date > current_time,
+                    CustomerService.termination_date.is_(None),
+                    CustomerService.termination_date > current_time,
                 )
             )
 
@@ -314,7 +314,7 @@ class CustomerServiceRepository(BaseRepository[CustomerService]):
         if service:
             service.status = ServiceStatus.TERMINATED.value
             logger.info("Terminated customer service %s", service_id)
-            service.end_date = end_date or datetime.now(timezone.utc)
+            service.termination_date = end_date or datetime.now(timezone.utc)
             service.updated_at = datetime.now(timezone.utc)
             self.db.commit()
             self.db.refresh(service)
@@ -333,11 +333,11 @@ class CustomerServiceRepository(BaseRepository[CustomerService]):
             .filter(
                 and_(
                     CustomerService.status == ServiceStatus.ACTIVE,
-                    CustomerService.end_date.isnot(None),
-                    CustomerService.end_date <= future_date,
+                    CustomerService.termination_date.isnot(None),
+                    CustomerService.termination_date <= future_date,
                 )
             )
-            .order_by(CustomerService.end_date)
+            .order_by(CustomerService.termination_date)
             .all()
         )
 
@@ -381,9 +381,9 @@ class CustomerServiceRepository(BaseRepository[CustomerService]):
         """Calculate revenue statistics by service plan."""
         query = (
             self.db.query(
-                ServiceTemplate.id,
-                ServiceTemplate.name,
-                ServiceTemplate.service_type,
+                ServicePlan.id,
+                ServicePlan.name,
+                ServicePlan.service_type_id,
                 func.count(CustomerService.id).label("total_assignments"),
                 func.count(
                     func.case(
@@ -406,8 +406,8 @@ class CustomerServiceRepository(BaseRepository[CustomerService]):
         )
 
         if service_plan_id:
-            query = query.filter(ServiceTemplate.id == service_plan_id)
+            query = query.filter(ServicePlan.id == service_plan_id)
 
         return query.group_by(
-            ServiceTemplate.id, ServiceTemplate.name, ServiceTemplate.service_type
+            ServicePlan.id, ServicePlan.name, ServicePlan.service_type_id
         ).all()

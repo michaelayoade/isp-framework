@@ -12,6 +12,13 @@ class TokenResponse(BaseModel):
     token_type: str = Field("bearer", description="Token type")
 
 
+class LoginRequest(BaseModel):
+    """Schema for JSON-based login request."""
+
+    username: str = Field(..., description="Username for authentication")
+    password: str = Field(..., description="Password for authentication")
+
+
 class RefreshTokenRequest(BaseModel):
     """Schema for refresh token request."""
 

@@ -42,7 +42,9 @@ class ResellerAuthService:
 
     def get_password_hash(self, password: str) -> str:
         """Hash a password"""
-        return pwd_context.hash(password)
+        hash_result = pwd_context.hash(password)
+        # Ensure we return a string, not bytes
+        return str(hash_result) if isinstance(hash_result, bytes) else hash_result
 
     def authenticate_reseller(self, email: str, password: str) -> Optional[Reseller]:
         """Authenticate reseller by email and password"""
@@ -86,7 +88,8 @@ class ResellerAuthService:
         encoded_jwt = jwt.encode(
             to_encode, RESELLER_SECRET_KEY, algorithm=RESELLER_ALGORITHM
         )
-        return encoded_jwt
+        # Ensure we return a string, not bytes
+        return str(encoded_jwt) if isinstance(encoded_jwt, bytes) else encoded_jwt
 
     def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
         """Verify JWT token and return payload"""
@@ -149,12 +152,12 @@ class ResellerAuthService:
             "expires_in": RESELLER_ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             "reseller": {
                 "id": reseller.id,
-                "name": reseller.name,
-                "email": reseller.email,
-                "code": reseller.code,
-                "territory": reseller.territory,
-                "commission_percentage": float(reseller.commission_percentage),
-                "is_active": reseller.is_active,
+                "name": str(reseller.name) if reseller.name else None,
+                "email": str(reseller.email) if reseller.email else None,
+                "code": str(reseller.code) if reseller.code else None,
+                "territory": str(reseller.territory) if reseller.territory else None,
+                "commission_percentage": float(reseller.commission_percentage) if reseller.commission_percentage else 0.0,
+                "is_active": bool(reseller.is_active),
             },
         }
 

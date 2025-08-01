@@ -3,9 +3,11 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+from pydantic import ValidationError
 
 from app.api.dependencies import get_current_active_admin
 from app.core.database import get_db
+from app.core.exceptions import DuplicateError, NotFoundError, ValidationError as CustomValidationError
 from app.models import Administrator
 from app.schemas.customer import (
     Customer,
@@ -72,11 +74,18 @@ async def create_customer(
         customer = customer_service.create_customer(customer_data)
         logger.info(f"Admin {current_admin.username} created customer {customer.id}")
         return customer
-    except Exception as e:
-        logger.error(f"Error creating customer: {e}")
-        if "already exists" in str(e):
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except DuplicateError as e:
+        logger.error(f"Duplicate customer creation attempt: {e}")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except CustomValidationError as e:
+        logger.error(f"Validation error creating customer: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except ValidationError as e:
+        logger.error(f"Pydantic validation error: {e}")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid input data")
+    except Exception as e:
+        logger.error(f"Unexpected error creating customer: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @router.get("/{customer_id}", response_model=Customer)
@@ -91,13 +100,14 @@ async def get_customer(
     try:
         customer = customer_service.get_customer(customer_id)
         return customer
+    except NotFoundError as e:
+        logger.error(f"Customer {customer_id} not found: {e}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
-        logger.error(f"Error getting customer {customer_id}: {e}")
-        if "not found" in str(e):
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        logger.error(f"Unexpected error getting customer {customer_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error retrieving customer",
+            detail="Internal server error",
         )
 
 

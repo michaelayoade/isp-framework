@@ -106,11 +106,7 @@ class CustomerService:
 
     def create_customer(self, customer_data: CustomerCreate) -> Any:
         """Create a new customer."""
-        # Validate unique constraints
-        if customer_data.email and self.customer_repo.email_exists(customer_data.email):
-            raise DuplicateError(
-                f"Customer with email {customer_data.email} already exists"
-            )
+        # Note: Only portal_id is unique for customers, not email
 
         # Create customer data dict
         customer_dict = customer_data.model_dump()
@@ -168,16 +164,20 @@ class CustomerService:
 
             # Trigger webhook event
             try:
-                self.webhook_triggers.customer_created(
-                    {
-                        "id": customer.id,
-                        "email": customer.email,
-                        "full_name": customer.full_name,
-                        "portal_id": customer.portal_id,
-                        "created_at": customer.created_at.isoformat(),
-                        "customer_type": customer.customer_type or "individual",
-                    }
-                )
+                webhook_data = {
+                    "id": customer.id,
+                    "email": customer.email or "",
+                    "name": customer.name or "",
+                    "portal_id": customer.portal_id or "",
+                    "customer_type": getattr(customer, 'customer_type', None) or "individual",
+                }
+                # Safely handle datetime serialization
+                if hasattr(customer, 'created_at') and customer.created_at:
+                    webhook_data["created_at"] = customer.created_at.isoformat()
+                else:
+                    webhook_data["created_at"] = None
+                    
+                self.webhook_triggers.customer_created(webhook_data)
             except Exception as e:
                 logger.warning(f"Failed to trigger customer.created webhook: {e}")
 
@@ -214,14 +214,7 @@ class CustomerService:
         # Check if customer exists
         existing_customer = self.get_customer(customer_id)
 
-        # Validate unique constraints if email is being updated
-        if customer_data.email and customer_data.email != existing_customer.email:
-            if self.customer_repo.email_exists(
-                customer_data.email, exclude_id=customer_id
-            ):
-                raise DuplicateError(
-                    f"Customer with email {customer_data.email} already exists"
-                )
+        # Note: Only portal_id is unique for customers, not email
 
         # Update customer
         update_dict = customer_data.model_dump(exclude_unset=True)
@@ -230,16 +223,20 @@ class CustomerService:
 
             # Trigger webhook event
             try:
-                self.webhook_triggers.customer_updated(
-                    {
-                        "id": customer.id,
-                        "email": customer.email,
-                        "full_name": customer.full_name,
-                        "portal_id": customer.portal_id,
-                        "updated_at": customer.updated_at.isoformat(),
-                        "customer_type": customer.customer_type or "individual",
-                    }
-                )
+                webhook_data = {
+                    "id": customer.id,
+                    "email": customer.email or "",
+                    "name": customer.name or "",  # Use 'name' instead of 'full_name'
+                    "portal_id": customer.portal_id or "",
+                    "customer_type": getattr(customer, 'customer_type', None) or "individual",
+                }
+                # Safely handle datetime serialization
+                if hasattr(customer, 'updated_at') and customer.updated_at:
+                    webhook_data["updated_at"] = customer.updated_at.isoformat()
+                else:
+                    webhook_data["updated_at"] = None
+                    
+                self.webhook_triggers.customer_updated(webhook_data)
             except Exception as e:
                 logger.warning(f"Failed to trigger customer.updated webhook: {e}")
 
@@ -672,5 +669,56 @@ class CustomerService:
 
         self.db.delete(contact)
         self.db.commit()
+
+    def calculate_customer_balance(self, customer_id: int) -> float:
+        """Calculate customer balance from invoices and payments."""
+        from app.models.billing.invoices import Invoice
+        from app.models.billing.payments import Payment
+        from sqlalchemy import func
+
+        # Get customer to verify it exists
+        customer = self.get_customer(customer_id)
+
+        # Calculate total invoiced amount
+        total_invoiced = (
+            self.db.query(func.coalesce(func.sum(Invoice.total_amount), 0))
+            .filter(Invoice.customer_id == customer_id)
+            .scalar()
+        ) or 0
+
+        # Calculate total payments received
+        total_paid = (
+            self.db.query(func.coalesce(func.sum(Payment.amount), 0))
+            .filter(Payment.customer_id == customer_id, Payment.status == "completed")
+            .scalar()
+        ) or 0
+
+        # Balance = Total Paid - Total Invoiced (positive = credit, negative = debt)
+        calculated_balance = float(total_paid) - float(total_invoiced)
+        
+        return calculated_balance
+
+    def update_customer_balance(self, customer_id: int) -> float:
+        """Update customer balance in database and return new balance."""
+        calculated_balance = self.calculate_customer_balance(customer_id)
+        
+        # Update balance in database
+        customer = self.get_customer(customer_id)
+        customer.balance = calculated_balance
+        self.db.commit()
+        self.db.refresh(customer)
+        
+        logger.info(f"Updated customer {customer_id} balance to {calculated_balance}")
+        return calculated_balance
+
+    def get_customer_balance(self, customer_id: int) -> float:
+        """Get customer balance (from database or calculate if needed)."""
+        customer = self.get_customer(customer_id)
+        
+        # If balance is None or 0, recalculate it
+        if customer.balance is None or customer.balance == 0:
+            return self.update_customer_balance(customer_id)
+        
+        return float(customer.balance)
 
         logger.info(f"Deleted contact {contact_id} for customer {customer_id}")

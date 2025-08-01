@@ -1,7 +1,8 @@
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, validator
 
 from .customer_status import CustomerStatus  # Import CustomerStatus schema
 
@@ -20,6 +21,8 @@ class CustomerBase(BaseModel):
     address: Optional[str] = Field(None, max_length=500, description="Full address")
     city: Optional[str] = Field(None, max_length=100, description="City")
     zip_code: Optional[str] = Field(None, max_length=20, description="ZIP/Postal code")
+    country: Optional[str] = Field(None, max_length=100, description="Country")
+    postal_code: Optional[str] = Field(None, max_length=20, description="Postal code")
 
     # Extended fields
     billing_email: Optional[EmailStr] = Field(None, description="Billing email address")
@@ -29,6 +32,25 @@ class CustomerBase(BaseModel):
     custom_fields: Optional[Dict[str, Any]] = Field(
         None, description="Custom metadata fields"
     )
+
+    @validator('phone')
+    def validate_phone(cls, v):
+        """Validate phone number format."""
+        if v is not None:
+            # Remove all non-digit characters for validation
+            digits_only = re.sub(r'\D', '', v)
+            # Be more lenient with phone number validation
+            # Allow shorter numbers for local formats and longer for international
+            if len(digits_only) < 7 or len(digits_only) > 20:
+                raise ValueError('Phone number must be between 7 and 20 digits')
+        return v
+
+    @validator('category')
+    def validate_category(cls, v):
+        """Validate customer category."""
+        if v not in ['person', 'company', 'business']:
+            raise ValueError('Category must be person, company, or business')
+        return v
 
 
 class CustomerCreate(CustomerBase):
@@ -73,6 +95,7 @@ class Customer(CustomerBase):
     status_ref: Optional[CustomerStatus] = Field(
         None, description="Customer status details"
     )
+    balance: Optional[float] = Field(None, description="Customer account balance")
     created_at: datetime
     updated_at: Optional[datetime] = None
 
@@ -88,6 +111,7 @@ class CustomerSummary(BaseModel):
     status_ref: Optional[CustomerStatus] = Field(
         None, description="Customer status details"
     )
+    balance: Optional[float] = Field(None, description="Customer account balance")
     category: str
     created_at: datetime
 

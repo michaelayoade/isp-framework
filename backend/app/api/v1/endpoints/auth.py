@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_admin
 from app.core.database import get_db
 from app.models import Administrator
-from app.schemas.auth import RefreshTokenRequest, TokenResponse
+from app.schemas.auth import LoginRequest, RefreshTokenRequest, TokenResponse
 from app.services.auth import AuthService
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ router = APIRouter()
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
-    """Authenticate and get access token."""
+    """Authenticate and get access token (form data)."""
     auth_service = AuthService(db)
 
     # Authenticate admin
@@ -34,6 +34,29 @@ async def login(
     # Create tokens
     tokens = auth_service.create_tokens(admin)
     logger.info(f"Admin {admin.username} logged in successfully")
+
+    return tokens
+
+
+@router.post("/login", response_model=TokenResponse)
+async def login_json(
+    login_data: LoginRequest, db: Session = Depends(get_db)
+):
+    """Authenticate and get access token (JSON data)."""
+    auth_service = AuthService(db)
+
+    # Authenticate admin
+    admin = auth_service.authenticate_admin(login_data.username, login_data.password)
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Create tokens
+    tokens = auth_service.create_tokens(admin)
+    logger.info(f"Admin {admin.username} logged in successfully via JSON")
 
     return tokens
 

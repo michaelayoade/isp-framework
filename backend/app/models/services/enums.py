@@ -10,24 +10,25 @@ import enum
 class ServiceStatus(enum.Enum):
     """Service lifecycle status"""
 
-    PENDING = "pending"  # Ordered, awaiting activation
-    ACTIVE = "active"  # Currently providing service
-    SUSPENDED = "suspended"  # Temporarily disabled (billing, technical)
-    TERMINATED = "terminated"  # Permanently cancelled
-    EXPIRED = "expired"  # End date reached, no longer active
-    PENDING_UPGRADE = "pending_upgrade"  # Upgrade scheduled
-    PENDING_DOWNGRADE = "pending_downgrade"  # Downgrade scheduled
-    PENDING_RELOCATION = "pending_relocation"  # Moving to new address
+    PENDING = "PENDING"  # Ordered, awaiting activation
+    ACTIVE = "ACTIVE"  # Currently providing service
+    SUSPENDED = "SUSPENDED"  # Temporarily disabled (billing, technical)
+    TERMINATED = "TERMINATED"  # Permanently cancelled
+    EXPIRED = "EXPIRED"  # End date reached, no longer active
+    PENDING_UPGRADE = "PENDING_UPGRADE"  # Upgrade scheduled
+    PENDING_DOWNGRADE = "PENDING_DOWNGRADE"  # Downgrade scheduled
+    PENDING_RELOCATION = "PENDING_RELOCATION"  # Moving to new address
 
 
 class ServiceType(enum.Enum):
     """Types of services offered"""
 
-    INTERNET = "internet"
-    VOICE = "voice"
-    BUNDLE = "bundle"
-    ADDON = "addon"
-    ONE_TIME = "one_time"
+    INTERNET = "INTERNET"
+    VOICE = "VOICE"
+    BUNDLE = "BUNDLE"
+    ADDON = "ADDON"
+    ONE_TIME = "ONE_TIME"
+    RECURRING = "RECURRING"
 
 
 class ProvisioningStatus(enum.Enum):

@@ -581,6 +581,20 @@ class BillingManagementRepository:
         last_invoice_date = invoices[0].invoice_date if invoices else None
         last_payment_date = payments[0].payment_date if payments else None
 
+        # Calculate average monthly billing
+        average_monthly_billing = None
+        if total_invoices > 0 and last_invoice_date:
+            # Simple calculation: total amount divided by number of invoices
+            average_monthly_billing = total_amount / total_invoices if total_invoices > 0 else 0
+
+        # Calculate payment history score (1-100)
+        payment_history_score = 100  # Default to perfect score
+        if total_invoices > 0:
+            payment_ratio = paid_amount / total_amount if total_amount > 0 else 1.0
+            overdue_ratio = overdue_amount / total_amount if total_amount > 0 else 0.0
+            # Score based on payment ratio and overdue ratio
+            payment_history_score = max(1, min(100, int((payment_ratio * 100) - (overdue_ratio * 50))))
+
         return {
             "customer_id": customer_id,
             "total_invoices": total_invoices,
@@ -592,4 +606,6 @@ class BillingManagementRepository:
             "last_payment_date": last_payment_date,
             "total_payments": len(payments),
             "total_credit_notes": len(credit_notes),
+            "average_monthly_billing": average_monthly_billing,
+            "payment_history_score": payment_history_score,
         }

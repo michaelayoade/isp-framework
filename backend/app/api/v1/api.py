@@ -7,10 +7,12 @@ from app.api.v1.endpoints import (  # Core business endpoints; Service & network
     auth,
     automation,
     billing,
+    # billing_enhanced,  # Temporarily disabled due to Pydantic schema issues
     billing_types,
     communications,
     contact_types,
     customer_portal,
+    customer_services,
     customer_statuses,
     customers,
     dead_letter_queue,
@@ -89,6 +91,9 @@ api_router.include_router(automation.router, prefix="/automation", tags=["automa
 # Service Management (Consolidated)
 api_router.include_router(services.router, prefix="/services", tags=["services"])
 api_router.include_router(
+    customer_services.router, prefix="/customer-services", tags=["services"]
+)
+api_router.include_router(
     service_templates.router, prefix="/services/templates", tags=["services"]
 )  # Replaces service_plans
 api_router.include_router(
@@ -104,6 +109,7 @@ api_router.include_router(
 
 # Billing & Payments
 api_router.include_router(billing.router, prefix="/billing", tags=["billing"])
+# api_router.include_router(billing_enhanced.router, prefix="/billing", tags=["billing"])  # Temporarily disabled
 
 # Support & Ticketing (Clean RESTful naming)
 api_router.include_router(ticketing.router, prefix="/support", tags=["support"])

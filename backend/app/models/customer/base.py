@@ -3,6 +3,7 @@ Customer-related models following ISP Framework modular architecture
 """
 
 from sqlalchemy import (
+    DECIMAL,
     JSON,
     Boolean,
     Column,
@@ -47,9 +48,12 @@ class Customer(Base):
     address = Column(String(500))  # Full address in single field
     zip_code = Column(String(20))
     city = Column(String(100))
+    country = Column(String(100))
+    postal_code = Column(String(20))
     subdivision_id = Column(Integer)  # state/province
 
     # Financial
+    balance = Column(DECIMAL(12, 2), default=0.00)  # Customer account balance
     # billing_type_id = Column(
     #     Integer, ForeignKey("billing_types.id"), nullable=True
     # )  # Foreign key to billing_types table - temporarily commented out due to schema mismatch

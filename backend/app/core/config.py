@@ -24,8 +24,16 @@ class Settings(BaseSettings):
     # Allowed hosts for Host header validation (TrustedHostMiddleware)
     allowed_hosts: List[str] = ["*"]
 
-    # CORS
-    allowed_origins: List[str] = ["*"]
+    # CORS - Updated for frontend integration
+    allowed_origins: List[str] = [
+        "https://marketing.dotmac.ng",  # Production SSL endpoint
+        "https://51ebb932-a4d1-4bda-bf38-d0efdfb64591.lovableproject.com",
+        "http://localhost:3000",
+        "https://localhost:3000",
+        "http://localhost:8080",
+        "https://localhost:8080",
+        "*"  # Keep wildcard for development flexibility
+    ]
     allowed_methods: List[str] = ["*"]
     allowed_headers: List[str] = ["*"]
 
@@ -53,6 +61,13 @@ class Settings(BaseSettings):
 
     # Logging
     log_level: str = "INFO"
+    
+    # SSL/HTTPS Configuration
+    enable_https: bool = False
+    ssl_cert_path: Optional[str] = "/etc/ssl/ispframework/server.crt"
+    ssl_key_path: Optional[str] = "/etc/ssl/ispframework/server.key"
+    force_https: bool = False
+    hsts_max_age: int = 31536000  # 1 year in seconds
 
     # Portal ID System
     default_portal_prefix: str = "1000"

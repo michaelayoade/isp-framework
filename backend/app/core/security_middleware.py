@@ -342,26 +342,13 @@ def setup_security_middleware(app: FastAPI):
     security_config = getattr(settings, "SECURITY_CONFIG", {})
     app.add_middleware(SecurityMiddleware, config=security_config)
 
-    # CORS configuration (restrictive by default)
-    from fastapi.middleware.cors import CORSMiddleware
-
-    cors_origins = getattr(settings, "CORS_ORIGINS", [])
-    if cors_origins:
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=cors_origins,
-            allow_credentials=True,
-            allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
-            allow_headers=["*"],
-            expose_headers=["X-Request-ID"],
-            max_age=3600,
-        )
+    # CORS configuration is handled in main.py - removed duplicate to prevent conflicts
 
     logger.info(
         "Security middleware configured",
         https_redirect=getattr(settings, "ENVIRONMENT", "development") == "production",
         trusted_hosts=allowed_hosts,
-        cors_origins=cors_origins,
+        cors_handled_in_main=True,
     )
 
 

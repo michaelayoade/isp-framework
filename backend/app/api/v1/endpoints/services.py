@@ -33,28 +33,219 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # ============================================================================
-# INTERNET SERVICES ENDPOINTS
+# SERVICE CATALOG ENDPOINTS
 # ============================================================================
 
-
-@router.post(
-    "/internet/", response_model=InternetService, status_code=status.HTTP_201_CREATED
-)
-async def create_internet_service(
-    service_data: InternetServiceCreate,
+@router.post("/catalog", response_model=dict)
+async def create_service_catalog_item(
+    service_type: str,
+    name: str,
+    description: str,
+    base_price: float,
+    service_config: dict,
     db: Session = Depends(get_db),
     current_admin: Administrator = Depends(get_current_admin),
 ):
-    """Create a new internet service"""
+    """Create a new service catalog item"""
+    service = ServiceManagementService(db)
+    result = await service.create_service_catalog_item(
+        service_type=service_type,
+        name=name,
+        description=description,
+        base_price=base_price,
+        service_config=service_config
+    )
+    return {"id": result.id, "name": result.name, "service_type": result.service_type}
+
+@router.get("/catalog", response_model=List[dict])
+async def get_service_catalog(
+    service_type: str = None,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Get service catalog items"""
+    service = ServiceManagementService(db)
+    items = await service.get_service_catalog(service_type=service_type)
+    return [
+        {
+            "id": item.id,
+            "name": item.name,
+            "description": item.description,
+            "service_type": item.service_type,
+            "base_price": item.tariff.base_price if item.tariff else 0,
+            "is_active": item.is_active,
+            "is_public": item.is_public
+        }
+        for item in items
+    ]
+
+@router.get("/catalog/{service_id}", response_model=dict)
+async def get_service_catalog_item(
+    service_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Get specific service catalog item"""
+    service = ServiceManagementService(db)
+    item = await service.get_service_catalog_item(service_id)
+    return {
+        "id": item.id,
+        "name": item.name,
+        "description": item.description,
+        "service_type": item.service_type,
+        "base_price": item.tariff.base_price if item.tariff else 0,
+        "is_active": item.is_active,
+        "is_public": item.is_public,
+        "tariff_id": item.tariff_id
+    }
+
+@router.put("/catalog/{service_id}", response_model=dict)
+async def update_service_catalog_item(
+    service_id: int,
+    update_data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Update service catalog item"""
+    service = ServiceManagementService(db)
+    result = await service.update_service_catalog_item(service_id, update_data)
+    return {"id": result.id, "name": result.name, "updated": True}
+
+@router.delete("/catalog/{service_id}", response_model=dict)
+async def delete_service_catalog_item(
+    service_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Delete service catalog item"""
+    service = ServiceManagementService(db)
+    result = await service.delete_service_catalog_item(service_id)
+    return {"deleted": result}
+
+# ============================================================================
+# SERVICE PROVISIONING ENDPOINTS
+# ============================================================================
+
+@router.post("/provision", response_model=dict)
+async def provision_service(
+    customer_id: int,
+    service_template_id: int,
+    provisioning_data: dict,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Provision a service for a customer"""
+    service = ServiceManagementService(db)
+    return await service.provision_service(
+        customer_id=customer_id,
+        service_template_id=service_template_id,
+        provisioning_data=provisioning_data
+    )
+
+@router.get("/provision/{customer_service_id}/status", response_model=dict)
+async def get_provisioning_status(
+    customer_service_id: int,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Get provisioning status"""
+    service = ServiceManagementService(db)
+    return await service.get_provisioning_status(customer_service_id)
+
+
+
+# ============================================================================
+# SERVICE SEARCH AND OVERVIEW ENDPOINTS
+# ============================================================================
+
+@router.get("/search", response_model=List[dict])
+async def search_services(
+    search_term: str = None,
+    service_type: str = None,
+    is_active: bool = None,
+    is_public: bool = None,
+    min_price: float = None,
+    max_price: float = None,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Search services with filters"""
+    service = ServiceManagementService(db)
     try:
-        service_mgmt = ServiceManagementService(db)
-        return await service_mgmt.create_internet_service(service_data)
+        results = await service.search_services(
+            search_term=search_term,
+            service_type=service_type,
+            is_active=is_active,
+            is_public=is_public,
+            min_price=min_price,
+            max_price=max_price
+        )
+        return [
+            {
+                "id": item.id,
+                "name": item.name,
+                "description": item.description,
+                "service_type": item.service_type,
+                "base_price": item.tariff.base_price if item.tariff else 0,
+                "is_active": item.is_active,
+                "is_public": item.is_public
+            }
+            for item in results
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/overview", response_model=dict)
+async def get_services_overview(
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Get services overview and statistics"""
+    service = ServiceManagementService(db)
+    try:
+        overview = await service.get_services_overview()
+        return {
+            "internet_services": overview.internet_services,
+            "voice_services": overview.voice_services,
+            "bundle_services": overview.bundle_services,
+            "recurring_services": overview.recurring_services,
+            "total_services": overview.total_services,
+            "active_services": overview.active_services,
+            "public_services": overview.public_services
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/validate", response_model=dict)
+async def validate_service_data(
+    validation_request: dict,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Validate service data before creation"""
+    service = ServiceManagementService(db)
+    try:
+        service_type = validation_request.get("service_type")
+        service_data = validation_request.get("service_data", {})
+        return await service.validate_service_data(service_type, service_data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/bundle", response_model=dict)
+async def create_bundle_service(
+    service_data: BundleServiceCreate,
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Create a new bundle service"""
+    service = ServiceManagementService(db)
+    try:
+        result = await service.create_bundle_service(service_data)
+        return {"id": result.id, "name": result.name, "service_type": result.service_type}
     except DuplicateError as e:
         raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
-        logger.error(f"Error creating internet service: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/internet/", response_model=List[InternetService])
 def list_internet_services(
