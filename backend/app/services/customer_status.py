@@ -22,7 +22,7 @@ class CustomerStatusService:
         query = self.db.query(CustomerStatus)
 
         if active_only:
-            query = query.filter(CustomerStatus.is_active is True)
+            query = query.filter(CustomerStatus.is_active == True)
 
         statuses = query.order_by(CustomerStatus.sort_order, CustomerStatus.name).all()
         return statuses
@@ -125,7 +125,7 @@ class CustomerStatusService:
             # Fallback to first active status
             default_status = (
                 self.db.query(CustomerStatus)
-                .filter(CustomerStatus.is_active is True)
+                .filter(CustomerStatus.is_active == True)
                 .order_by(CustomerStatus.sort_order)
                 .first()
             )

@@ -428,7 +428,7 @@ async def update_internet_service(
 
 
 @router.post("/internet/{service_id}/reset-fup", response_model=CustomerInternetService)
-async def reset_internet_service_fup(
+def reset_internet_service_fup(
     service_id: int,
     db: Session = Depends(get_db),
     current_admin: Administrator = Depends(get_current_admin),
@@ -438,7 +438,7 @@ async def reset_internet_service_fup(
     internet_service = factory.get_internet_service_service()
 
     try:
-        service = await internet_service.reset_fup_status(
+        service = internet_service.reset_fup_status(
             service_id=service_id, admin_id=current_admin.id
         )
         if not service:

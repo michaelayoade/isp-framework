@@ -22,7 +22,7 @@ class ServiceTypeService:
         query = self.db.query(ServiceType)
 
         if active_only:
-            query = query.filter(ServiceType.is_active is True)
+            query = query.filter(ServiceType.is_active == True)
 
         service_types = query.order_by(ServiceType.sort_order, ServiceType.name).all()
         return service_types
@@ -143,7 +143,7 @@ class ServiceTypeService:
             # Fallback to first active service type
             default_type = (
                 self.db.query(ServiceType)
-                .filter(ServiceType.is_active is True)
+                .filter(ServiceType.is_active == True)
                 .order_by(ServiceType.sort_order)
                 .first()
             )
@@ -157,7 +157,7 @@ class ServiceTypeService:
         """Get all recurring service types."""
         return (
             self.db.query(ServiceType)
-            .filter(ServiceType.is_active is True, ServiceType.is_recurring is True)
+            .filter(ServiceType.is_active == True, ServiceType.is_recurring == True)
             .order_by(ServiceType.sort_order)
             .all()
         )
@@ -166,7 +166,7 @@ class ServiceTypeService:
         """Get all one-time service types."""
         return (
             self.db.query(ServiceType)
-            .filter(ServiceType.is_active is True, ServiceType.is_recurring is False)
+            .filter(ServiceType.is_active == True, ServiceType.is_recurring == False)
             .order_by(ServiceType.sort_order)
             .all()
         )

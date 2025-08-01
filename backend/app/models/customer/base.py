@@ -50,9 +50,9 @@ class Customer(Base):
     subdivision_id = Column(Integer)  # state/province
 
     # Financial
-    billing_type_id = Column(
-        Integer, ForeignKey("billing_types.id"), nullable=True
-    )  # Foreign key to billing_types table
+    # billing_type_id = Column(
+    #     Integer, ForeignKey("billing_types.id"), nullable=True
+    # )  # Foreign key to billing_types table - temporarily commented out due to schema mismatch
     billing_type = Column(
         String(20), default="recurring"
     )  # Legacy billing type field (kept for backward compatibility)
@@ -115,8 +115,8 @@ class Customer(Base):
     # Customer status relationship
     status_ref = relationship("CustomerStatus", back_populates="customers")
     
-    # Billing type relationship
-    billing_type_ref = relationship("BillingType", back_populates="customers")
+    # Billing type relationship - temporarily commented out due to missing FK
+    # billing_type_ref = relationship("BillingType", back_populates="customers")
 
     # Device relationships for MAC authentication
     devices = relationship("Device", back_populates="customer")

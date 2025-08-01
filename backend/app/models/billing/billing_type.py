@@ -51,5 +51,5 @@ class BillingType(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    customers = relationship("Customer", back_populates="billing_type_ref")
+    # customers = relationship("Customer", back_populates="billing_type_ref")  # Temporarily commented out due to missing FK
     service_plans = relationship("ServicePlan", back_populates="billing_type_ref")

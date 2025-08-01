@@ -102,11 +102,15 @@ class ServiceManagementService:
             logger.info(f"Deleted internet service: {service.name} (ID: {service.id})")
         return success
 
-    async def list_internet_services(
+    def list_internet_services(
         self, filters: Optional[Dict] = None
     ) -> List[InternetService]:
         """List internet services with optional filters"""
-        return self.repo.internet.get_all(filters or {})
+        # Convert filters to proper BaseRepository format
+        if filters:
+            return self.repo.internet.get_all(filters=filters)
+        else:
+            return self.repo.internet.get_all()
 
     async def get_public_internet_services(self) -> List[InternetService]:
         """Get public internet services"""

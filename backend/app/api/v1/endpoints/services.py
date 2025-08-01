@@ -57,7 +57,7 @@ async def create_internet_service(
 
 
 @router.get("/internet/", response_model=List[InternetService])
-async def list_internet_services(
+def list_internet_services(
     active_only: bool = Query(True, description="Show only active services"),
     public_only: bool = Query(False, description="Show only public services"),
     min_speed: Optional[int] = Query(None, description="Minimum download speed"),
@@ -78,7 +78,7 @@ async def list_internet_services(
         if max_speed:
             filters["download_speed__lte"] = max_speed
 
-        return await service_mgmt.list_internet_services(filters)
+        return service_mgmt.list_internet_services(filters)
     except Exception as e:
         logger.error(f"Error listing internet services: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

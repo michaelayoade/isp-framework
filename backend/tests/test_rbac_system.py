@@ -3,8 +3,8 @@ import pytest
 from fastapi import status
 from sqlalchemy.orm import Session
 
-from app.models.rbac.models import Role, Permission, RolePermission, UserRole
-from app.models.admin.base import Administrator
+from app.models.rbac import Role, Permission, RolePermission, UserRole
+from app.models.auth.base import Administrator
 from app.services.rbac import RBACService
 from app.core.permissions import require_permission
 

@@ -22,7 +22,7 @@ class BillingTypeService:
         query = self.db.query(BillingType)
 
         if active_only:
-            query = query.filter(BillingType.is_active is True)
+            query = query.filter(BillingType.is_active == True)
 
         billing_types = query.order_by(BillingType.sort_order, BillingType.name).all()
         return billing_types
@@ -147,7 +147,7 @@ class BillingTypeService:
             # Fallback to first active billing type
             default_type = (
                 self.db.query(BillingType)
-                .filter(BillingType.is_active is True)
+                .filter(BillingType.is_active == True)
                 .order_by(BillingType.sort_order)
                 .first()
             )
@@ -161,7 +161,7 @@ class BillingTypeService:
         """Get all recurring billing types."""
         return (
             self.db.query(BillingType)
-            .filter(BillingType.is_active is True, BillingType.is_recurring is True)
+            .filter(BillingType.is_active == True, BillingType.is_recurring == True)
             .order_by(BillingType.sort_order)
             .all()
         )
@@ -171,7 +171,7 @@ class BillingTypeService:
         return (
             self.db.query(BillingType)
             .filter(
-                BillingType.is_active is True, BillingType.requires_prepayment is True
+                BillingType.is_active == True, BillingType.requires_prepayment == True
             )
             .order_by(BillingType.sort_order)
             .all()

@@ -455,6 +455,85 @@ class CustomerInternetServiceService:
             logger.error(f"Error creating internet service: {str(e)}")
             raise
 
+    def get_internet_service_by_id(self, service_id: int) -> Optional[CustomerInternetService]:
+        """Get internet service by customer_service_id"""
+        logger.info(f"Getting internet service: {service_id}")
+        try:
+            # CustomerInternetService uses customer_service_id as primary key
+            return self.internet_service_repo.get_by_field("customer_service_id", service_id)
+        except Exception as e:
+            logger.error(f"Error getting internet service {service_id}: {str(e)}")
+            raise
+
+    def list_internet_services(
+        self,
+        customer_id: Optional[int] = None,
+        router_id: Optional[int] = None,
+        sector_id: Optional[int] = None,
+        fup_exceeded: Optional[bool] = None,
+        has_assigned_ip: Optional[bool] = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> Tuple[List[CustomerInternetService], int]:
+        """List internet services with filtering and pagination"""
+        logger.info("Listing internet services with filters")
+        try:
+            # Build filter criteria
+            filters = {}
+            if customer_id:
+                filters["customer_id"] = customer_id
+            if router_id:
+                filters["router_id"] = router_id
+            if sector_id:
+                filters["sector_id"] = sector_id
+            if fup_exceeded is not None:
+                filters["fup_exceeded"] = fup_exceeded
+            if has_assigned_ip is not None:
+                filters["has_assigned_ip"] = has_assigned_ip
+
+            # Get paginated results
+            services = self.internet_service_repo.get_all(
+                filters=filters, page=page, page_size=page_size
+            )
+            total = self.internet_service_repo.count(filters=filters)
+            
+            return services, total
+        except Exception as e:
+            logger.error(f"Error listing internet services: {str(e)}")
+            raise
+
+    def update_internet_service(
+        self, service_id: int, update_data: Dict[str, Any], admin_id: int
+    ) -> CustomerInternetService:
+        """Update internet service configuration"""
+        logger.info(f"Updating internet service: {service_id}")
+        try:
+            # Get existing service by customer_service_id
+            internet_service = self.internet_service_repo.get_by_field("customer_service_id", service_id)
+            if not internet_service:
+                raise NotFoundError(f"Internet service {service_id} not found")
+
+            # Validate update data
+            self._validate_internet_service_data(update_data)
+
+            # Add metadata
+            update_data.update({
+                "updated_by_id": admin_id,
+                "updated_at": datetime.now(timezone.utc),
+            })
+
+            # Update service
+            internet_service = self.internet_service_repo.update(
+                internet_service, update_data
+            )
+
+            logger.info(f"Internet service updated: {service_id}")
+            return internet_service
+
+        except Exception as e:
+            logger.error(f"Error updating internet service {service_id}: {str(e)}")
+            raise
+
     async def assign_ip_address(
         self,
         service_id: int,
@@ -568,6 +647,45 @@ class CustomerInternetServiceService:
             logger.error(f"Error handling FUP exceeded: {str(e)}")
             raise
 
+    async def reset_fup_status(self, service_id: int, admin_id: int) -> CustomerInternetService:
+        """Reset FUP status for an internet service"""
+        logger.info(f"Resetting FUP status for service: {service_id}")
+
+        try:
+            # Get internet service by customer_service_id
+            internet_service = self.internet_service_repo.get_by_field("customer_service_id", service_id)
+            if not internet_service:
+                raise NotFoundError(f"Internet service {service_id} not found")
+
+            # Check if FUP is currently exceeded
+            if not internet_service.fup_exceeded:
+                raise ValidationError("FUP is not currently exceeded for this service")
+
+            # Reset FUP status
+            internet_service = self.internet_service_repo.update(
+                internet_service,
+                {
+                    "fup_exceeded": False,
+                    "fup_exceeded_at": None,
+                    "fup_reset_at": datetime.now(timezone.utc),
+                    "fup_reset_by_id": admin_id,
+                    "updated_at": datetime.now(timezone.utc),
+                },
+            )
+
+            # Restore original speed profile
+            await self._restore_original_speed(internet_service)
+
+            # Create FUP reset alert/notification
+            await self._create_fup_reset_alert(internet_service, admin_id)
+
+            logger.info(f"FUP status reset completed for service: {service_id}")
+            return internet_service
+
+        except Exception as e:
+            logger.error(f"Error resetting FUP status: {str(e)}")
+            raise
+
     # Private helper methods
     def _validate_internet_service_data(self, internet_data: Dict[str, Any]):
         """Validate internet service data"""
@@ -626,6 +744,25 @@ class CustomerInternetServiceService:
         self.repo_factory.get_alert_repo()
         # Implementation would create alert
         logger.info("Creating FUP exceeded alert")
+
+    async def _restore_original_speed(self, internet_service: CustomerInternetService):
+        """Restore original speed profile after FUP reset"""
+        # This would restore speed to original service plan limits
+        logger.info("Restoring original speed profile")
+        
+        # Get original speed from service plan or template
+        original_download = getattr(internet_service, 'original_download_speed', internet_service.current_download_speed)
+        original_upload = getattr(internet_service, 'original_upload_speed', internet_service.current_upload_speed)
+        
+        # Apply speed changes to network equipment
+        await self._apply_speed_changes(internet_service, original_download, original_upload)
+
+    async def _create_fup_reset_alert(self, internet_service, admin_id: int):
+        """Create FUP reset notification/alert"""
+        self.repo_factory.get_alert_repo()
+        # Implementation would create FUP reset notification
+        service_id = getattr(internet_service, 'customer_service_id', 'unknown')
+        logger.info(f"Creating FUP reset alert for service {service_id} by admin {admin_id}")
 
 
 class CustomerVoiceServiceService:

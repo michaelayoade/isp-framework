@@ -21,8 +21,8 @@ from sqlalchemy.pool import StaticPool
 from app.core.config import settings
 from app.main import app
 from app.core.database import Base, get_db
-from app.models.admin.base import Administrator
-from app.models.rbac.models import Role, Permission, UserRole
+from app.models.auth.base import Administrator
+from app.models.rbac import Role, Permission, UserRole
 from app.core.security import get_password_hash
 
 
