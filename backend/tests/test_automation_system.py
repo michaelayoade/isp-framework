@@ -4,7 +4,7 @@ from fastapi import status
 from sqlalchemy.orm import Session
 from unittest.mock import MagicMock, patch
 
-from app.models.automation.infrastructure import AutomationSite, AutomationDevice
+from app.models.automation.infrastructure import Site, AutomationDevice
 from app.services.automation import AutomationService, AnsibleInventoryService
 
 
@@ -35,7 +35,7 @@ class TestAutomationService:
     def test_create_device(self, db_session: Session):
         """Test automation device creation."""
         # Create site first
-        site = AutomationSite(
+        site = Site(
             name="Test Site",
             code="TS01",
             site_type="datacenter"
@@ -66,8 +66,8 @@ class TestAutomationService:
     def test_ansible_inventory_generation(self, db_session: Session):
         """Test dynamic Ansible inventory generation."""
         # Create test infrastructure
-        site1 = AutomationSite(name="DC1", code="DC01", site_type="datacenter")
-        site2 = AutomationSite(name="POP1", code="POP01", site_type="pop")
+        site1 = Site(name="DC1", code="DC01", site_type="datacenter")
+        site2 = Site(name="POP1", code="POP01", site_type="pop")
         db_session.add_all([site1, site2])
         db_session.commit()
 
@@ -180,7 +180,7 @@ class TestAutomationAPI:
     def test_create_device(self, client, auth_headers, db_session):
         """Test POST /api/v1/automation/devices endpoint."""
         # Create site first
-        site = AutomationSite(
+        site = Site(
             name="Test Site",
             code="TS01",
             site_type="datacenter"
@@ -215,7 +215,7 @@ class TestAutomationAPI:
         mock_subprocess.return_value.stderr = ""
 
         # Create test infrastructure
-        site = AutomationSite(name="Test Site", code="TS01", site_type="datacenter")
+        site = Site(name="Test Site", code="TS01", site_type="datacenter")
         db_session.add(site)
         db_session.commit()
 
@@ -305,7 +305,7 @@ class TestAutomationIntegration:
         mock_subprocess.return_value.stderr = ""
 
         # Create test infrastructure
-        site = AutomationSite(name="Backup Test Site", code="BTS01", site_type="datacenter")
+        site = Site(name="Backup Test Site", code="BTS01", site_type="datacenter")
         db_session.add(site)
         db_session.commit()
 

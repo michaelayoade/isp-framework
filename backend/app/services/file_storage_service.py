@@ -18,7 +18,12 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.file_storage import FileCategory
-from app.repositories.file_storage_repository import FileMetadataRepository
+from app.repositories.file_storage import (
+    FileRepository,
+    ImportJobRepository,
+    ExportJobRepository,
+    FilePermissionRepository
+)
 
 logger = logging.getLogger(__name__)
 
@@ -226,7 +231,10 @@ class FileStorageService:
     def __init__(self, db: Session):
         self.db = db
         self.minio_service = MinIOService()
-        self.file_repo = FileMetadataRepository(db)
+        self.file_repo = FileRepository(db)
+        self.import_job_repo = ImportJobRepository(db)
+        self.export_job_repo = ExportJobRepository(db)
+        self.permission_repo = FilePermissionRepository(db)
 
     async def upload_file(
         self,

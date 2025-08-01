@@ -16,12 +16,14 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import NotFoundError, ValidationError
-from app.schemas.provisioning_queue import (
-    ProvisioningJob,
-    ProvisioningJobCreate,
-    ProvisioningJobList,
+from app.models.provisioning_queue import ProvisioningJob
+from app.repositories.provisioning_job import (
+    ProvisioningJobRepository,
+    ProvisioningJobHistoryRepository,
+    ProvisioningWorkerRepository
 )
-from app.services.webhook_integration_service import WebhookTriggers
+from app.schemas.provisioning import ProvisioningJobCreate
+from app.services.webhook_triggers import WebhookTriggers
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,9 @@ class ProvisioningQueueService:
 
     def __init__(self, db: Session):
         self.db = db
+        self.provisioning_job_repo = ProvisioningJobRepository(db)
+        self.job_history_repo = ProvisioningJobHistoryRepository(db)
+        self.worker_repo = ProvisioningWorkerRepository(db)
         self.webhook_triggers = WebhookTriggers(db)
 
     def create_job(
@@ -58,15 +63,12 @@ class ProvisioningQueueService:
                 }
             )
 
-            # Placeholder - implement when provisioning job repository is available
-            # job = self.provisioning_job_repo.create(job_dict)
-
-            # Mock implementation
-            job = ProvisioningJob(id=1, job_id=job_id, **job_dict)  # Mock ID
+            # Create the provisioning job using repository
+            job = self.provisioning_job_repo.create_job(job_dict)
 
             # Create initial history entry
-            self._create_history_entry(
-                job.id, None, "queued", "Job created and queued", created_by
+            self.job_history_repo.create_history_entry(
+                job.id, None, "queued", "Job created and queued", created_by=created_by
             )
 
             # Trigger webhook event
@@ -98,27 +100,10 @@ class ProvisioningQueueService:
 
     def get_job(self, job_id: str) -> ProvisioningJob:
         """Get a provisioning job by ID."""
-        # Placeholder - implement when provisioning job repository is available
-        # job = self.provisioning_job_repo.get_by_job_id(job_id)
-        # if not job:
-        #     raise NotFoundError(f"Provisioning job with id {job_id} not found")
-        # return job
-
-        # Mock implementation
-        if not job_id:
+        job = self.provisioning_job_repo.get_by_job_id(job_id)
+        if not job:
             raise NotFoundError(f"Provisioning job with id {job_id} not found")
-
-        return ProvisioningJob(
-            id=1,
-            job_id=job_id,
-            service_id=1,
-            service_type="internet",
-            customer_id=1,
-            priority="normal",
-            status="queued",
-            scheduled_for=datetime.now(timezone.utc),
-            created_at=datetime.now(timezone.utc),
-        )
+        return job
 
     def update_job_status(
         self,
@@ -164,17 +149,14 @@ class ProvisioningQueueService:
                     update_dict["status"] = "queued"  # Reset to queued for retry
                     new_status = "queued"
 
-            # Placeholder - implement when provisioning job repository is available
-            # updated_job = self.provisioning_job_repo.update(job.id, update_dict)
-
-            # Mock implementation
-            for key, value in update_dict.items():
-                if hasattr(job, key):
-                    setattr(job, key, value)
+            # Update job using repository
+            updated_job = self.provisioning_job_repo.update_job_status(
+                job_id, new_status, message, result_data, error_message
+            )
 
             # Create history entry
-            self._create_history_entry(
-                job.id, old_status, new_status, message, updated_by
+            self.job_history_repo.create_history_entry(
+                updated_job.id, old_status, new_status, message, created_by=updated_by
             )
 
             # Trigger webhook event
@@ -182,13 +164,13 @@ class ProvisioningQueueService:
                 self.webhook_triggers.provisioning_job_status_changed(
                     {
                         "job_id": job_id,
-                        "service_id": job.service_id,
-                        "service_type": job.service_type,
-                        "customer_id": job.customer_id,
+                        "service_id": updated_job.service_id,
+                        "service_type": updated_job.service_type,
+                        "customer_id": updated_job.customer_id,
                         "old_status": old_status,
                         "new_status": new_status,
                         "message": message,
-                        "updated_at": update_dict["updated_at"].isoformat(),
+                        "updated_at": updated_job.updated_at.isoformat(),
                     }
                 )
             except Exception as e:
@@ -199,7 +181,7 @@ class ProvisioningQueueService:
             logger.info(
                 f"Updated provisioning job {job_id} status: {old_status} -> {new_status}"
             )
-            return job
+            return updated_job
 
         except Exception as e:
             logger.error(f"Error updating provisioning job {job_id}: {e}")
@@ -213,60 +195,33 @@ class ProvisioningQueueService:
         service_type: Optional[str] = None,
         customer_id: Optional[int] = None,
         priority: Optional[str] = None,
-    ) -> ProvisioningJobList:
+    ) -> Dict[str, Any]:
         """List provisioning jobs with pagination and filtering."""
-        # Placeholder - implement when provisioning job repository is available
-        # filters = {}
-        # if status:
-        #     filters["status"] = status
-        # if service_type:
-        #     filters["service_type"] = service_type
-        # if customer_id:
-        #     filters["customer_id"] = customer_id
-        # if priority:
-        #     filters["priority"] = priority
-
-        # skip = (page - 1) * per_page
-        # jobs = self.provisioning_job_repo.get_all(skip=skip, limit=per_page, filters=filters)
-        # total = self.provisioning_job_repo.count(filters=filters)
-
-        # Mock implementation
-        jobs = [
-            ProvisioningJob(
-                id=1,
-                job_id="job-123",
-                service_id=1,
-                service_type="internet",
-                customer_id=1,
-                priority="normal",
-                status="queued",
-                scheduled_for=datetime.now(timezone.utc),
-                created_at=datetime.now(timezone.utc),
-            )
-        ]
-
-        total = len(jobs)
-        pages = ((total - 1) // per_page) + 1 if total > 0 else 0
-
-        return ProvisioningJobList(
-            jobs=jobs, total=total, page=page, per_page=per_page, pages=pages
+        # Use repository to get jobs with filters and pagination
+        result = self.provisioning_job_repo.list_jobs(
+            page=page,
+            per_page=per_page,
+            status=status,
+            service_type=service_type,
+            customer_id=customer_id,
+            priority=priority
         )
+        return result
 
     def get_next_job(
         self, worker_id: str, supported_service_types: List[str]
     ) -> Optional[ProvisioningJob]:
         """Get the next job for a worker to process."""
-        # Placeholder - implement when provisioning job repository is available
-        # Get highest priority job that is ready to run
-        # filters = {
-        #     "status": "queued",
-        #     "scheduled_for__lte": datetime.now(timezone.utc),
-        #     "service_type__in": supported_service_types
-        # }
-        # job = self.provisioning_job_repo.get_next_priority_job(filters)
-
-        # Mock implementation
-        return None  # No jobs available
+        # Use repository to get next available job
+        job = self.provisioning_job_repo.get_next_job(worker_id, supported_service_types)
+        
+        if job:
+            # Create history entry for job assignment
+            self.job_history_repo.create_history_entry(
+                job.id, "queued", "processing", f"Job assigned to worker {worker_id}"
+            )
+        
+        return job
 
     def cancel_job(
         self, job_id: str, reason: str, cancelled_by: Optional[int] = None
@@ -290,49 +245,30 @@ class ProvisioningQueueService:
         if job.status != "failed":
             raise ValidationError(f"Cannot retry job with status '{job.status}'")
 
-        # Reset retry fields
-        update_dict = {
-            "status": "queued",
-            "retry_count": 0,
-            "next_retry_at": None,
-            "error_message": None,
-            "error_details": None,
-            "scheduled_for": datetime.now(timezone.utc),
-            "updated_at": datetime.now(timezone.utc),
-        }
+        # Use repository to retry the job
+        updated_job = self.provisioning_job_repo.retry_job(job_id)
+        
+        if not updated_job:
+            raise NotFoundError(f"Failed to retry job {job_id}")
 
-        # Placeholder - implement when provisioning job repository is available
-        # updated_job = self.provisioning_job_repo.update(job.id, update_dict)
-
-        # Mock implementation
-        for key, value in update_dict.items():
-            if hasattr(job, key):
-                setattr(job, key, value)
-
-        self._create_history_entry(
-            job.id, "failed", "queued", "Job manually retried", retried_by
+        # Create history entry for retry
+        self.job_history_repo.create_history_entry(
+            updated_job.id, "failed", "queued", "Job manually retried", created_by=retried_by
         )
 
         logger.info(f"Manually retried provisioning job {job_id}")
-        return job
+        return updated_job
 
     def get_queue_statistics(self) -> Dict[str, Any]:
         """Get provisioning queue statistics."""
-        # Placeholder - implement when provisioning job repository is available
-        # stats = self.provisioning_job_repo.get_statistics()
-
-        # Mock implementation
-        return {
-            "total_jobs": 0,
-            "queued_jobs": 0,
-            "processing_jobs": 0,
-            "completed_jobs": 0,
-            "failed_jobs": 0,
-            "cancelled_jobs": 0,
-            "average_processing_time": 0,
-            "success_rate": 100.0,
-            "active_workers": 0,
-        }
+        # Use repository to get real statistics
+        stats = self.provisioning_job_repo.get_queue_statistics()
+        
+        # Get active worker count
+        active_workers = self.worker_repo.get_active_workers()
+        stats["active_workers"] = len(active_workers)
+        
+        return stats
 
     def _calculate_scheduled_time(
         self, priority: str, requested_time: Optional[datetime] = None
@@ -363,16 +299,14 @@ class ProvisioningQueueService:
         created_by: Optional[int] = None,
     ):
         """Create a history entry for job status change."""
-        # Placeholder - implement when provisioning job history repository is available
-        # history_data = {
-        #     "job_id": job_id,
-        #     "old_status": old_status,
-        #     "new_status": new_status,
-        #     "message": message,
-        #     "created_by": created_by,
-        #     "created_at": datetime.now(timezone.utc)
-        # }
-        # self.provisioning_job_history_repo.create(history_data)
+        # Use repository to create history entry
+        self.job_history_repo.create_history_entry(
+            job_id=job_id,
+            old_status=old_status,
+            new_status=new_status,
+            message=message,
+            created_by=created_by
+        )
 
         logger.debug(
             f"Job {job_id} status change: {old_status} -> {new_status} ({message})"

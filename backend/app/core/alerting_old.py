@@ -379,7 +379,7 @@ class AlertManager:
                 },
             },
             "client": "ISP Framework Error Handler",
-            "client_url": getattr(settings, "FRONTEND_URL", "https://ispframework.com"),
+            "client_url": "https://ispframework.com",
         }
 
         try:

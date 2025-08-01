@@ -61,3 +61,5 @@ class CustomerStatus(CustomerStatusBase):
     is_system: bool = Field(..., description="System statuses cannot be deleted")
     created_at: datetime
     updated_at: Optional[datetime] = None
+    
+    model_config = {"from_attributes": True}

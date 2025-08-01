@@ -28,11 +28,11 @@ router = APIRouter()
 
 
 @router.get("/", response_model=CustomerList)
-async def list_customers(
+def list_customers(
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(25, ge=1, le=100, description="Items per page"),
     search: Optional[str] = Query(None, description="Search by name, email, or phone"),
-    status: Optional[str] = Query(None, description="Filter by status"),
+    status_filter: Optional[str] = Query(None, alias="status", description="Filter by status"),
     category: Optional[str] = Query(None, description="Filter by category"),
     location_id: Optional[int] = Query(None, description="Filter by location"),
     current_admin: Administrator = Depends(get_current_active_admin),
@@ -46,7 +46,7 @@ async def list_customers(
             page=page,
             per_page=per_page,
             search=search,
-            status=status,
+            status=status_filter,
             category=category,
             location_id=location_id,
         )

@@ -6,9 +6,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](#development-status)
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
-[![Frontend](https://img.shields.io/badge/Frontend-Next.js-000000.svg)](https://nextjs.org/)
+[![API](https://img.shields.io/badge/API-REST-009688.svg)](https://fastapi.tiangolo.com/)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL-336791.svg)](https://postgresql.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC.svg)](https://www.typescriptlang.org/)
+
 [![Python](https://img.shields.io/badge/Python-3.11+-3776ab.svg)](https://python.org/)
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing) • [License](#-license)
@@ -17,17 +17,16 @@
 
 ## 🎯 **Project Overview**
 
-The ISP Framework is a comprehensive, enterprise-grade management platform designed specifically for Internet Service Providers. It provides a complete solution for customer management, service provisioning, billing, network infrastructure monitoring, and business operations.
+The ISP Framework is a comprehensive, enterprise-grade backend API platform designed specifically for Internet Service Providers. It provides a complete REST API solution for customer management, service provisioning, billing, network infrastructure monitoring, and business operations.
 
-> **🚀 Ready for Production**: Full-stack TypeScript application with React frontend, FastAPI backend, and PostgreSQL database. Features comprehensive CRUD operations, authentication, real-time updates, and enterprise-grade security.
+> **🚀 Ready for Production**: Enterprise-grade REST API service with FastAPI backend, PostgreSQL database, and JWT authentication. Features comprehensive CRUD operations, RBAC authorization, real-time monitoring, and enterprise-grade security. Designed for integration with external frontend applications.
 
 ## ⚡ **Quick Start**
 
 ### Prerequisites
-- **Node.js** 18+ and npm
 - **Python** 3.11+ and pip
 - **PostgreSQL** 14+
-- **Redis** 6+ (optional, for caching)
+- **Redis** 6+ (for caching and background jobs)
 - **Docker** (recommended for development)
 
 ### 🐳 **Docker Setup (Recommended)**
@@ -40,7 +39,6 @@ cd isp-framework
 # Copy environment templates
 cp .env.example .env
 cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env.local
 
 # Start all services
 docker-compose up -d
@@ -165,7 +163,7 @@ isp-framework/
 │   │   └── main.py           # Application entry point
 │   ├── alembic/              # Database migrations
 │   └── requirements.txt      # Python dependencies
-├── frontend/                  # React/Next.js frontend (planned)
+
 ├── docs/                     # Project documentation
 │   ├── TECHNICAL_REQUIREMENTS.md
 │   ├── FUNCTIONAL_REQUIREMENTS.md

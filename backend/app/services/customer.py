@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.exceptions import DuplicateError, NotFoundError, ValidationError
 from app.repositories.customer import CustomerRepository
-from app.schemas.customer import CustomerCreate, CustomerList, CustomerUpdate
+from app.schemas.customer import CustomerCreate, CustomerList, CustomerSummary, CustomerUpdate
+from app.schemas.customer_status import CustomerStatus as CustomerStatusSchema
 from app.services.portal_id import PortalIDService
 from app.services.webhook_integration_service import WebhookTriggers
 
@@ -80,8 +81,23 @@ class CustomerService:
             )
             total = self.customer_repo.count(filters=filters)
 
+        # Convert Customer model objects to CustomerSummary schema objects
+        customer_summaries = [
+            CustomerSummary(
+                id=customer.id,
+                name=customer.name,
+                email=customer.email,
+                phone=customer.phone,
+                status_id=customer.status_id,
+                status_ref=CustomerStatusSchema.from_orm(customer.status_ref) if customer.status_ref else None,
+                category=customer.category,
+                created_at=customer.created_at,
+            )
+            for customer in customers
+        ]
+        
         return CustomerList(
-            customers=customers,
+            customers=customer_summaries,
             total=total,
             page=page,
             per_page=per_page,
@@ -98,7 +114,10 @@ class CustomerService:
 
         # Create customer data dict
         customer_dict = customer_data.model_dump()
-        customer_dict["status"] = "new"  # Default status
+        
+        # Set default status_id if not provided (1 = ACTIVE status)
+        if "status_id" not in customer_dict or customer_dict["status_id"] is None:
+            customer_dict["status_id"] = 1  # Default to ACTIVE status
 
         # Handle password hashing (remove password field and add password_hash)
         if "password" in customer_dict and customer_dict["password"]:
@@ -110,9 +129,14 @@ class CustomerService:
         ]  # Remove password field to avoid model constructor error
 
         # Set required fields with defaults
-        customer_dict["partner_id"] = customer_dict.get(
-            "partner_id", 1
-        )  # Default partner
+        # Use reseller_id (not partner_id) to match Customer model
+        if "reseller_id" not in customer_dict or customer_dict["reseller_id"] is None:
+            customer_dict["reseller_id"] = customer_dict.get("partner_id", 1)  # Default reseller
+        
+        # Remove partner_id if it exists (legacy field name)
+        if "partner_id" in customer_dict:
+            del customer_dict["partner_id"]
+            
         customer_dict["location_id"] = customer_dict.get(
             "location_id", 1
         )  # Default location
@@ -124,7 +148,7 @@ class CustomerService:
 
             # Generate portal ID using the predicted next ID
             portal_id = self.portal_id_service.generate_portal_id(
-                next_id, customer_dict["partner_id"]
+                next_id, customer_dict["reseller_id"]
             )
 
             # Check if portal ID already exists

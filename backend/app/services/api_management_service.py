@@ -32,6 +32,12 @@ from app.models.api_management import (
     APIUsage,
     APIVersion,
 )
+from app.repositories.api_management import (
+    APIKeyRepository,
+    APIUsageRepository,
+    APIRateLimitRepository,
+    APIQuotaRepository
+)
 from app.schemas.api_management import (
     APIEndpointCreate,
     APIKeyCreate,
@@ -49,6 +55,10 @@ class APIManagementService:
 
     def __init__(self, db: Session):
         self.db = db
+        self.api_key_repo = APIKeyRepository(db)
+        self.usage_repo = APIUsageRepository(db)
+        self.rate_limit_repo = APIRateLimitRepository(db)
+        self.quota_repo = APIQuotaRepository(db)
 
     def generate_api_key(self) -> tuple[str, str]:
         """Generate a secure API key and secret"""
@@ -66,29 +76,20 @@ class APIManagementService:
             # Generate key and secret
             api_key, api_secret = self.generate_api_key()
 
-            # Create API key
-            db_key = APIKey(
+            # Use repository to create API key
+            db_key = self.api_key_repo.create_api_key(
                 key_name=key_data.key_name,
                 api_key=api_key,
                 api_secret=self.hash_secret(api_secret),
-                partner_id=key_data.partner_id,
+                reseller_id=getattr(key_data, 'partner_id', None),
                 customer_id=key_data.customer_id,
                 admin_id=key_data.admin_id,
                 permissions=key_data.permissions,
                 scopes=key_data.scopes,
                 rate_limit=key_data.rate_limit,
                 daily_quota=key_data.daily_quota,
-                monthly_quota=key_data.monthly_quota,
-                expires_at=key_data.expires_at,
-                ip_whitelist=key_data.ip_whitelist,
-                referrer_whitelist=key_data.referrer_whitelist,
-                user_agent_whitelist=key_data.user_agent_whitelist,
-                description=key_data.description,
+                monthly_quota=key_data.monthly_quota
             )
-
-            self.db.add(db_key)
-            self.db.commit()
-            self.db.refresh(db_key)
 
             # Add the unhashed secret for initial response
             db_key.api_secret = api_secret
