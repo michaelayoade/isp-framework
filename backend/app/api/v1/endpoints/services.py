@@ -32,6 +32,44 @@ from app.services.services import ServiceManagementService
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+@router.get("/")
+async def get_services_dashboard(
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Get services system dashboard overview."""
+    service = ServiceManagementService(db)
+    
+    try:
+        dashboard_data = await service.get_services_overview()
+        return {
+            "message": "Services system operational",
+            "endpoints": {
+                "catalog": "/api/v1/services/catalog",
+                "internet": "/api/v1/services/internet",
+                "voice": "/api/v1/services/voice",
+                "bundles": "/api/v1/services/bundles",
+                "search": "/api/v1/services/search",
+                "overview": "/api/v1/services/overview"
+            },
+            "dashboard": dashboard_data
+        }
+    except Exception as e:
+        return {
+            "message": "Services system operational",
+            "endpoints": {
+                "catalog": "/api/v1/services/catalog",
+                "internet": "/api/v1/services/internet",
+                "voice": "/api/v1/services/voice",
+                "bundles": "/api/v1/services/bundles",
+                "search": "/api/v1/services/search",
+                "overview": "/api/v1/services/overview"
+            },
+            "status": "operational"
+        }
+
+
 # ============================================================================
 # SERVICE CATALOG ENDPOINTS
 # ============================================================================

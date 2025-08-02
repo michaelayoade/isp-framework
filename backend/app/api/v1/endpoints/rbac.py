@@ -364,6 +364,64 @@ async def get_role_permissions(
 
 
 # ============================================================================
+# User Management Endpoints
+# ============================================================================
+
+
+@router.get("/users", response_model=List[dict])
+async def list_users(
+    active_only: bool = Query(True, description="Filter by active status"),
+    limit: int = Query(50, description="Number of users to return"),
+    offset: int = Query(0, description="Number of users to skip"),
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db),
+):
+    """List all users (administrators)."""
+    rbac_service = RBACService(db)
+    
+    try:
+        users = rbac_service.list_users(
+            active_only=active_only,
+            limit=limit,
+            offset=offset
+        )
+        return users
+    except Exception as e:
+        logger.error(f"Failed to list users: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve users"
+        )
+
+
+@router.get("/users/{user_id}", response_model=dict)
+async def get_user(
+    user_id: int,
+    current_admin: Administrator = Depends(get_current_active_admin),
+    db: Session = Depends(get_db),
+):
+    """Get a specific user by ID."""
+    rbac_service = RBACService(db)
+    
+    try:
+        user = rbac_service.get_user(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get user {user_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve user"
+        )
+
+
+# ============================================================================
 # User Role Assignment Endpoints
 # ============================================================================
 

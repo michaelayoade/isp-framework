@@ -44,9 +44,23 @@ class AuthService:
 
     def create_tokens(self, admin: Any) -> TokenResponse:
         """Create access and refresh tokens for an admin."""
-        token_data = {"sub": admin.username, "admin_id": admin.id}
+        # Determine admin role and scopes
+        role = "superuser" if admin.is_superuser else "admin"
+        scopes = ["admin", "admin_portal", "api"] if admin.is_active else []
+        
+        token_data = {
+            "sub": admin.username,
+            "admin_id": admin.id,
+            "user_id": admin.id,  # Required by get_current_user
+            "user_type": "admin",
+            "is_superuser": admin.is_superuser
+        }
 
-        access_token = create_access_token(token_data)
+        access_token = create_access_token(
+            token_data, 
+            scopes=scopes,
+            user_role=role
+        )
         refresh_token = create_refresh_token(token_data)
 
         return TokenResponse(
@@ -88,6 +102,29 @@ class AuthService:
             raise create_credentials_exception()
 
         return admin
+
+    def change_password(self, admin_id: int, old_password: str, new_password: str) -> bool:
+        """Change password for an administrator."""
+        # Get the admin
+        admin = self.admin_repo.get(admin_id)
+        if not admin:
+            raise ValidationError("Administrator not found")
+        
+        # Verify old password
+        if not verify_password(old_password, admin.hashed_password):
+            raise ValidationError("Current password is incorrect")
+        
+        # Hash new password
+        new_hashed_password = get_password_hash(new_password)
+        
+        # Update password
+        try:
+            self.admin_repo.update(admin_id, {"hashed_password": new_hashed_password})
+            logger.info(f"Password changed successfully for admin {admin.username}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to change password for admin {admin_id}: {e}")
+            raise ValidationError("Failed to change password")
 
     def create_first_admin(self) -> Dict[str, Any]:
         """Create the first administrator account."""

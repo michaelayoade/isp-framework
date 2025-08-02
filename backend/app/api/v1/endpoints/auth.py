@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_admin
 from app.core.database import get_db
 from app.models import Administrator
-from app.schemas.auth import LoginRequest, RefreshTokenRequest, TokenResponse
+from app.schemas.auth import LoginRequest, PasswordChangeRequest, RefreshTokenRequest, TokenResponse
 from app.services.auth import AuthService
 
 logger = logging.getLogger(__name__)
@@ -91,10 +91,48 @@ async def get_current_user_info(
         "email": current_admin.email,
         "full_name": current_admin.full_name,
         "role": current_admin.role,
+        "permissions": current_admin.permissions or [],
         "is_active": current_admin.is_active,
         "is_superuser": current_admin.is_superuser,
         "last_login": current_admin.last_login,
     }
+
+
+@router.post("/change-password")
+async def change_password(
+    password_data: PasswordChangeRequest,
+    current_admin: Administrator = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Change password for the current authenticated admin."""
+    auth_service = AuthService(db)
+    
+    try:
+        # Change the password
+        success = auth_service.change_password(
+            admin_id=current_admin.id,
+            old_password=password_data.old_password,
+            new_password=password_data.new_password
+        )
+        
+        if success:
+            logger.info(f"Password changed successfully for admin {current_admin.username}")
+            return {
+                "message": "Password changed successfully",
+                "success": True
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to change password"
+            )
+            
+    except Exception as e:
+        logger.error(f"Password change failed for admin {current_admin.username}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
 
 
 @router.post("/setup")

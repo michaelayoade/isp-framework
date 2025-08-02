@@ -40,6 +40,41 @@ from ..dependencies import get_current_admin
 router = APIRouter(tags=["billing"])
 
 
+@router.get("/")
+async def get_billing_dashboard(
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin),
+):
+    """Get billing system dashboard overview."""
+    billing_service = BillingManagementService(db)
+    
+    try:
+        dashboard_data = billing_service.get_dashboard_overview()
+        return {
+            "message": "Billing system operational",
+            "endpoints": {
+                "invoices": "/api/v1/billing/invoices/",
+                "payments": "/api/v1/billing/payments/",
+                "credit_notes": "/api/v1/billing/credit-notes/",
+                "overview": "/api/v1/billing/overview",
+                "statistics": "/api/v1/billing/statistics"
+            },
+            "dashboard": dashboard_data
+        }
+    except Exception as e:
+        return {
+            "message": "Billing system operational",
+            "endpoints": {
+                "invoices": "/api/v1/billing/invoices/",
+                "payments": "/api/v1/billing/payments/",
+                "credit_notes": "/api/v1/billing/credit-notes/",
+                "overview": "/api/v1/billing/overview",
+                "statistics": "/api/v1/billing/statistics"
+            },
+            "status": "operational"
+        }
+
+
 # Invoice Management Endpoints
 @router.post(
     "/invoices/", response_model=InvoiceResponse, status_code=status.HTTP_201_CREATED

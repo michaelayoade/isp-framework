@@ -231,6 +231,93 @@ async def get_invoices(
 
 
 # Service Management Endpoints
+@router.post("/services/{service_id}/suspend")
+async def suspend_service(
+    service_id: int,
+    current_customer: Customer = Depends(get_current_customer),
+    db: Session = Depends(get_db),
+):
+    """Suspend a customer service."""
+    service_request_service = CustomerPortalServiceRequestService(db)
+    
+    try:
+        result = service_request_service.suspend_service(
+            customer_id=current_customer.id,
+            service_id=service_id
+        )
+        
+        logger.info(f"Service {service_id} suspended for customer {current_customer.id}")
+        return {
+            "message": "Service suspended successfully",
+            "service_id": service_id,
+            "status": "suspended",
+            "effective_date": result.get("effective_date")
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to suspend service {service_id} for customer {current_customer.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to suspend service: {str(e)}"
+        )
+
+
+@router.post("/services/{service_id}/resume")
+async def resume_service(
+    service_id: int,
+    current_customer: Customer = Depends(get_current_customer),
+    db: Session = Depends(get_db),
+):
+    """Resume a suspended customer service."""
+    service_request_service = CustomerPortalServiceRequestService(db)
+    
+    try:
+        result = service_request_service.resume_service(
+            customer_id=current_customer.id,
+            service_id=service_id
+        )
+        
+        logger.info(f"Service {service_id} resumed for customer {current_customer.id}")
+        return {
+            "message": "Service resumed successfully",
+            "service_id": service_id,
+            "status": "active",
+            "effective_date": result.get("effective_date")
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to resume service {service_id} for customer {current_customer.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to resume service: {str(e)}"
+        )
+
+
+@router.get("/services/{service_id}/status")
+async def get_service_status(
+    service_id: int,
+    current_customer: Customer = Depends(get_current_customer),
+    db: Session = Depends(get_db),
+):
+    """Get the current status of a customer service."""
+    service_request_service = CustomerPortalServiceRequestService(db)
+    
+    try:
+        status_info = service_request_service.get_service_status(
+            customer_id=current_customer.id,
+            service_id=service_id
+        )
+        
+        return status_info
+        
+    except Exception as e:
+        logger.error(f"Failed to get service status {service_id} for customer {current_customer.id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Service not found or access denied"
+        )
+
+
 @router.post("/services/requests", response_model=CustomerPortalServiceRequestResponse)
 async def create_service_request(
     request_data: CustomerPortalServiceRequestCreate,

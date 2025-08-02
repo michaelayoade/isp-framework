@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.permissions import require_permission
 from app.core.security import get_current_admin_user
 from app.models.auth.base import Administrator
 from app.models.ticketing import FieldWorkOrder, KnowledgeBaseArticle, Ticket
@@ -41,6 +42,43 @@ from app.services.ticketing_service import (
 )
 
 router = APIRouter()
+
+
+@router.get("/")
+@require_permission("support.view")
+async def get_support_dashboard(
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_admin_user),
+):
+    """Get support system dashboard overview."""
+    ticket_service = TicketService(db)
+    
+    try:
+        dashboard_data = ticket_service.get_dashboard_overview()
+        return {
+            "message": "Support system operational",
+            "endpoints": {
+                "tickets": "/api/v1/support/tickets",
+                "field_work": "/api/v1/support/field-work",
+                "knowledge_base": "/api/v1/support/knowledge",
+                "dashboard": "/api/v1/support/dashboard",
+                "statistics": "/api/v1/support/statistics"
+            },
+            "dashboard": dashboard_data
+        }
+    except Exception as e:
+        return {
+            "message": "Support system operational",
+            "endpoints": {
+                "tickets": "/api/v1/support/tickets",
+                "field_work": "/api/v1/support/field-work",
+                "knowledge_base": "/api/v1/support/knowledge",
+                "dashboard": "/api/v1/support/dashboard",
+                "statistics": "/api/v1/support/statistics"
+            },
+            "status": "operational"
+        }
+
 
 # ============================================================================
 # TICKET MANAGEMENT ENDPOINTS

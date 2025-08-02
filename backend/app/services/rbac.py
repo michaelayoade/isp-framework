@@ -483,3 +483,58 @@ class RBACService:
             )
 
         return summary
+
+    # ========================================================================
+    # User Management
+    # ========================================================================
+
+    def list_users(
+        self, active_only: bool = True, limit: int = 50, offset: int = 0
+    ) -> List[Dict[str, Any]]:
+        """List all users (administrators)."""
+        from app.models import Administrator
+        
+        query = self.db.query(Administrator)
+        
+        if active_only:
+            query = query.filter(Administrator.is_active is True)
+        
+        users = query.offset(offset).limit(limit).all()
+        
+        result = []
+        for user in users:
+            result.append({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "full_name": user.full_name,
+                "role": user.role,
+                "is_active": user.is_active,
+                "is_superuser": user.is_superuser,
+                "created_at": user.created_at,
+                "last_login": user.last_login
+            })
+        
+        return result
+    
+    def get_user(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """Get a specific user by ID."""
+        from app.models import Administrator
+        
+        user = self.db.query(Administrator).filter(Administrator.id == user_id).first()
+        
+        if not user:
+            return None
+        
+        return {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": user.role,
+            "is_active": user.is_active,
+            "is_superuser": user.is_superuser,
+            "created_at": user.created_at,
+            "last_login": user.last_login,
+            "permissions": user.permissions or []
+        }

@@ -181,6 +181,109 @@ class CustomerPortalServiceRequestService:
             logger.error(f"Error creating service request: {e}")
             raise
 
+    def suspend_service(self, customer_id: int, service_id: int) -> Dict[str, Any]:
+        """Suspend a customer service."""
+        try:
+            # Get the customer service
+            customer_service = (
+                self.db.query(CustomerService)
+                .filter(
+                    CustomerService.customer_id == customer_id,
+                    CustomerService.id == service_id
+                )
+                .first()
+            )
+            
+            if not customer_service:
+                raise ValueError("Service not found or access denied")
+            
+            if customer_service.status == "suspended":
+                raise ValueError("Service is already suspended")
+            
+            # Update service status
+            customer_service.status = "suspended"
+            customer_service.updated_at = datetime.now()
+            
+            self.db.commit()
+            
+            logger.info(f"Service {service_id} suspended for customer {customer_id}")
+            return {
+                "success": True,
+                "effective_date": datetime.now().isoformat(),
+                "previous_status": "active"
+            }
+            
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Error suspending service {service_id}: {e}")
+            raise
+    
+    def resume_service(self, customer_id: int, service_id: int) -> Dict[str, Any]:
+        """Resume a suspended customer service."""
+        try:
+            # Get the customer service
+            customer_service = (
+                self.db.query(CustomerService)
+                .filter(
+                    CustomerService.customer_id == customer_id,
+                    CustomerService.id == service_id
+                )
+                .first()
+            )
+            
+            if not customer_service:
+                raise ValueError("Service not found or access denied")
+            
+            if customer_service.status != "suspended":
+                raise ValueError("Service is not suspended")
+            
+            # Update service status
+            customer_service.status = "active"
+            customer_service.updated_at = datetime.now()
+            
+            self.db.commit()
+            
+            logger.info(f"Service {service_id} resumed for customer {customer_id}")
+            return {
+                "success": True,
+                "effective_date": datetime.now().isoformat(),
+                "previous_status": "suspended"
+            }
+            
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Error resuming service {service_id}: {e}")
+            raise
+    
+    def get_service_status(self, customer_id: int, service_id: int) -> Dict[str, Any]:
+        """Get the current status of a customer service."""
+        try:
+            customer_service = (
+                self.db.query(CustomerService)
+                .filter(
+                    CustomerService.customer_id == customer_id,
+                    CustomerService.id == service_id
+                )
+                .first()
+            )
+            
+            if not customer_service:
+                raise ValueError("Service not found or access denied")
+            
+            return {
+                "service_id": service_id,
+                "status": customer_service.status,
+                "service_type": customer_service.service_type,
+                "created_at": customer_service.created_at.isoformat() if customer_service.created_at else None,
+                "updated_at": customer_service.updated_at.isoformat() if customer_service.updated_at else None,
+                "can_suspend": customer_service.status == "active",
+                "can_resume": customer_service.status == "suspended"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting service status {service_id}: {e}")
+            raise
+
 
 class CustomerPortalDashboardService:
     """Generate customer portal dashboard data"""

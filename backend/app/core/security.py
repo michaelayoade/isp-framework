@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.models.auth.base import Administrator
 from app.models.customer.base import Customer
 from app.models.customer.portal_complete import CustomerPortalSession
 from app.models.foundation.base import Reseller
@@ -281,10 +282,19 @@ async def require_network_access(
 
 
 def get_current_admin_user(
-    current_user: dict = Security(get_current_user, scopes=["admin"])
-) -> dict:
+    current_user: dict = Security(get_current_user, scopes=["admin"]),
+    db: Session = Depends(get_db)
+) -> Administrator:
     """Get current admin user with admin scope validation."""
-    return current_user
+    # Get the Administrator model instance from database
+    admin = db.query(Administrator).filter(
+        Administrator.username == current_user["username"]
+    ).first()
+    
+    if not admin or not admin.is_active:
+        raise create_credentials_exception("Administrator not found or inactive")
+    
+    return admin
 
 
 def get_current_customer(

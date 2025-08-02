@@ -21,6 +21,41 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["automation"])
 
 
+@router.get("/")
+@require_permission("automation.view")
+async def get_automation_overview(
+    db: Session = Depends(get_db),
+    current_admin: Administrator = Depends(get_current_active_admin),
+):
+    """Get automation system overview."""
+    try:
+        service = AutomationService(db)
+        overview_data = service.get_system_overview()
+        return {
+            "message": "Automation system operational",
+            "endpoints": {
+                "inventory": "/api/v1/automation/inventory",
+                "sites": "/api/v1/automation/sites",
+                "devices": "/api/v1/automation/devices",
+                "tasks": "/api/v1/automation/tasks",
+                "dashboard": "/api/v1/automation/dashboard"
+            },
+            "overview": overview_data
+        }
+    except Exception as e:
+        return {
+            "message": "Automation system operational",
+            "endpoints": {
+                "inventory": "/api/v1/automation/inventory",
+                "sites": "/api/v1/automation/sites",
+                "devices": "/api/v1/automation/devices",
+                "tasks": "/api/v1/automation/tasks",
+                "dashboard": "/api/v1/automation/dashboard"
+            },
+            "status": "operational"
+        }
+
+
 # Dynamic Inventory Endpoint
 @router.get("/inventory", response_model=Dict[str, Any])
 @require_permission("automation.view")

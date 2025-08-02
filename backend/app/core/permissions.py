@@ -55,11 +55,16 @@ def require_permission(permission_code: str, resource_id_param: Optional[str] = 
             if resource_id_param and resource_id_param in kwargs:
                 resource_id = kwargs[resource_id_param]
 
-            # Check permission
-            rbac_service = RBACService(db)
-            has_permission = rbac_service.check_permission(
-                current_admin.id, permission_code, resource_id
-            )
+            # Check permission - superusers bypass all RBAC checks
+            if current_admin.is_superuser:
+                # Superusers have all permissions
+                has_permission = True
+            else:
+                # Regular users need RBAC permission check
+                rbac_service = RBACService(db)
+                has_permission = rbac_service.check_permission(
+                    current_admin.id, permission_code, resource_id
+                )
 
             if not has_permission:
                 logger.warning(
@@ -109,14 +114,19 @@ def require_any_permission(permission_codes: List[str]):
                     detail="Authentication dependencies not found",
                 )
 
-            # Check if user has any of the required permissions
-            rbac_service = RBACService(db)
-            has_any_permission = False
+            # Check if user has any of the required permissions - superusers bypass all RBAC checks
+            if current_admin.is_superuser:
+                # Superusers have all permissions
+                has_any_permission = True
+            else:
+                # Regular users need RBAC permission check
+                rbac_service = RBACService(db)
+                has_any_permission = False
 
-            for permission_code in permission_codes:
-                if rbac_service.check_permission(current_admin.id, permission_code):
-                    has_any_permission = True
-                    break
+                for permission_code in permission_codes:
+                    if rbac_service.check_permission(current_admin.id, permission_code):
+                        has_any_permission = True
+                        break
 
             if not has_any_permission:
                 logger.warning(

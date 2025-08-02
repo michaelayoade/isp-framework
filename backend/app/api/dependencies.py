@@ -47,10 +47,20 @@ def get_current_superuser(
 
 
 def get_current_admin_user(
-    current_user: dict = Security(get_current_user, scopes=["admin"])
-) -> dict:
+    current_user: dict = Security(get_current_user, scopes=["admin"]),
+    db: Session = Depends(get_db)
+) -> Administrator:
     """Get current admin user with admin scope validation."""
-    return current_user
+    # Get the Administrator model instance from database
+    admin = db.query(Administrator).filter(
+        Administrator.username == current_user["username"]
+    ).first()
+    
+    if not admin or not admin.is_active:
+        from app.core.security import create_credentials_exception
+        raise create_credentials_exception("Administrator not found or inactive")
+    
+    return admin
 
 
 def validate_pagination(page: int = 1, per_page: int = 25) -> tuple[int, int]:
