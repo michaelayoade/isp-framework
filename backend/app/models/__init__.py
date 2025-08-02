@@ -79,6 +79,15 @@ from .customer.portal_complete import (
     CustomerPortalUsageView,
 )
 
+# Dashboard & Reporting Models
+from .dashboard import (
+    DataSourceConfig,
+    DashboardWidget,
+    MetricDefinition,
+    SegmentDefinition,
+    ThresholdDefinition,
+)
+
 # Device Integration Models
 from .devices import (
     CiscoAccessList,
@@ -122,6 +131,12 @@ from .foundation import (
     TariffZonePricing,
 )
 
+# Navigation Models
+from .navigation import (
+    UIModule,
+    UISubmodule,
+)
+
 # Networking Models
 from .networking import (
     Cable,
@@ -143,6 +158,8 @@ from .networking import (
     RADIUSInterimUpdate,
     RADIUSServer,
     RadiusSession,
+    Router,
+    RouterSector,
 )
 
 # Plugin System Models
@@ -310,6 +327,9 @@ __all__ = [
     "TariffBillingOption",
     "TariffZonePricing",
     "TariffPromotion",
+    # Navigation Models
+    "UIModule",
+    "UISubmodule",
     # Networking Models
     "IPPool",
     "IPAllocation",

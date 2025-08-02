@@ -6,6 +6,7 @@ from app.api.v1.endpoints import (  # Core business endpoints; Service & network
     audit_management,
     auth,
     automation,
+    bank_accounts,
     billing,
     # billing_enhanced,  # Temporarily disabled due to Pydantic schema issues
     billing_types,
@@ -15,17 +16,21 @@ from app.api.v1.endpoints import (  # Core business endpoints; Service & network
     customer_services,
     customer_statuses,
     customers,
+    dashboard,
     dead_letter_queue,
     device_management,
     devices,
     files,
+    navigation,
     oauth,
     operational_dashboard,
+    payment_dashboard,
     portal_auth,
     radius,
     rbac,
     reseller,
     reseller_auth,
+    search,
     service_instances,
     service_provisioning,
     service_templates,
@@ -85,6 +90,13 @@ api_router.include_router(rbac.router, prefix="/rbac", tags=["rbac"])
 
 # Configuration Management
 api_router.include_router(config_management.router, prefix="/config", tags=["configuration"])
+
+# Dashboard & Reporting
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(payment_dashboard.router, prefix="/payment-dashboard", tags=["payment-analytics"])
+
+# Payment System
+api_router.include_router(bank_accounts.router, prefix="/bank-accounts", tags=["payments"])
 
 # Device Management
 api_router.include_router(devices.router, prefix="/devices", tags=["devices"])
@@ -158,6 +170,9 @@ api_router.include_router(
 
 # File Management
 api_router.include_router(files.router, prefix="/files", tags=["platform"])
+
+# Global Search
+api_router.include_router(search.router, prefix="/search", tags=["search"])
 
 # Communications
 api_router.include_router(

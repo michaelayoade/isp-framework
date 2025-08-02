@@ -69,6 +69,12 @@ class Permission(str, Enum):
     SYSTEM_MONITOR = "system:monitor"
     SYSTEM_BACKUP = "system:backup"
 
+    # Dashboard permissions
+    DASHBOARD_VIEW = "dashboard:view"
+    DASHBOARD_FINANCIAL = "dashboard:financial"
+    DASHBOARD_NETWORK = "dashboard:network"
+    DASHBOARD_ADMIN = "dashboard:admin"
+
 
 class ResourceType(str, Enum):
     CUSTOMER = "customer"
@@ -78,6 +84,7 @@ class ResourceType(str, Enum):
     TICKET = "ticket"
     ADMIN = "admin"
     RESELLER = "reseller"
+    DASHBOARD = "dashboard"
 
 
 class RBACService:
@@ -98,7 +105,7 @@ class RBACService:
         """Check if user has permission for a specific action."""
         try:
             # Super admin has all permissions
-            if user.role == UserRole.SUPER_ADMIN:
+            if hasattr(user, 'is_superuser') and user.is_superuser:
                 return True
 
             # Check role-based permissions
@@ -137,7 +144,7 @@ class RBACService:
         """Filter query results based on user ownership and permissions."""
         try:
             # Super admin sees everything
-            if user.role == UserRole.SUPER_ADMIN:
+            if hasattr(user, 'is_superuser') and user.is_superuser:
                 return query
 
             # Apply ownership filters based on user role and resource type

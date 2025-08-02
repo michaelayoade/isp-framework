@@ -26,6 +26,13 @@ from sqlalchemy.sql import func
 from ..base import Base
 from .enums import PaymentMethodType, PaymentStatus
 
+# Import payment method enum for compatibility
+class PaymentMethodConstants:
+    """Payment method constants for new payment system compatibility."""
+    GATEWAY = "gateway"
+    BANK_TRANSFER = "bank_transfer"
+    CASH = "cash"
+
 
 class PaymentMethod(Base):
     """Customer payment methods"""
@@ -110,7 +117,12 @@ class PaymentMethod(Base):
 
 
 class Payment(Base):
-    """Payment with gateway integration"""
+    """
+    Payment with gateway integration.
+    
+    Supports multiple payment methods including gateway payments, 
+    bank transfers, and cash payments with proof of payment verification.
+    """
 
     __tablename__ = "payments"
 
@@ -152,6 +164,26 @@ class Payment(Base):
     max_retries = Column(Integer, default=3)
     next_retry_date = Column(DateTime(timezone=True))
 
+    # Payment method type (for new payment system compatibility)
+    method = Column(String(20), nullable=True, index=True)  # gateway, bank_transfer, cash
+    
+    # Additional references for new payment system
+    customer_id = Column(Integer, nullable=True, index=True)  # Direct customer reference
+    gateway_id = Column(Integer, nullable=True, index=True)  # Gateway configuration reference
+    bank_account_id = Column(Integer, nullable=True, index=True)  # Bank account reference
+    
+    # Proof of payment (for manual verification)
+    proof_file_id = Column(Integer, nullable=True)
+    verification_status = Column(String(20), nullable=True, default="pending")
+    verified_by = Column(Integer, nullable=True)
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+    
+    # Description field for payment details
+    description = Column(Text, nullable=True)
+    
+    # Tenant support for multi-tenancy
+    tenant_id = Column(Integer, nullable=True, index=True)
+    
     # Metadata
     notes = Column(Text)
     receipt_url = Column(String(500))
@@ -226,26 +258,35 @@ class Payment(Base):
     def get_payment_summary(self):
         """Get comprehensive payment summary"""
         return {
+            "id": self.id,
             "payment_number": self.payment_number,
-            "status": self.status.value,
             "amount": float(self.amount),
-            "net_amount": (
-                float(self.net_amount) if self.net_amount else float(self.amount)
-            ),
-            "processing_fee": float(self.processing_fee) if self.processing_fee else 0,
             "currency": self.currency,
+            "status": self.status.value,
+            "method": self.method,
             "payment_date": self.payment_date.isoformat(),
             "processed_date": (
                 self.processed_date.isoformat() if self.processed_date else None
             ),
             "gateway_transaction_id": self.gateway_transaction_id,
             "payment_reference": self.payment_reference,
-            "is_successful": self.is_successful,
-            "is_failed": self.is_failed,
-            "can_retry": self.can_retry,
-            "retry_count": self.retry_count,
+            "net_amount": float(self.net_amount) if self.net_amount else None,
+            "processing_fee": float(self.processing_fee) if self.processing_fee else 0,
             "failure_reason": self.failure_reason,
+            "receipt_url": self.receipt_url,
+            "customer_id": self.customer_id,
+            "gateway_id": self.gateway_id,
+            "bank_account_id": self.bank_account_id,
+            "description": self.description,
+            "verification_status": self.verification_status,
+            "verified_by": self.verified_by,
+            "verified_at": self.verified_at.isoformat() if self.verified_at else None,
+            "tenant_id": self.tenant_id,
         }
+    
+    def to_dict(self):
+        """Convert to dictionary representation (compatibility method)."""
+        return self.get_payment_summary()
 
 
 class PaymentRefund(Base):
